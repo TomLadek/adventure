@@ -2,9 +2,10 @@ FROM node:18
 
 EXPOSE 5173
 
+COPY ./entrypoint.sh /
+
 WORKDIR /adventure
 
-RUN npm install \
-    && npm run lint
+ENTRYPOINT [ "/entrypoint.sh" ]
 
-CMD ["/usr/local/bin/npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD [ "/usr/local/bin/npm", "run", "dev", "--", "--host", "0.0.0.0" ]
