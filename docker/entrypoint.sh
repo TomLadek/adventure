@@ -2,6 +2,6 @@
 set -e
 
 npm install 
-npm run lint
+#npm run lint
 
 exec "$@"

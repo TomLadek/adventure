@@ -1,15 +1,31 @@
 <script setup>
+// Vue functions
 import { onMounted } from "vue";
 
-import PhotoSwipeLightbox from 'photoswipe/lightbox';
-import 'photoswipe/style.css';
-
+// Vue components
 import AdventureSlide from "./components/AdventureSlide.vue";
 
+// Custom libraries
+import { gsap } from "gsap";
+import PhotoSwipeLightbox from "photoswipe/lightbox";
+import "photoswipe/style.css";
+import "./assets/gi-full-page-scroll.js";
+import "./assets/gi-full-page-scroll.css";
+
+// Static assets
 import day1jpg from "./assets/img/day1.jpg";
+import day1_1jpg from "./assets/img/day1_1.jpg";
+import day1_2jpg from "./assets/img/day1_2.jpg";
+import day1_3jpg from "./assets/img/day1_3.jpg";
+import day1_4jpg from "./assets/img/day1_4.jpg";
+import day1_5jpg from "./assets/img/day1_5.jpg";
+import day1_6jpg from "./assets/img/day1_6.jpg";
+import day1_7jpg from "./assets/img/day1_7.jpg";
 import day2jpg from "./assets/img/day2.jpg";
 import day3jpg from "./assets/img/day3.jpg";
 import day4jpg from "./assets/img/day4.jpg";
+
+window.gsap = gsap;
 
 const slides = [
   {
@@ -27,7 +43,7 @@ const slides = [
     gallery: [
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_1.jpg",
+          src: day1_1jpg,
           alt: "Day 1 (1)",
           width: 150,
           height: 100,
@@ -40,7 +56,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_2.jpg",
+          src: day1_2jpg,
           alt: "Day 1 (2)",
           width: 66,
           height: 100,
@@ -53,7 +69,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_3.jpg",
+          src: day1_3jpg,
           alt: "Day 1 (3)",
           width: 150,
           height: 100,
@@ -66,7 +82,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_4.jpg",
+          src: day1_4jpg,
           alt: "Day 1 (4)",
           width: 250,
           height: 100,
@@ -79,7 +95,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_5.jpg",
+          src: day1_5jpg,
           alt: "Day 1 (5)",
           width: 66,
           height: 100,
@@ -92,7 +108,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_6.jpg",
+          src: day1_6jpg,
           alt: "Day 1 (6)",
           width: 150,
           height: 100,
@@ -105,7 +121,7 @@ const slides = [
       },
       {
         imgAttrs: {
-          src: "/resources/tomladek/img/adventure/test/day1_7.jpg",
+          src: day1_7jpg,
           alt: "Day 1 (7)",
           width: 66,
           height: 100,
@@ -157,25 +173,47 @@ const slides = [
 ];
 
 onMounted(() => {
-  window.photoswipes = []
+  const slides = document.querySelectorAll("section");
+
+  window.fs = new window.fullScroll({
+    mainElement: "main",
+    sections: slides,
+    sectionTransitions: (() => {
+      const transitionSlides = [];
+
+      slides.forEach((slide) => {
+        let slideTransition = slide.dataset.slidetransition;
+
+        if (/\d+/.test(slideTransition))
+          slideTransition = parseInt(slideTransition);
+        else slideTransition = 0;
+
+        transitionSlides.push(slideTransition);
+      });
+
+      return transitionSlides;
+    })(),
+  });
+
+  window.photoswipes = [];
 
   for (let slide of slides) {
-      let pswpInstance = new PhotoSwipeLightbox({
-          gallery: "#" + slide.id,
-          children: "a",
-          pswpModule: () => import('photoswipe')
-      })
+    let pswpInstance = new PhotoSwipeLightbox({
+      gallery: "#" + slide.id,
+      children: "a",
+      pswpModule: () => import("photoswipe"),
+    });
 
-      pswpInstance.init()
+    pswpInstance.init();
 
-      window.photoswipes.push(pswpInstance)
+    window.photoswipes.push(pswpInstance);
   }
   console.log("mounted finished");
 });
 </script>
 
 <template>
-  <main>
+  <main id="main">
     <AdventureSlide
       v-for="(s, i) in slides"
       v-bind:key="s.id"
