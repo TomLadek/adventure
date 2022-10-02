@@ -12,9 +12,10 @@ const props = defineProps({
   },
 });
 
-const mainImgUrl = computed(() => {
-  return "url(" + props.slide.mainImg + ")";
-});
+function getMainImgUrl(size) {
+  return "url(" + props.slide.mainImg[size] + ")";
+}
+
 </script>
 
 <template>
@@ -25,15 +26,15 @@ const mainImgUrl = computed(() => {
   >
     <a
       v-if="slide.mainImg"
-      :href="slide.mainImg"
+      :href="slide.mainImg.original"
       v-bind="slide.pswpMainImgAttrs"
       target="_blank"
       class="main-picture"
     ></a>
-    <div class="slide-content">
+    <div class="slide-content" :class="slide.content.position">
       <h2>{{ slide.headline }}</h2>
       <div :class="'content' + slideIdx">
-        <p v-html="slide.content"></p>
+        <p v-html="slide.content.text"></p>
       </div>
       <div
         v-if="slide.gallery"
@@ -47,7 +48,7 @@ const mainImgUrl = computed(() => {
           v-bind="image.pswpImgAttrs"
           target="_blank"
         >
-          <img v-bind="image.imgAttrs" />
+          <img v-bind="image.imgAttrs" loading="lazy" />
         </a>
       </div>
     </div>
@@ -61,9 +62,97 @@ const mainImgUrl = computed(() => {
   align-items: center;
   position: relative;
   height: 100vh;
-  background-image: v-bind(mainImgUrl);
   background-size: cover;
   background-position: center center;
+}
+
+@media (max-resolution: 149dpi) {
+  @media (orientation: landscape) and (max-width: 575px) {
+    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+  }
+  @media (orientation: landscape) and (min-width: 576px) {
+    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+  }
+  @media (orientation: landscape) and (min-width: 768px) {
+    .slide { background-image: v-bind(getMainImgUrl("md")); }
+  }
+  @media (orientation: landscape) and (min-width: 992px) {
+    .slide { background-image: v-bind(getMainImgUrl("lg")); }
+  }
+  @media (orientation: landscape) and (min-width: 1200px) {
+    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+  }
+  @media (orientation: landscape) and (min-width: 1400px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+  }
+  @media (orientation: landscape) and (min-width: 1600px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+  }
+  @media (orientation: landscape) and (min-width: 1920px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+  }
+
+  @media (orientation: portrait) and (max-height: 432px) {
+    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+  }
+  @media (orientation: portrait) and (min-height: 576px) {
+    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+  }
+  @media (orientation: portrait) and (min-height: 744px) {
+    .slide { background-image: v-bind(getMainImgUrl("md")); }
+  }
+  @media (orientation: portrait) and (min-height: 900px) {
+    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+  }
+  @media (orientation: portrait) and (min-height: 1050px) {
+  .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+  }
+  @media (orientation: portrait) and (min-height: 1200px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+  }
+  @media (orientation: portrait) and (min-height: 1440px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+  }
+}
+
+@media (min-resolution: 150dpi) {
+  @media (orientation: landscape) and (max-width: 575px) {
+    .slide { background-image: v-bind(getMainImgUrl("md")); }
+  }
+  @media (orientation: landscape) and (min-width: 576px) {
+    .slide { background-image: v-bind(getMainImgUrl("lg")); }
+  }
+  @media (orientation: landscape) and (min-width: 768px) {
+    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+  }
+  @media (orientation: landscape) and (min-width: 992px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+  }
+  @media (orientation: landscape) and (min-width: 1200px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+  }
+
+  @media (orientation: portrait) and (max-height: 216px) {
+    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+  }
+  @media (orientation: portrait) and (min-height: 288px) {
+    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+  }
+  @media (orientation: portrait) and (min-height: 372px) {
+    .slide { background-image: v-bind(getMainImgUrl("md")); }
+  }
+  @media (orientation: portrait) and (min-height: 450px) {
+    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+  }
+  @media (orientation: portrait) and (min-height: 525px) {
+  .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+  }
+  @media (orientation: portrait) and (min-height: 600px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+  }
+  @media (orientation: portrait) and (min-height: 825px) {
+    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+  }
 }
 
 .main-picture {
@@ -74,25 +163,76 @@ const mainImgUrl = computed(() => {
   bottom: 0;
 }
 
-.slide-content {
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.45);
-  max-width: 30rem;
-  padding: 3rem;
-  backdrop-filter: blur(10px) grayscale(0.5);
-  border-radius: 3rem;
-  position: absolute;
-  right: 3rem;
-  bottom: 3rem;
-}
-
 .slide-content p {
   text-align: justify;
 }
 
+.slide-content {
+  margin: 3rem 0;
+  max-width: 75vw;
+  padding: 2rem;
+  border-radius: 24px;
+  
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px) grayscale(0.5);
+}
+
+.slide-content.top, .slide-content.bottom, .slide-content.start, .slide-content.end {
+  position: relative;
+}
+
+.slide-content.top {
+  align-self: flex-start;
+}
+
+.slide-content.bottom {
+  align-self: flex-end;
+}
+
+@media (min-width: 768px) {
+  .slide-content {
+    max-width: 30rem;
+    align-self: unset;
+    margin: 0;
+    padding: 3rem;
+    border-radius: 48px;
+  }
+  
+  .slide-content.top, .slide-content.bottom, .slide-content.start, .slide-content.end {
+    position: absolute;
+  }
+
+  .slide-content.top {
+    top: 3rem;
+  }
+
+  .slide-content.bottom {
+    bottom: 3rem;
+  }
+
+  .slide-content.start {
+    left: 3rem;
+  }
+
+  .slide-content.end {
+    right: 3rem;
+  }
+}
+
 .gallery-thumbs {
   display: flex;
-  max-width: 30rem;
   overflow-x: scroll;
+}
+
+@media (min-width: 768px) {
+  .gallery-thumbs {
+    max-width: 30rem;
+  }
+}
+
+.gallery-thumbs img {
+  height: 6rem;
+  width: auto;
 }
 
 @media (min-width: 800px) {
@@ -104,11 +244,11 @@ const mainImgUrl = computed(() => {
     width: 5px;
     height: 5px;
   }
-
+  
   .gallery-thumbs::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0);
   }
-
+  
   .gallery-thumbs::-webkit-scrollbar-thumb {
     background: rgba(250, 250, 250, 0.8); /* Chrome etc. */
     border-radius: 4px;
