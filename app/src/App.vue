@@ -7,8 +7,6 @@ import AdventureSlide from "./components/AdventureSlide.vue";
 
 // Custom libraries
 import { gsap } from "gsap";
-import PhotoSwipeLightbox from "photoswipe/lightbox";
-import "photoswipe/style.css";
 import "./assets/gi-full-page-scroll.js";
 import "./assets/gi-full-page-scroll.css";
 
@@ -231,20 +229,6 @@ onMounted(() => {
       return transitionSlides;
     })(),
   });
-
-
-  // Init photoswipe
-  for (let slide of slides) {
-    let pswpInstance = new PhotoSwipeLightbox({
-      gallery: "#" + slide.id,
-      children: "a",
-      pswpModule: () => import("photoswipe"),
-    });
-
-    pswpInstance.init();
-
-    window.photoswipes.push(pswpInstance);
-  }
 });
 </script>
 

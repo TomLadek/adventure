@@ -1,5 +1,8 @@
 <script setup>
-import { computed } from "vue";
+import { onMounted } from "vue";
+
+import PhotoSwipeLightbox from "photoswipe/lightbox";
+import "photoswipe/style.css";
 
 const props = defineProps({
   slide: {
@@ -16,6 +19,23 @@ function getMainImgUrl(size) {
   return "url(" + props.slide.mainImg[size] + ")";
 }
 
+
+onMounted(() => {
+  // Init photoswipe
+  let pswpInstance = new PhotoSwipeLightbox({
+    gallery: "#" + props.slide.id,
+    children: "a",
+    pswpModule: () => import("photoswipe"),
+  });
+
+  pswpInstance.on("change", () => {
+    pswpInstance.pswp.currSlide.data.element.scrollIntoView({behavior: "smooth", block: "nearest"});
+  });
+
+  pswpInstance.init();
+
+  window.photoswipes.push(pswpInstance);
+});
 </script>
 
 <template>
