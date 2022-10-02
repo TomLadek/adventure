@@ -29,7 +29,18 @@ onMounted(() => {
   });
 
   pswpInstance.on("change", () => {
+    // Scroll the thumbnail so that it's visible in its container
     pswpInstance.pswp.currSlide.data.element.scrollIntoView({behavior: "smooth", block: "nearest"});
+  });
+
+  pswpInstance.on("beforeOpen", () => {
+    // Make sure scrolling doesn't trigger full page scroll's slide change
+    window.fs.removeEvents();
+  });
+
+  pswpInstance.on("destroy", () => {
+    // Re-enable full page scroll events
+    window.fs.addEvents();
   });
 
   pswpInstance.init();
