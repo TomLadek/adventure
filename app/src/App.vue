@@ -10,13 +10,16 @@ import { gsap } from "gsap";
 import "./assets/gi-full-page-scroll.js";
 import "./assets/gi-full-page-scroll.css";
 
+// Data
+import slidesData from "./assets/data/slides.js";
+
 window.photoswipes = [];
 window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
   const sizeSuffix = width != 0 || height != 0 ? `_${width}x${height}` : "";
 
-  return new URL(`./assets/img/${image}${sizeSuffix}.jpg`, import.meta.url).href;
+  return new URL(`./assets/data/img/${image}${sizeSuffix}.jpg`, import.meta.url).href;
 }
 
 function imageSizes(image) {
@@ -50,161 +53,38 @@ function gallerySrcSet(image, baseHeight = 96) {
           .join(",");
 }
 
-const slides = [
-  {
-    id: "day1",
-    mainImg: imageSizes("day1"),
-    pswpMainImgAttrs: {
-      "data-pswp-width": 4032,
-      "data-pswp-height": 3024,
-      "data-cropped": true,
-    },
-    transition: 2,
-    headline: "Niedersachsenhaus",
-    content: {
-      text: "Am Donnerstag haben wir uns vorgenommen zum Nie&shy;der&shy;sach&shy;sen&shy;haus aufzusteigen. Der Gipfel war auf ugf. 2400 metern und wir hatten über 1000 Hm zu überwinden. Es war am Ende eine sehr schöne Wanderung, wir haben viel gesehen.",
-      position: "bottom end"
-    },
-    gallery: [
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-1", 0),
-          srcset: gallerySrcSet("gallery1-1"),
-          alt: "Day 1 (1)",
-          width: 4032,
-          height: 3024
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 4032,
-          "data-pswp-height": 3024
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-2", 0),
-          srcset: gallerySrcSet("gallery1-2"),
-          alt: "Day 1 (2)",
-          width: 3024,
-          height: 4032,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 3024,
-          "data-pswp-height": 4032
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-3", 0),
-          srcset: gallerySrcSet("gallery1-3"),
-          alt: "Day 1 (3)",
-          width: 4032,
-          height: 3024,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 4032,
-          "data-pswp-height": 3024
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-4", 0),
-          srcset: gallerySrcSet("gallery1-4"),
-          alt: "Day 1 (4)",
-          width: 5966,
-          height: 1683,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 5966,
-          "data-pswp-height": 1683
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-5", 0),
-          srcset: gallerySrcSet("gallery1-5"),
-          alt: "Day 1 (5)",
-          width: 3024,
-          height: 4032,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 3024,
-          "data-pswp-height": 4032
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-6", 0),
-          srcset: gallerySrcSet("gallery1-6"),
-          alt: "Day 1 (6)",
-          width: 4032,
-          height: 3024,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 4032,
-          "data-pswp-height": 3024
-        },
-      },
-      {
-        imgAttrs: {
-          src: gallerySrc("gallery1-7", 0),
-          srcset: gallerySrcSet("gallery1-7"),
-          alt: "Day 1 (7)",
-          width: 3024,
-          height: 4032,
-        },
-        pswpImgAttrs: {
-          "data-pswp-width": 3024,
-          "data-pswp-height": 4032
-        },
-      },
-    ],
-  },
-  {
-    id: "day2",
-    mainImg: imageSizes("day2"),
-    pswpMainImgAttrs: {
-      "data-pswp-width": 4032,
-      "data-pswp-height": 3024,
-      "data-cropped": true,
-    },
-    transition: 1,
-    headline: "Day 2",
-    content: {
-      text: "Das ist der <b>Testcontent</b> für day2.",
-      position: "bottom start"
-    },
-  },
-  {
-    id: "day3",
-    mainImg: imageSizes("day3"),
-    pswpMainImgAttrs: {
-      "data-pswp-width": 4032,
-      "data-pswp-height": 3024,
-      "data-cropped": true,
-    },
-    transition: 0,
-    headline: "Day 3",
-    content: {
-      text: "Das ist der <b>Testcontent</b> für day3.",
-      position: "top end"
-    },
-  },
-  {
-    id: "day4",
-    mainImg: imageSizes("day4"),
-    pswpMainImgAttrs: {
-      "data-pswp-width": 4032,
-      "data-pswp-height": 3024,
-      "data-cropped": true,
-    },
-    transition: 1,
-    headline: "Day 4",
-    content: {
-      text: "Das ist der <b>Testcontent</b> für day4.",
-      position: "top start"
-  },
-  },
-];
+const slides = slidesData.map((slide) => {
+  slide.mainImg = imageSizes(slide.mainImg.src);
+  slide.pswpMainImgAttrs = {
+    "data-pswp-width": slide.mainImg.width,
+    "data-pswp-height": slide.mainImg.height,
+    "data-cropped": true,
+  };
+
+  if (slide.gallery) {
+    slide.gallery = slide.gallery.map((galleryImg) => {
+      galleryImg.imgAttrs = {
+        src: gallerySrc(galleryImg.src, 0),
+        srcset: gallerySrcSet(galleryImg.src),
+        alt: galleryImg.caption,
+        width: galleryImg.width,
+        height: galleryImg.height
+      };
+      galleryImg.pswpImgAttrs = {
+        "data-pswp-width": galleryImg.width,
+        "data-pswp-height": galleryImg.height
+      };
+
+      delete galleryImg.caption;
+      delete galleryImg.width;
+      delete galleryImg.height;
+
+      return galleryImg;
+    });
+  }
+
+  return slide;
+});
 
 onMounted(() => {
   const slides = document.querySelectorAll("section");
