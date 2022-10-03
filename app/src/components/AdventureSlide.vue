@@ -1,9 +1,15 @@
-<script setup>
-import { onMounted } from "vue";
+<script>
+import { onMounted, computed } from "vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 
+function getCssUrlString(url) {
+  return `url(${url})`;
+}
+</script>
+
+<script setup>
 const props = defineProps({
   slide: {
     type: Object,
@@ -15,10 +21,14 @@ const props = defineProps({
   },
 });
 
-function getMainImgUrl(size) {
-  return "url(" + props.slide.mainImg[size] + ")";
-}
-
+const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.xs));
+const mainImgUrlSm = computed(() => getCssUrlString(props.slide.mainImg.sm));
+const mainImgUrlMd = computed(() => getCssUrlString(props.slide.mainImg.md));
+const mainImgUrlLg = computed(() => getCssUrlString(props.slide.mainImg.lg));
+const mainImgUrlXl = computed(() => getCssUrlString(props.slide.mainImg.xl));
+const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
+const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
+const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
 
 onMounted(() => {
   // Init photoswipe
@@ -99,90 +109,90 @@ onMounted(() => {
 
 @media (max-resolution: 149dpi) {
   @media (orientation: landscape) and (max-width: 575px) {
-    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+    .slide { background-image: v-bind(mainImgUrlXs); }
   }
   @media (orientation: landscape) and (min-width: 576px) {
-    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+    .slide { background-image: v-bind(mainImgUrlSm); }
   }
   @media (orientation: landscape) and (min-width: 768px) {
-    .slide { background-image: v-bind(getMainImgUrl("md")); }
+    .slide { background-image: v-bind(mainImgUrlMd); }
   }
   @media (orientation: landscape) and (min-width: 992px) {
-    .slide { background-image: v-bind(getMainImgUrl("lg")); }
+    .slide { background-image: v-bind(mainImgUrlLg); }
   }
   @media (orientation: landscape) and (min-width: 1200px) {
-    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+    .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: landscape) and (min-width: 1400px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxl); }
   }
   @media (orientation: landscape) and (min-width: 1600px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxl); }
   }
   @media (orientation: landscape) and (min-width: 1920px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 
   @media (orientation: portrait) and (max-height: 432px) {
-    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+    .slide { background-image: v-bind(mainImgUrlXs); }
   }
   @media (orientation: portrait) and (min-height: 576px) {
-    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+    .slide { background-image: v-bind(mainImgUrlSm); }
   }
   @media (orientation: portrait) and (min-height: 744px) {
-    .slide { background-image: v-bind(getMainImgUrl("md")); }
+    .slide { background-image: v-bind(mainImgUrlMd); }
   }
   @media (orientation: portrait) and (min-height: 900px) {
-    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+    .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: portrait) and (min-height: 1050px) {
-  .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+  .slide { background-image: v-bind(mainImgUrlXxl); }
   }
   @media (orientation: portrait) and (min-height: 1200px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxl); }
   }
   @media (orientation: portrait) and (min-height: 1440px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 }
 
 @media (min-resolution: 150dpi) {
   @media (orientation: landscape) and (max-width: 575px) {
-    .slide { background-image: v-bind(getMainImgUrl("md")); }
+    .slide { background-image: v-bind(mainImgUrlMd); }
   }
   @media (orientation: landscape) and (min-width: 576px) {
-    .slide { background-image: v-bind(getMainImgUrl("lg")); }
+    .slide { background-image: v-bind(mainImgUrlLg); }
   }
   @media (orientation: landscape) and (min-width: 768px) {
-    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+    .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: landscape) and (min-width: 992px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxl); }
   }
   @media (orientation: landscape) and (min-width: 1200px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 
   @media (orientation: portrait) and (max-height: 216px) {
-    .slide { background-image: v-bind(getMainImgUrl("xs")); }
+    .slide { background-image: v-bind(mainImgUrlXs); }
   }
   @media (orientation: portrait) and (min-height: 288px) {
-    .slide { background-image: v-bind(getMainImgUrl("sm")); }
+    .slide { background-image: v-bind(mainImgUrlSm); }
   }
   @media (orientation: portrait) and (min-height: 372px) {
-    .slide { background-image: v-bind(getMainImgUrl("md")); }
+    .slide { background-image: v-bind(mainImgUrlMd); }
   }
   @media (orientation: portrait) and (min-height: 450px) {
-    .slide { background-image: v-bind(getMainImgUrl("xl")); }
+    .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: portrait) and (min-height: 525px) {
-  .slide { background-image: v-bind(getMainImgUrl("xxl")); }
+  .slide { background-image: v-bind(mainImgUrlXxl); }
   }
   @media (orientation: portrait) and (min-height: 600px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxl); }
   }
   @media (orientation: portrait) and (min-height: 825px) {
-    .slide { background-image: v-bind(getMainImgUrl("xxxxl")); }
+    .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 }
 

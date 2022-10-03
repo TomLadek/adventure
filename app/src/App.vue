@@ -1,4 +1,4 @@
-<script setup>
+<script>
 // Vue functions
 import { onMounted } from "vue";
 
@@ -54,12 +54,12 @@ function gallerySrcSet(image, baseHeight = 96) {
 }
 
 const slides = slidesData.map((slide) => {
-  slide.mainImg = imageSizes(slide.mainImg.src);
   slide.pswpMainImgAttrs = {
     "data-pswp-width": slide.mainImg.width,
     "data-pswp-height": slide.mainImg.height,
     "data-cropped": true,
   };
+  slide.mainImg = imageSizes(slide.mainImg.src);
 
   if (slide.gallery) {
     slide.gallery = slide.gallery.map((galleryImg) => {
@@ -85,7 +85,9 @@ const slides = slidesData.map((slide) => {
 
   return slide;
 });
+</script>
 
+<script setup>
 onMounted(() => {
   const slides = document.querySelectorAll("section");
 
