@@ -73,9 +73,9 @@ onMounted(() => {
       class="main-picture"
     ></a>
     <div class="slide-content" :class="slide.content.position">
-      <h2>{{ slide.headline }}</h2>
+      <h2>{{ $t(slide.headline) }}</h2>
       <div :class="'content' + slideIdx">
-        <p v-html="slide.content.text"></p>
+        <p v-html="$t(slide.content.text)"></p>
       </div>
       <div
         v-if="slide.gallery"

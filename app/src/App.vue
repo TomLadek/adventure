@@ -4,14 +4,12 @@ import { onMounted } from "vue";
 
 // Vue components
 import AdventureSlide from "./components/AdventureSlide.vue";
+import AdventureLanguageSwitcher from "./components/AdventureLanguageSwitcher.vue";
 
 // Custom libraries
 import { gsap } from "gsap";
 import "./assets/gi-full-page-scroll.js";
 import "./assets/gi-full-page-scroll.css";
-
-// Data
-import slidesData from "./assets/data/slides.js";
 
 window.photoswipes = [];
 window.gsap = gsap;
@@ -52,8 +50,21 @@ function gallerySrcSet(image, baseHeight = 96) {
           .map((size, i) => `${gallerySrc(image, size)} ${i + 1}x`)
           .join(",");
 }
+</script>
 
-const slides = slidesData.map((slide) => {
+<script setup>
+const props = defineProps({
+  slidesData: {
+    type: Array,
+    required: true
+  },
+  languages: {
+    type: Array,
+    required: true
+  }
+});
+
+const slides = props.slidesData.map((slide) => {
   slide.pswpMainImgAttrs = {
     "data-pswp-width": slide.mainImg.width,
     "data-pswp-height": slide.mainImg.height,
@@ -85,9 +96,7 @@ const slides = slidesData.map((slide) => {
 
   return slide;
 });
-</script>
 
-<script setup>
 onMounted(() => {
   const slides = document.querySelectorAll("section");
 
@@ -115,6 +124,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <AdventureLanguageSwitcher :langs="languages"/>
+
   <main id="main">
     <AdventureSlide
       v-for="(s, i) in slides"
