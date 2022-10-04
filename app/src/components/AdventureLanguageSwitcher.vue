@@ -1,18 +1,30 @@
 <script>
+import { useLanguageStore } from "@/stores/language.js";
+import { getCurrentInstance } from 'vue'
 </script>
 
 <script setup>
-defineProps({
+const languageStore = useLanguageStore();
+const i18n = getCurrentInstance().root.ctx.$i18n; // Ugly hack, TODO find a better solution
+const props = defineProps({
   langs: {
     type: Array,
     required: true
   }
 });
+
+if (props.langs.indexOf(languageStore.language) >= 0)
+  i18n.locale = languageStore.language;
+
+function setLang(lang) {
+  i18n.locale = lang;
+  languageStore.setLanguage(lang);
+}
 </script>
 
 <template>
 <div class="lang-switcher">
-  <button v-for="lang in langs" @click="$i18n.locale = lang" class="lang">{{lang.toUpperCase()}}</button>
+  <button v-for="lang in langs" @click="setLang(lang)" class="lang" :class="languageStore.language === lang ? 'active' : ''">{{lang.toUpperCase()}}</button>
 </div>
 </template>
 
@@ -28,5 +40,8 @@ defineProps({
   background: transparent;
   border: none;
   color: unset;
+}
+.lang-switcher button.active {
+  font-weight: bold;
 }
 </style>
