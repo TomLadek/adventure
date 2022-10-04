@@ -1,5 +1,6 @@
 <script>
 import { onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
@@ -29,6 +30,8 @@ const mainImgUrlXl = computed(() => getCssUrlString(props.slide.mainImg.xl));
 const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
 const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
 const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
+
+const { t } = useI18n();
 
 onMounted(() => {
   // Init photoswipe
@@ -73,9 +76,9 @@ onMounted(() => {
       class="main-picture"
     ></a>
     <div class="slide-content" :class="slide.content.position">
-      <h2>{{ $t(slide.headline) }}</h2>
+      <h2>{{ t(slide.headline) }}</h2>
       <div :class="'content' + slideIdx">
-        <p v-html="$t(slide.content.text)"></p>
+        <p v-html="t(slide.content.text)"></p>
       </div>
       <div
         v-if="slide.gallery"

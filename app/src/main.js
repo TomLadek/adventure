@@ -12,6 +12,7 @@ const app = createApp(App, {
 });
 
 app.use(createI18n({
+    legacy: false,
     locale: "de",
     fallbackLocale: "de",
     messages: slidesData.messages

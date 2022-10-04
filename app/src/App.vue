@@ -124,7 +124,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <AdventureLanguageSwitcher :langs="languages"/>
+  <AdventureLanguageSwitcher />
 
   <main id="main">
     <AdventureSlide
