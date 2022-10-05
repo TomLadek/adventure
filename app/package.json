@@ -8,17 +8,18 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "gsap": "^3.11.2",
+    "photoswipe": "^5.3.2",
+    "photoswipe-dynamic-caption-plugin": "^1.2.7",
     "pinia": "^2.0.21",
     "vue": "^3.2.38",
-    "vue-i18n": "^9.2.2",
-    "photoswipe": "^5.3.2",
-    "gsap": "^3.11.2"
+    "vue-i18n": "^9.2.2"
   },
   "devDependencies": {
+    "@intlify/vite-plugin-vue-i18n": "^6.0.3",
     "@rushstack/eslint-patch": "^1.1.4",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vue/eslint-config-prettier": "^7.0.0",
-    "@intlify/vite-plugin-vue-i18n": "^6.0.3",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
     "prettier": "^2.7.1",
@@ -27,17 +28,17 @@
   "eslintConfig": {
     "root": true,
     "env": {
-        "node": true
+      "node": true
     },
     "extends": [
-        "plugin:vue/essential",
-        "eslint:recommended"
+      "plugin:vue/essential",
+      "eslint:recommended"
     ],
     "parserOptions": {
-        "parser": "babel-eslint"
+      "parser": "babel-eslint"
     },
     "rules": {
-        "no-unused-vars": "off" 
+      "no-unused-vars": "off"
     }
   }
 }

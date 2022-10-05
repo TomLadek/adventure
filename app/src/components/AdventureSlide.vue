@@ -1,11 +1,13 @@
 <script>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import AdventureSlideGallery from "./AdventureSlideGallery.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
+import PhotoSwipeDynamicCaption from "photoswipe-dynamic-caption-plugin";
+import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
 
 function getCssUrlString(url) {
   return `url(${url})`;
@@ -13,6 +15,8 @@ function getCssUrlString(url) {
 </script>
 
 <script setup>
+let pswpInstance;
+
 const props = defineProps({
   slide: {
     type: Object,
@@ -33,14 +37,24 @@ const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
 const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
 const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
-onMounted(() => {
+function initGallery() {
+  if (pswpInstance)
+    pswpInstance.destroy();
+
   // Init photoswipe
-  let pswpInstance = new PhotoSwipeLightbox({
-    gallery: "#" + props.slide.id,
-    children: "a",
-    pswpModule: () => import("photoswipe"),
+  pswpInstance = new PhotoSwipeLightbox({
+      gallery: "#" + props.slide.id,
+      children: "a",
+      wheelToZoom: true,
+      preloaderDelay: 500,
+      closeTitle: t("misc.close"),
+      zoomTitle: t("misc.zoom"),
+      arrowPrevTitle: t("misc.previous"),
+      arrowNextTitle: t("misc.next"),
+      errorMsg: t("misc.error.imageunloadable"),
+      pswpModule: () => import("photoswipe"),
   });
 
   pswpInstance.on("change", () => {
@@ -60,8 +74,13 @@ onMounted(() => {
 
   pswpInstance.init();
 
-  window.photoswipes.push(pswpInstance);
-});
+  const captionPlugin = new PhotoSwipeDynamicCaption(pswpInstance, {
+    type: 'auto'
+  });
+}
+
+watch(locale, async () => { initGallery() });
+onMounted(initGallery);
 </script>
 
 <template>

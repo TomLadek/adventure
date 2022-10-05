@@ -11,7 +11,6 @@ import { gsap } from "gsap";
 import "./assets/gi-full-page-scroll.js";
 import "./assets/gi-full-page-scroll.css";
 
-window.photoswipes = [];
 window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
