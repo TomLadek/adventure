@@ -2,6 +2,8 @@
 import { onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import AdventureSlideGallery from "./AdventureSlideGallery.vue";
+
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 
@@ -75,26 +77,15 @@ onMounted(() => {
       target="_blank"
       class="main-picture"
     ></a>
+
     <div class="slide-content" :class="slide.content.position">
       <h2>{{ t(slide.headline) }}</h2>
-      <div :class="'content' + slideIdx">
+
+      <div :class="`content${slideIdx}`">
         <p v-html="t(slide.content.text)"></p>
       </div>
-      <div
-        v-if="slide.gallery"
-        :id="slide.id + '-gallery'"
-        class="gallery-thumbs"
-      >
-        <a
-          v-for="image in slide.gallery"
-          v-bind:key="image.src"
-          :href="image.imgAttrs.src"
-          v-bind="image.pswpImgAttrs"
-          target="_blank"
-        >
-          <img v-bind="image.imgAttrs" loading="lazy" />
-        </a>
-      </div>
+
+      <AdventureSlideGallery v-if="slide.gallery" :id="`${slide.id}-gallery`" :gallery="slide.gallery" />
     </div>
   </section>
 </template>
@@ -261,59 +252,5 @@ onMounted(() => {
   .slide-content.end {
     right: 3rem;
   }
-}
-
-.gallery-thumbs {
-  display: flex;
-  overflow-x: scroll;
-}
-
-@media (min-width: 768px) {
-  .gallery-thumbs {
-    max-width: 30rem;
-  }
-}
-
-.gallery-thumbs img {
-  height: 6rem;
-  width: auto;
-}
-
-@media (min-width: 800px) {
-  .gallery-thumbs {
-    scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
-  }
-
-  .gallery-thumbs::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  
-  .gallery-thumbs::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0);
-  }
-  
-  .gallery-thumbs::-webkit-scrollbar-thumb {
-    background: rgba(250, 250, 250, 0.8); /* Chrome etc. */
-    border-radius: 4px;
-  }
-
-  .gallery-thumbs::-webkit-scrollbar-thumb:hover {
-    background: rgb(85, 85, 85);
-  }
-}
-
-.gallery-thumbs img {
-  object-fit: cover;
-  margin: 0 0.25rem;
-  border-radius: 8px;
-}
-
-.gallery-thumbs a:nth-child(1) img {
-  margin-left: 0;
-}
-
-.gallery-thumbs a:nth-last-child(1) img {
-  margin-right: 0;
 }
 </style>
