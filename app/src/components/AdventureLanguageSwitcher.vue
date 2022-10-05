@@ -27,16 +27,20 @@ function setLang(lang) {
 .lang-switcher {
   display: flex;
   position: absolute;    
-  top: 1rem;
-  right: 1rem;
+  top: 0.5rem;
+  right: 0.5rem;
   z-index: 1;
 }
 .lang-switcher button {
+  padding: 0.3rem;
   background: transparent;
   border: none;
+  border-radius: 5px;
   color: unset;
+  font-family: inherit;
 }
 .lang-switcher button.active {
   font-weight: bold;
+  backdrop-filter: brightness(0.8);
 }
 </style>
