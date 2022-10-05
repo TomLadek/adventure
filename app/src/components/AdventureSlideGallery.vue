@@ -1,9 +1,5 @@
 <script setup>
 defineProps({
-    id: {
-        type: String,
-        required: true
-    },
     gallery: {
         type: Array,
         required: true
@@ -12,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-<div :id="id" class="gallery-thumbs">
+<div class="gallery-thumbs">
     <a
         v-for="image in gallery"
         v-bind:key="image.src"

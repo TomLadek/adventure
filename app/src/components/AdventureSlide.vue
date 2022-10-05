@@ -104,7 +104,7 @@ onMounted(initGallery);
         <p v-html="t(slide.content.text)"></p>
       </div>
 
-      <AdventureSlideGallery v-if="slide.gallery" :id="`${slide.id}-gallery`" :gallery="slide.gallery" />
+      <AdventureSlideGallery v-if="slide.gallery" :gallery="slide.gallery" />
     </div>
   </section>
 </template>
