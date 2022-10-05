@@ -1,23 +1,23 @@
 <script setup>
 defineProps({
-    gallery: {
-        type: Array,
-        required: true
-    }
+  gallery: {
+    type: Array,
+    required: true
+  }
 });
 </script>
 
 <template>
 <div class="gallery-thumbs">
-    <a
-        v-for="image in gallery"
-        v-bind:key="image.src"
-        :href="image.imgAttrs.src"
-        v-bind="image.pswpImgAttrs"
-        target="_blank"
-    >
-        <img v-bind="image.imgAttrs" loading="lazy" />
-    </a>
+  <a
+    v-for="image in gallery"
+    v-bind:key="image.src"
+    :href="image.imgAttrs.src"
+    v-bind="image.pswpImgAttrs"
+    target="_blank"
+  >
+    <img v-bind="image.imgAttrs" loading="lazy" />
+  </a>
 </div>
 </template>
 
