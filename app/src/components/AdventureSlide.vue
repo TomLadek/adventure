@@ -37,6 +37,14 @@ const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
 const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
 const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
 
+const slideContentClass = computed(() => {
+  const baseClass = {
+    narrow: props.slide.gallery && props.slide.gallery.style === "grid"
+  };
+  baseClass[props.slide.content.position] = true;
+  return baseClass;
+});
+
 const { t, locale } = useI18n();
 
 function initGallery() {
@@ -97,7 +105,7 @@ onMounted(initGallery);
       class="main-picture"
     ></a>
 
-    <div class="slide-content" :class="slide.content.position">
+    <div class="slide-content" :class="slideContentClass">
       <h2>{{ t(slide.headline) }}</h2>
 
       <div :class="`content${slideIdx}`">
@@ -222,6 +230,9 @@ onMounted(initGallery);
 }
 
 .slide-content {
+  display: flex;
+  flex-direction: column;
+
   margin: 3rem 0;
   max-width: 75vw;
   padding: 2rem;
@@ -250,6 +261,10 @@ onMounted(initGallery);
     margin: 0;
     padding: 3rem;
     border-radius: 48px;
+  }
+
+  .slide-content.narrow {
+    max-width: 15rem;
   }
   
   .slide-content.top, .slide-content.bottom, .slide-content.start, .slide-content.end {

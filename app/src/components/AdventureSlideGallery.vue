@@ -1,16 +1,31 @@
+<script>
+import { computed } from "vue";
+</script>
+
 <script setup>
-defineProps({
+const props = defineProps({
   gallery: {
-    type: Array,
+    type: Object,
     required: true
   }
+});
+
+const galleryThumbsClass = computed(() => {
+  const baseClass = {
+    row: typeof props.gallery.style === "undefined"
+  }
+
+  if (props.gallery.style)
+    baseClass[props.gallery.style] = true;
+
+  return baseClass;
 });
 </script>
 
 <template>
-<div class="gallery-thumbs">
+<div class="gallery-thumbs" :class="galleryThumbsClass">
   <a
-    v-for="image in gallery"
+    v-for="image in gallery.images"
     v-bind:key="image.src"
     :href="image.imgAttrs.src"
     v-bind="image.pswpImgAttrs"
@@ -22,9 +37,18 @@ defineProps({
 </template>
 
 <style>
-.gallery-thumbs {
+.gallery-thumbs.row {
   display: flex;
   overflow-x: scroll;
+}
+
+.gallery-thumbs.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 6rem);
+  grid-template-rows: repeat(2, 6rem);
+  row-gap: 0.5rem;
+  column-gap: 0.5rem;
+  align-self: center;
 }
 
 @media (min-width: 768px) {
@@ -34,45 +58,50 @@ defineProps({
 }
 
 .gallery-thumbs img {
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.gallery-thumbs.row img {
   height: 6rem;
   width: auto;
+  margin: 0 0.25rem;
+}
+
+.gallery-thumbs.grid img {
+  height: 6rem;
+  width: 6rem;
 }
 
 @media (min-width: 800px) {
-  .gallery-thumbs {
+  .gallery-thumbs.row {
     scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
   }
 
-  .gallery-thumbs::-webkit-scrollbar {
+  .gallery-thumbs.row::-webkit-scrollbar {
     width: 5px;
     height: 5px;
   }
   
-  .gallery-thumbs::-webkit-scrollbar-track {
+  .gallery-thumbs.row::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0);
   }
   
-  .gallery-thumbs::-webkit-scrollbar-thumb {
+  .gallery-thumbs.row::-webkit-scrollbar-thumb {
     background: rgba(250, 250, 250, 0.8); /* Chrome etc. */
     border-radius: 4px;
   }
 
-  .gallery-thumbs::-webkit-scrollbar-thumb:hover {
+  .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
     background: rgb(85, 85, 85);
   }
 }
 
-.gallery-thumbs img {
-  object-fit: cover;
-  margin: 0 0.25rem;
-  border-radius: 8px;
-}
-
-.gallery-thumbs a:nth-child(1) img {
+.gallery-thumbs.row a:nth-child(1) img {
   margin-left: 0;
 }
 
-.gallery-thumbs a:nth-last-child(1) img {
+.gallery-thumbs.row a:nth-last-child(1) img {
   margin-right: 0;
 }
 </style>
