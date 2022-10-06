@@ -1,6 +1,7 @@
 <script>
 // Vue functions
 import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
 // Vue components
 import AdventureSlide from "./components/AdventureSlide.vue";
@@ -63,6 +64,8 @@ const props = defineProps({
   }
 });
 
+const { t } = useI18n();
+
 const slides = props.slidesData.map((slide) => {
   slide.pswpMainImgAttrs = {
     "data-pswp-width": slide.mainImg.width,
@@ -72,17 +75,19 @@ const slides = props.slidesData.map((slide) => {
   slide.mainImg = imageSizes(slide.mainImg.src);
 
   if (slide.gallery) {
-    slide.gallery = slide.gallery.map((galleryImg) => {
+    slide.gallery.images = slide.gallery.images.map((galleryImg) => {
       galleryImg.imgAttrs = {
         src: gallerySrc(galleryImg.src, 0),
         srcset: gallerySrcSet(galleryImg.src),
-        alt: galleryImg.caption,
+        title: t(galleryImg.caption),
+        alt: t(galleryImg.caption),
         width: galleryImg.width,
         height: galleryImg.height
       };
       galleryImg.pswpImgAttrs = {
         "data-pswp-width": galleryImg.width,
-        "data-pswp-height": galleryImg.height
+        "data-pswp-height": galleryImg.height,
+        "data-cropped": true
       };
 
       delete galleryImg.caption;
