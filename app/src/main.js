@@ -6,11 +6,10 @@ import App from "./App.vue";
 import "./assets/main.css";
 import slidesData from "./assets/data/slides.json";
 
-const slideLanguages = Object.keys(slidesData.messages);
-
 const app = createApp(App, {
     slidesData: slidesData.slides,
-    languages: slideLanguages
+    pageMeta: slidesData.meta,
+    languages: Object.keys(slidesData.messages)
 });
 
 app.use(createPinia());

@@ -1,6 +1,6 @@
 <script>
 // Vue functions
-import { onMounted } from "vue";
+import { watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // Vue components
@@ -50,6 +50,17 @@ function gallerySrcSet(image, baseHeight = 96) {
           .map((size, i) => `${gallerySrc(image, size)} ${i + 1}x`)
           .join(",");
 }
+
+function updatePageMeta(titleGetter, descriptionGetter) {
+  const title = titleGetter(),
+    description = descriptionGetter();
+
+  if (title)
+    document.title = title;
+
+  if (description)
+    document.querySelector("meta[name=description]").setAttribute("content", description);
+}
 </script>
 
 <script setup>
@@ -58,20 +69,25 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  pageMeta: {
+    type: Object,
+    required: false
+  },
   languages: {
     type: Array,
     required: true
   }
 });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const slides = props.slidesData.map((slide) => {
-  slide.pswpMainImgAttrs = {
+  slide.mainImgAttrs = {
     "data-pswp-width": slide.mainImg.width,
     "data-pswp-height": slide.mainImg.height,
-    "data-cropped": true,
+    "data-cropped": true
   };
+  slide.mainImgTitle = slide.mainImg.caption;
   slide.mainImg = imageSizes(slide.mainImg.src);
 
   if (slide.gallery) {
@@ -79,11 +95,11 @@ const slides = props.slidesData.map((slide) => {
       galleryImg.imgAttrs = {
         src: gallerySrc(galleryImg.src, 0),
         srcset: gallerySrcSet(galleryImg.src),
-        title: t(galleryImg.caption),
-        alt: t(galleryImg.caption),
         width: galleryImg.width,
         height: galleryImg.height
       };
+      galleryImg.title = galleryImg.caption,
+      galleryImg.alt = galleryImg.caption,
       galleryImg.pswpImgAttrs = {
         "data-pswp-width": galleryImg.width,
         "data-pswp-height": galleryImg.height,
@@ -125,6 +141,14 @@ onMounted(() => {
     })(),
   });
 });
+
+if (props.pageMeta) {
+  const titleGetter = () => props.pageMeta.title ? t(props.pageMeta.title) : "",
+    descriptionGetter = () => props.pageMeta.desc ? t(props.pageMeta.desc) : "";
+
+  updatePageMeta(titleGetter, descriptionGetter);
+  watch(locale, async () => { updatePageMeta(titleGetter, descriptionGetter); });
+}
 </script>
 
 <template>

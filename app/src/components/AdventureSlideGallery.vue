@@ -1,5 +1,6 @@
 <script>
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 </script>
 
 <script setup>
@@ -9,6 +10,8 @@ const props = defineProps({
     required: true
   }
 });
+
+const { t } = useI18n();
 
 const galleryThumbsClass = computed(() => {
   const baseClass = {
@@ -28,10 +31,15 @@ const galleryThumbsClass = computed(() => {
     v-for="image in gallery.images"
     v-bind:key="image.src"
     :href="image.imgAttrs.src"
+    :title="image.title && t(image.title)"
     v-bind="image.pswpImgAttrs"
     target="_blank"
   >
-    <img v-bind="image.imgAttrs" loading="lazy" />
+    <img
+      v-bind="image.imgAttrs" 
+      :alt="image.alt && t(image.alt)"
+      loading="lazy"
+    />
   </a>
 </div>
 </template>

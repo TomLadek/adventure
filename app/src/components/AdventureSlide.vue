@@ -8,6 +8,7 @@ import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 import PhotoSwipeDynamicCaption from "photoswipe-dynamic-caption-plugin";
 import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
+import "../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 function getCssUrlString(url) {
   return `url(${url})`;
@@ -83,7 +84,13 @@ function initGallery() {
   pswpInstance.init();
 
   const captionPlugin = new PhotoSwipeDynamicCaption(pswpInstance, {
-    type: 'auto'
+    type: 'auto',
+    captionContent: (slide) => {
+      const img = slide.data.element.querySelector('img');
+      if (img)
+        return img.getAttribute('alt');
+      return slide.data.element.title;
+    }
   });
 }
 
@@ -100,7 +107,8 @@ onMounted(initGallery);
     <a
       v-if="slide.mainImg"
       :href="slide.mainImg.original"
-      v-bind="slide.pswpMainImgAttrs"
+      v-bind="slide.mainImgAttrs"
+      :title="slide.mainImgTitle && t(slide.mainImgTitle)"
       target="_blank"
       class="main-picture"
     ></a>
@@ -227,6 +235,7 @@ onMounted(initGallery);
 
 .slide-content p {
   text-align: justify;
+  hyphens: auto;
 }
 
 .slide-content {
