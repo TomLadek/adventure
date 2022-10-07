@@ -51,6 +51,7 @@ const galleryThumbsClass = computed(() => {
 
 .gallery-thumbs.row {
   display: flex;
+  gap: 0.5rem;
   min-height: 6rem;
   overflow-x: scroll;
 }
@@ -78,7 +79,6 @@ const galleryThumbsClass = computed(() => {
 .gallery-thumbs.row img {
   height: 6rem;
   width: auto;
-  margin: 0 0.25rem;
 }
 
 .gallery-thumbs.grid img {
@@ -108,13 +108,5 @@ const galleryThumbsClass = computed(() => {
   .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
     background: rgb(85, 85, 85);
   }
-}
-
-.gallery-thumbs.row a:nth-child(1) img {
-  margin-left: 0;
-}
-
-.gallery-thumbs.row a:nth-last-child(1) img {
-  margin-right: 0;
 }
 </style>
