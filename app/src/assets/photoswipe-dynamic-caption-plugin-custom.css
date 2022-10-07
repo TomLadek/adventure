@@ -2,3 +2,7 @@
     text-align: justify;
     hyphens: auto;
 }
+
+.pswp__dynamic-caption--below {
+    padding-bottom: 15px;
+}

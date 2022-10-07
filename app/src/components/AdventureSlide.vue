@@ -113,14 +113,16 @@ onMounted(initGallery);
       class="main-picture"
     ></a>
 
-    <div class="slide-content" :class="slideContentClass">
+    <div class="slide-content-outer" :class="slideContentClass">
       <h2>{{ t(slide.headline) }}</h2>
 
-      <div :class="`content${slideIdx}`">
-        <p v-html="t(slide.content.text)"></p>
+      <div class="slide-content-inner">
+        <div class="slide-text-wrapper">
+          <p v-html="t(slide.content.text)"></p>
+        </div>
+  
+        <AdventureSlideGallery v-if="slide.gallery" :gallery="slide.gallery" />
       </div>
-
-      <AdventureSlideGallery v-if="slide.gallery" :gallery="slide.gallery" />
     </div>
   </section>
 </template>
@@ -233,12 +235,12 @@ onMounted(initGallery);
   bottom: 0;
 }
 
-.slide-content p {
+.slide-content-outer p {
   text-align: justify;
   hyphens: auto;
 }
 
-.slide-content {
+.slide-content-outer {
   display: flex;
   flex-direction: column;
 
@@ -251,20 +253,20 @@ onMounted(initGallery);
   backdrop-filter: blur(10px) grayscale(0.5);
 }
 
-.slide-content.top, .slide-content.bottom, .slide-content.start, .slide-content.end {
+.slide-content-outer.top, .slide-content-outer.bottom, .slide-content-outer.start, .slide-content-outer.end {
   position: relative;
 }
 
-.slide-content.top {
+.slide-content-outer.top {
   align-self: flex-start;
 }
 
-.slide-content.bottom {
+.slide-content-outer.bottom {
   align-self: flex-end;
 }
 
 @media (min-width: 768px) {
-  .slide-content {
+  .slide-content-outer {
     max-width: 30rem;
     align-self: unset;
     margin: 0;
@@ -272,28 +274,73 @@ onMounted(initGallery);
     border-radius: 48px;
   }
 
-  .slide-content.narrow {
+  .slide-content-outer.narrow {
     max-width: 15rem;
   }
   
-  .slide-content.top, .slide-content.bottom, .slide-content.start, .slide-content.end {
+  .slide-content-outer.top, .slide-content-outer.bottom, .slide-content-outer.start, .slide-content-outer.end {
     position: absolute;
   }
 
-  .slide-content.top {
+  .slide-content-outer.top {
     top: 3rem;
   }
 
-  .slide-content.bottom {
+  .slide-content-outer.bottom {
     bottom: 3rem;
   }
 
-  .slide-content.start {
+  .slide-content-outer.start {
     left: 3rem;
   }
 
-  .slide-content.end {
+  .slide-content-outer.end {
     right: 3rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .slide-content-outer {
+    padding: 1.5rem;
+    margin: 1rem 0;
+    max-height: calc(100vh - 6rem);
+    border-radius: 24px;
+  }
+
+  .slide-content-outer.narrow {
+    max-width: 50vw;
+  }
+
+  .slide-content-outer.narrow h2 {
+    margin-bottom: 1rem;
+  }
+
+  .slide-content-outer.narrow p {
+    margin: 0;
+  }
+}
+
+.slide-content-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .slide-content-outer .slide-content-inner {
+    overflow-y: scroll;
+  }
+
+  .slide-content-outer.narrow .slide-content-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: calc(1.5rem - 10px);
+  }
+
+  .slide-content-outer.narrow .slide-content-inner p {
+    max-height: calc(2 * 6rem + 0.5rem);
+    padding-right: 10px;
+    overflow: scroll;
   }
 }
 </style>

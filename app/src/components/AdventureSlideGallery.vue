@@ -45,8 +45,13 @@ const galleryThumbsClass = computed(() => {
 </template>
 
 <style>
+.gallery-thumbs {
+  overflow-y: hidden;
+}
+
 .gallery-thumbs.row {
   display: flex;
+  min-height: 6rem;
   overflow-x: scroll;
 }
 
