@@ -83,12 +83,14 @@ function initGallery() {
 
   pswpInstance.init();
 
-  const captionPlugin = new PhotoSwipeDynamicCaption(pswpInstance, {
-    type: 'auto',
+  new PhotoSwipeDynamicCaption(pswpInstance, {
+    type: "auto",
     captionContent: (slide) => {
-      const img = slide.data.element.querySelector('img');
+      const img = slide.data.element.querySelector("img");
+
       if (img)
-        return img.getAttribute('alt');
+        return img.getAttribute("alt");
+
       return slide.data.element.title;
     }
   });
