@@ -1,15 +1,61 @@
 import fs from "fs";
+import path from "path";
+import gm from "gm";
+
+const sizes = {
+  "main": {"widths": [576, 768, 992, 1200, 1400, 1600, 1920, 2200]},
+  "gallery1": {"heights": [96, 192, 288]}
+}
 
 export default function imageGenerator(options = {}) {
   return {
     name: "image-generator",
     moduleParsed: (moduleInfo) => {
       if (/slides\.json$/.test(moduleInfo.id)) {
-        const slidesData = JSON.parse(fs.readFileSync(new URL(moduleInfo.id, import.meta.url)));
-        const mainImgs = [];
-        const galleryImages = {
-          row: [],
-          grid: []
+        const imgBasePath = path.resolve(path.dirname(moduleInfo.id), "img"),
+          existingImages = fs.readdirSync(imgBasePath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
+          slidesData = JSON.parse(fs.readFileSync(new URL(moduleInfo.id, import.meta.url))),
+          mainImgs = [],
+          galleryImages = {
+            row: [],
+            grid: []
+          }
+
+        function scaleImages(images, sizes) {
+          const mode = sizes.widths ? "widths" : "heights";
+
+          for (let image of images) {
+            const imgName = `${image}.jpg`,
+                imgPath = `${imgBasePath}/${imgName}`;
+
+            if (existingImages[imgName] >= 0) {
+              for (let imgWidthOrHeight of sizes[mode]) {
+                const sizeSuffix = mode === "widths" ? `${imgWidthOrHeight}x0` : `0x${imgWidthOrHeight}`;
+                const scaledImg = `${image}_${sizeSuffix}.webp`;
+
+                if (!existingImages[scaledImg]) {
+                  const magick = gm(imgPath);
+
+                  if (mode === "widths")
+                    magick.resize(imgWidthOrHeight);
+                  else
+                    magick.resize(null, imgWidthOrHeight);
+
+                  magick
+                    .autoOrient()
+                    .filter("Catrom")
+                    .unsharp(0, 0.62, 0.71, 0.01)
+                    .define("webp:method=6")
+                    .quality(36)
+                    .noProfile()
+                    .write(`${imgBasePath}/${scaledImg}`, function (err) {
+                      if (err)
+                        console.log(err);
+                    });
+                }
+              }
+            }
+          }
         }
 
         for (let slide of slidesData.slides) {
@@ -38,13 +84,9 @@ export default function imageGenerator(options = {}) {
           galleryImages: galleryImages
         });
 
-        for (let mainImg of mainImgs) {
-          try {
-            console.log(mainImg, fs.accessSync(`/adventure/src/assets/data/img/${mainImg}.jpg`) || "true");
-          } catch (ex) {
-            console.log(mainImg, "false");
-          }
-        }
+        scaleImages(mainImgs, sizes.main);
+        scaleImages(galleryImages.row, sizes.gallery1);
+        scaleImages(galleryImages.grid, sizes.gallery1);
       }
     }
   }

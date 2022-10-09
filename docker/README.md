@@ -1,6 +1,6 @@
 Build image:
 ```
-docker image build -t vuejs-adventure docker/
+docker image build -t vuejs-gm-adventure docker/
 ```
 
 
@@ -9,7 +9,7 @@ Run container from that image:
 > Use `${PDW}` for current directory substitution in Windows PowerShell
 
 ```
-docker container run --name vuejs-adventure -itdp 5173:5173 -v $(pwd)/app:/adventure vuejs-adventure
+docker container run --name vuejs-gm-adventure -itdp 5173:5173 -v $(pwd)/app:/adventure vuejs-gm-adventure
 ```
 
 
