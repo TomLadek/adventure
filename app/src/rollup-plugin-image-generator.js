@@ -5,7 +5,7 @@ import gm from "gm";
 const sizes = {
   "main": {"widths": [576, 768, 992, 1200, 1400, 1600, 1920, 2200]},
   "gallery1": {"heights": [96, 192, 288]}
-}
+};
 
 export default function imageGenerator(options = {}) {
   let config;
@@ -13,7 +13,7 @@ export default function imageGenerator(options = {}) {
   return {
     name: "image-generator",
     configResolved(resolvedConfig) {
-      config = resolvedConfig
+      config = resolvedConfig;
     },
     load(id) {
       if (!/slides\.json$/.test(id))
@@ -27,7 +27,7 @@ export default function imageGenerator(options = {}) {
         galleryImages = {
           row: [],
           grid: []
-        }
+        };
 
       function scaleImages(images, sizes) {
         const mode = sizes.widths ? "widths" : "heights";
