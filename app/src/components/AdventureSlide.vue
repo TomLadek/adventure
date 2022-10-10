@@ -104,7 +104,6 @@ onMounted(initGallery);
 <template>
   <section
     :id="slide.id"
-    :data-slidetransition="slide.transition"
     class="slide"
   >
     <a

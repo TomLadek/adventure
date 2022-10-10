@@ -120,27 +120,11 @@ const slides = props.slidesData.map((slide) => {
 });
 
 onMounted(() => {
-  const slides = document.querySelectorAll("section");
-
   // Init full page scroll
   window.fs = new window.fullScroll({
     mainElement: "main",
-    sections: slides,
-    sectionTransitions: (() => {
-      const transitionSlides = [];
-
-      slides.forEach((slide) => {
-        let slideTransition = slide.dataset.slidetransition;
-
-        if (/\d+/.test(slideTransition))
-          slideTransition = parseInt(slideTransition);
-        else slideTransition = 0;
-
-        transitionSlides.push(slideTransition);
-      });
-
-      return transitionSlides;
-    })(),
+    sections: document.querySelectorAll("section"),
+    sectionTransitions: slides.reduce((transitions, slide) => { transitions.push(slide.transition || 0); return transitions }, [])
   });
 });
 
