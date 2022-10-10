@@ -57,6 +57,7 @@ function initGallery() {
       gallery: "#" + props.slide.id,
       children: "a",
       wheelToZoom: true,
+      preload: [1, 1], // One before, one after - PhotSwipe minimum
       preloaderDelay: 500,
       closeTitle: t("misc.close"),
       zoomTitle: t("misc.zoom"),
