@@ -15,9 +15,11 @@ import "./assets/gi-full-page-scroll.css";
 window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
-  const sizeSuffix = width != 0 || height != 0 ? `_${width}x${height}` : "";
+  const isResized = width != 0 || height != 0,
+    sizeSuffix = isResized ? `_${width}x${height}` : "",
+    fileExtension = isResized ? "webp" : "jpg";
 
-  return new URL(`./assets/data/img/${image}${sizeSuffix}.jpg`, import.meta.url).href;
+  return new URL(`./assets/data/img/${image}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
 }
 
 function imageSizes(image) {
