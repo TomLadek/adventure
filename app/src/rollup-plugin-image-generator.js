@@ -8,86 +8,107 @@ const sizes = {
 }
 
 export default function imageGenerator(options = {}) {
+  let config;
+
   return {
     name: "image-generator",
-    moduleParsed: (moduleInfo) => {
-      if (/slides\.json$/.test(moduleInfo.id)) {
-        const imgBasePath = path.resolve(path.dirname(moduleInfo.id), "img"),
-          existingImages = fs.readdirSync(imgBasePath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
-          slidesData = JSON.parse(fs.readFileSync(new URL(moduleInfo.id, import.meta.url))),
-          mainImgs = [],
-          galleryImages = {
-            row: [],
-            grid: []
-          }
+    configResolved(resolvedConfig) {
+      config = resolvedConfig
+    },
+    load(id) {
+      if (!/slides\.json$/.test(id))
+        return;
 
-        function scaleImages(images, sizes) {
-          const mode = sizes.widths ? "widths" : "heights";
-
-          for (let image of images) {
-            const imgName = `${image}.jpg`,
-                imgPath = `${imgBasePath}/${imgName}`;
-
-            if (existingImages[imgName] >= 0) {
-              for (let imgWidthOrHeight of sizes[mode]) {
-                const sizeSuffix = mode === "widths" ? `${imgWidthOrHeight}x0` : `0x${imgWidthOrHeight}`;
-                const scaledImg = `${image}_${sizeSuffix}.webp`;
-
-                if (!existingImages[scaledImg]) {
-                  const magick = gm(imgPath);
-
-                  if (mode === "widths")
-                    magick.resize(imgWidthOrHeight);
-                  else
-                    magick.resize(null, imgWidthOrHeight);
-
-                  magick
-                    .autoOrient()
-                    .filter("Catrom")
-                    .unsharp(0, 0.62, 0.71, 0.01)
-                    .define("webp:method=6")
-                    .quality(36)
-                    .noProfile()
-                    .write(`${imgBasePath}/${scaledImg}`, function (err) {
-                      if (err)
-                        console.log(err);
-                    });
-                }
-              }
-            }
-          }
+      const self = this,
+        imgBasePath = path.resolve(path.dirname(id), "img"),
+        existingImages = fs.readdirSync(imgBasePath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
+        slidesData = JSON.parse(fs.readFileSync(new URL(id, import.meta.url))),
+        mainImgs = [],
+        galleryImages = {
+          row: [],
+          grid: []
         }
 
-        for (let slide of slidesData.slides) {
-          if (slide.mainImg && slide.mainImg.src) {
-            mainImgs.push(slide.mainImg.src);
-          }
+      function scaleImages(images, sizes) {
+        const mode = sizes.widths ? "widths" : "heights";
 
-          if (slide.gallery) {
-            let galleryImagesArray;
+        for (let image of images) {
+          const srcImgName = `${image}.jpg`,
+            srcImgPath = `${imgBasePath}/${srcImgName}`;
 
-            if (slide.gallery.style === "grid")
-              galleryImagesArray = galleryImages.grid;
+          // Skip if the source image doesn't exist
+          if (!existingImages[srcImgName])
+            continue;
+
+          for (let imgWidthOrHeight of sizes[mode]) {
+            const sizeSuffix = mode === "widths" ? `${imgWidthOrHeight}x0` : `0x${imgWidthOrHeight}`,
+              scaledImgName = `${image}_${sizeSuffix}.webp`;
+
+            // Skip if the scaled image already exists
+            if (existingImages[scaledImgName])
+              continue;
+
+            const scaledImgPath = `${imgBasePath}/${scaledImgName}`,
+              magick = gm(srcImgPath);
+
+            if (mode === "widths")
+              magick.resize(imgWidthOrHeight);
             else
-              galleryImagesArray = galleryImages.row;
+              magick.resize(null, imgWidthOrHeight);
 
-            for (let image of slide.gallery.images) {
-              if (image.src) {
-                galleryImagesArray.push(image.src);
-              }
+            magick
+              .autoOrient()
+              .filter("Catrom")
+              .unsharp(0, 0.62, 0.71, 0.01)
+              .define("webp:method=6")
+              .quality(50)
+              .noProfile()
+              .toBuffer(function (err, buffer) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  if (config.command !== "serve") { // In 'vite dev' build, emitFile is not available
+                    self.emitFile({
+                      type: "asset",
+                      name: scaledImgName,
+                      source: buffer
+                    });
+                  }
+
+                  fs.writeFile(scaledImgPath, buffer, (err) => {
+                    if (err)
+                      console.error(err);
+                  });
+                }
+              });
+          }
+        }
+      }
+
+      for (let slide of slidesData.slides) {
+        if (slide.mainImg && slide.mainImg.src) {
+          mainImgs.push(slide.mainImg.src);
+        }
+
+        if (slide.gallery) {
+          let galleryImagesArray;
+
+          if (slide.gallery.style === "grid")
+            galleryImagesArray = galleryImages.grid;
+          else
+            galleryImagesArray = galleryImages.row;
+
+          for (let image of slide.gallery.images) {
+            if (image.src) {
+              galleryImagesArray.push(image.src);
             }
           }
         }
-
-        console.log({
-          mainImgs: mainImgs,
-          galleryImages: galleryImages
-        });
-
-        scaleImages(mainImgs, sizes.main);
-        scaleImages(galleryImages.row, sizes.gallery1);
-        scaleImages(galleryImages.grid, sizes.gallery1);
       }
+
+      scaleImages(mainImgs, sizes.main);
+      scaleImages(galleryImages.row, sizes.gallery1);
+      scaleImages(galleryImages.grid, sizes.gallery1);
     }
   }
 }
