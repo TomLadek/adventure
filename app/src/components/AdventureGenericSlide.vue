@@ -1,5 +1,5 @@
 <script>
-import AdventureGallerySlide from "./adventure-slides/AdventureSlide.vue";
+import AdventureGallerySlide from "./adventure-slides/AdventureGallerySlide.vue";
 import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 </script>
 
