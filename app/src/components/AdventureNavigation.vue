@@ -31,14 +31,29 @@ const props = defineProps({
 <style>
 .dots {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  gap: 0.5rem;
-  height: 100%;
   position: absolute;
-  right: 0.8rem;
-  top: 0;
   z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .dots {
+    justify-content: space-between;
+    width: calc(100% - 16px);
+    bottom: 8px;
+    gap: 1px;
+    left: 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dots {
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+    right: 0.8rem;
+    top: 0;
+  }
 }
 
 ol.dots {
@@ -49,17 +64,39 @@ ol.dots {
 
 .dots li {
   background-color: white;
-  opacity: 0.6;
-  border-radius: 50%;
+  opacity: 0.5;
+  width: 100%;
+  height: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .dots li {
+    widows: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+  }
 }
 
 .dots li.active {
   opacity: 1;
+  border-radius: 2px;
+}
+
+@media (min-width: 768px) {
+  .dots li.active {
+    border-radius: 50%;
+  }
 }
 
 .dots li a {
   display: block;
-  width: 1rem;
-  height: 1rem;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .dots li a {
+    width: 1rem;
+    height: 1rem;
+  }
 }
 </style>
