@@ -135,7 +135,7 @@ onMounted(initGallery);
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 100vh;
+  height: 100%;
   background-size: cover;
   background-position: center center;
 }
@@ -248,6 +248,7 @@ onMounted(initGallery);
 
   margin: 3rem 0;
   max-width: 75vw;
+  max-height: 75vh;
   padding: 2rem;
   border-radius: 24px;
   
