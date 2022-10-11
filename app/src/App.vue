@@ -127,7 +127,7 @@ onMounted(() => {
   window.fs = new window.fullScroll({
     mainElement: "main",
     sections: document.querySelectorAll("section"),
-    sectionTransitions: slides.reduce((transitions, slide) => { transitions.push(slide.transition || 0); return transitions }, []),
+    sectionTransitions: slides.map((slide) => slide.transition || 0),
     onStartAnimate: (fromSlide, toSlide) => slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 }
   });
 });
