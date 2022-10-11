@@ -120,7 +120,7 @@ const slides = props.slidesData.map((slide) => {
   return slide;
 });
 
-const slideChange = ref({});
+const slideChange = ref({ last: 0, current: 0, duration: 0 });
 
 onMounted(() => {
   // Init full page scroll
