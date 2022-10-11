@@ -440,6 +440,7 @@
 		_self.defaults.backgroundHelpers.forEach((backgroundHelper) => {
 			backgroundHelper.style.opacity = parseInt(backgroundHelper.dataset.index) === _self.defaults.currentPosition
 													&& backgroundHelper.dataset.trueBackground === 'true' ? '1' : '0';
+			backgroundHelper.style.top = null;
 		});
 	}
 
