@@ -2,13 +2,13 @@
 import { onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import AdventureSlideGallery from "./AdventureSlideGallery.vue";
+import AdventureSlideGallery from "../AdventureSwiperGallery.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 import PhotoSwipeDynamicCaption from "photoswipe-dynamic-caption-plugin";
 import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
-import "../assets/photoswipe-dynamic-caption-plugin-custom.css";
+import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 function getCssUrlString(url) {
   return `url(${url})`;
@@ -179,7 +179,7 @@ onMounted(initGallery);
     .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: portrait) and (min-height: 1050px) {
-  .slide { background-image: v-bind(mainImgUrlXxl); }
+    .slide { background-image: v-bind(mainImgUrlXxl); }
   }
   @media (orientation: portrait) and (min-height: 1200px) {
     .slide { background-image: v-bind(mainImgUrlXxxl); }
@@ -219,7 +219,7 @@ onMounted(initGallery);
     .slide { background-image: v-bind(mainImgUrlXl); }
   }
   @media (orientation: portrait) and (min-height: 525px) {
-  .slide { background-image: v-bind(mainImgUrlXxl); }
+    .slide { background-image: v-bind(mainImgUrlXxl); }
   }
   @media (orientation: portrait) and (min-height: 600px) {
     .slide { background-image: v-bind(mainImgUrlXxxl); }

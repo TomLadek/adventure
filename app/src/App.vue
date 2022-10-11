@@ -4,7 +4,7 @@ import { ref, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // Vue components
-import AdventureSlide from "./components/AdventureSlide.vue";
+import AdventureSlide from "./components/AdventureGenericSlide.vue";
 import AdventureLanguageSwitcher from "./components/AdventureLanguageSwitcher.vue";
 import AdventureNavigation from "./components/AdventureNavigation.vue";
 
