@@ -330,23 +330,23 @@
    * @returns {string} either "desktop" or "mobile"
    */
   fullScroll.prototype.determineScrollMode = function () {
-    if (
-      window.innerWidth < this.defaults.desktopThreshold ||
-      (function () {
-        let testDiv = document.createElement("div");
+    function clientHeightIsNotInnerHeight() {
+      let testDiv = document.createElement("div");
 
-        testDiv.style.height = "100vh";
+      testDiv.style.height = "100vh";
 
-        try {
-          document.body.appendChild(testDiv);
-          return testDiv.clientHeight !== window.innerHeight;
-        } finally {
-          document.body.removeChild(testDiv);
-        }
-      })()
-    )
+      try {
+        document.body.appendChild(testDiv);
+        return testDiv.clientHeight !== window.innerHeight;
+      } finally {
+        document.body.removeChild(testDiv);
+      }
+    }
+
+    if (window.innerWidth < this.defaults.desktopThreshold || clientHeightIsNotInnerHeight())
       return "mobile";
-    else return "desktop";
+    else
+      return "desktop";
   };
 
   fullScroll.prototype.resetCurrentSlideScroll = function () {
@@ -390,20 +390,7 @@
   fullScroll.prototype.activate = function (scrollMode) {
     if (this.defaults.active) return;
 
-    console.log("activating full scroll (mode=" + scrollMode + ")");
-
-    if (
-      scrollMode === "mobile" &&
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      ) &&
-      !("ontouchstart" in window)
-    ) {
-      console.error(
-        "no touch capability of mobile device, full scroll not activated"
-      );
-      return;
-    }
+    // console.log("activating full scroll (mode=" + scrollMode + ")");
 
     let _self = this,
       anchor = location.hash.match(
@@ -475,7 +462,7 @@
   fullScroll.prototype.deactivate = function () {
     if (!this.defaults.active) return;
 
-    console.log("deactivating full scroll");
+    // console.log("deactivating full scroll");
 
     let _self = this;
 
