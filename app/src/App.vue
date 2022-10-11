@@ -1,11 +1,12 @@
 <script>
 // Vue functions
-import { watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // Vue components
 import AdventureSlide from "./components/AdventureSlide.vue";
 import AdventureLanguageSwitcher from "./components/AdventureLanguageSwitcher.vue";
+import AdventureNavigation from "./components/AdventureNavigation.vue";
 
 // Custom libraries
 import { gsap } from "gsap";
@@ -119,12 +120,15 @@ const slides = props.slidesData.map((slide) => {
   return slide;
 });
 
+const slideChange = ref({});
+
 onMounted(() => {
   // Init full page scroll
   window.fs = new window.fullScroll({
     mainElement: "main",
     sections: document.querySelectorAll("section"),
-    sectionTransitions: slides.reduce((transitions, slide) => { transitions.push(slide.transition || 0); return transitions }, [])
+    sectionTransitions: slides.reduce((transitions, slide) => { transitions.push(slide.transition || 0); return transitions }, []),
+    onStartAnimate: (fromSlide, toSlide) => slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 }
   });
 });
 
@@ -139,6 +143,8 @@ if (props.pageMeta) {
 
 <template>
   <AdventureLanguageSwitcher />
+
+  <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />
 
   <main id="main">
     <AdventureSlide

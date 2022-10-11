@@ -29,7 +29,7 @@ function setLang(lang) {
   position: absolute;    
   top: 0.5rem;
   right: 0.5rem;
-  z-index: 1;
+  z-index: 2;
 }
 .lang-switcher button {
   padding: 0.3rem;
