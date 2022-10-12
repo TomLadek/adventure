@@ -28,7 +28,7 @@ const { t } = useI18n();
     ></span>
 
     <div class="content-outer">
-      <h1>
+      <h1 class="headline">
         {{ t(slide.headline) }}
         <span class="subheadline" v-html="t(slide.subheadline)"></span>
       </h1>
@@ -44,7 +44,11 @@ const { t } = useI18n();
 </template>
 
 <style>
-.slide-intro h1 {
+.slide-intro .main-picture {
+  z-index: -1;
+}
+
+.slide-intro .headline {
   font-size: max(4rem, 8vw);
   text-align: center;
   text-shadow: 0px 8px #00000075;
@@ -55,16 +59,16 @@ const { t } = useI18n();
   font-size: max(0.5rem, 4vw);
 }
 
-.slide-intro .content-outer p {
-  text-align: justify;
-  hyphens: auto;
-}
-
 .slide-intro .content-outer {
   display: flex;
   flex-direction: column;
 
   margin: 3rem 0;
+}
+
+.slide-intro .content-outer p {
+  text-align: justify;
+  hyphens: auto;
 }
 
 .slide-intro .text-wrapper {
