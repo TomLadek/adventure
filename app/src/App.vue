@@ -16,9 +16,9 @@ import "./assets/gi-full-page-scroll.css";
 window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
-  const imgMath = image.match(/(.*?)(\.(\w+))?$/),
-    imgName = imgMath[1],
-    imgExtension = imgMath[3] || "jpg",
+  const imgMatch = image.match(/(.*?)(\.(\w+))?$/),
+    imgName = imgMatch[1],
+    imgExtension = imgMatch[3] || "jpg",
     isResized = width != 0 || height != 0,
     sizeSuffix = isResized ? `_${width}x${height}` : "";
   let fileExtension;
