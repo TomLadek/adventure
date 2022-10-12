@@ -36,6 +36,11 @@
   --section-gap: 160px;
 }
 
+/* own variables */
+:root {
+  --default-anim-time: 0.7s;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
@@ -77,8 +82,16 @@ body {
 
 body {
   margin: 0;
-  color: white;
   font-family: 'Calibri', sans-serif;
+  transition: color var(--default-anim-time) ease;
+}
+
+.light body {
+  color: white;
+}
+
+.dark body {
+  color: #262626;
 }
 
 h2 {

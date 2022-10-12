@@ -76,6 +76,11 @@ function updatePageMeta(titleGetter, descriptionGetter) {
   if (description)
     document.querySelector("meta[name=description]").setAttribute("content", description);
 }
+
+function updatePageTheme(theme) {
+  document.documentElement.classList.remove("light", "dark");
+  document.documentElement.classList.add(theme || "light");
+}
 </script>
 
 <script setup>
@@ -133,16 +138,7 @@ const slides = props.slidesData.map((slide) => {
 });
 
 const slideChange = ref({ last: 0, current: 0, duration: 0 });
-
-onMounted(() => {
-  // Init full page scroll
-  window.fs = new window.fullScroll({
-    mainElement: "main",
-    sections: document.querySelectorAll("section"),
-    sectionTransitions: slides.map((slide) => slide.transition || 0),
-    onStartAnimate: (fromSlide, toSlide) => slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 }
-  });
-});
+const theme = ref("light");
 
 if (props.pageMeta) {
   const titleGetter = () => props.pageMeta.title ? t(props.pageMeta.title) : "",
@@ -151,6 +147,23 @@ if (props.pageMeta) {
   updatePageMeta(titleGetter, descriptionGetter);
   watch(locale, async () => { updatePageMeta(titleGetter, descriptionGetter); });
 }
+
+watch(theme, (value) => updatePageTheme(value));
+
+onMounted(() => {
+  // Init full page scroll
+  window.fs = new window.fullScroll({
+    mainElement: "main",
+    sections: document.querySelectorAll("section"),
+    sectionTransitions: slides.map((slide) => slide.transition || 0),
+    onStartAnimate: (fromSlide, toSlide) => {
+      slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
+      theme.value = slides[toSlide].theme;
+    }
+  });
+});
+
+updatePageTheme(slides[0].theme);
 </script>
 
 <template>

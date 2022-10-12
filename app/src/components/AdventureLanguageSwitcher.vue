@@ -31,6 +31,7 @@ function setLang(lang) {
   right: 0.5rem;
   z-index: 2;
 }
+
 .lang-switcher button {
   padding: 0.3rem;
   background: transparent;
@@ -39,8 +40,17 @@ function setLang(lang) {
   color: unset;
   font-family: inherit;
 }
+
 .lang-switcher button.active {
   font-weight: bold;
+  transition: backdrop-filter var(--default-anim-time) ease;
+}
+
+.light .lang-switcher button.active {
   backdrop-filter: brightness(0.8);
+}
+
+.dark .lang-switcher button.active {
+  backdrop-filter: brightness(0.92);
 }
 </style>

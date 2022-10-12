@@ -63,10 +63,18 @@ ol.dots {
 }
 
 .dots li {
-  background-color: white;
   opacity: 0.5;
   width: 100%;
   height: 0.5rem;
+  transition: background-color var(--default-anim-time) ease;
+}
+
+.light .dots li {
+  background-color: white;
+}
+
+.dark .dots li {
+  background-color: #4e4e4e;
 }
 
 @media (min-width: 768px) {
