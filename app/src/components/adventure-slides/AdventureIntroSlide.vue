@@ -49,29 +49,30 @@ const { t } = useI18n();
 }
 
 .slide-intro .headline {
-  font-size: max(4rem, 8vw);
+  font-size: min(min(22vw, 10em), 22vh);
   text-align: center;
-  text-shadow: 0px 8px #00000075;
+  text-shadow: 3px 3px 2px #ececec75;
+  margin: max(2rem, 10vh) 0;
 }
 
 .slide-intro .subheadline {
   display: block;
-  font-size: max(0.5rem, 4vw);
+  font-size: 40%;
 }
 
 .slide-intro .content-outer {
   display: flex;
   flex-direction: column;
-
-  margin: 3rem 0;
+  color: #262626;
 }
 
 .slide-intro .content-outer p {
-  text-align: justify;
+  text-align: center;
   hyphens: auto;
 }
 
 .slide-intro .text-wrapper {
+  margin: 0 1rem;
   text-align: center;
   font-size: 1.5rem;
 }
