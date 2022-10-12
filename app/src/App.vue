@@ -16,11 +16,23 @@ import "./assets/gi-full-page-scroll.css";
 window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
-  const isResized = width != 0 || height != 0,
-    sizeSuffix = isResized ? `_${width}x${height}` : "",
-    fileExtension = isResized ? "webp" : "jpg";
+  const imgMath = image.match(/(.*?)(\.(\w+))?$/),
+    imgName = imgMath[1],
+    imgExtension = imgMath[3] || "jpg",
+    isResized = width != 0 || height != 0,
+    sizeSuffix = isResized ? `_${width}x${height}` : "";
+  let fileExtension;
 
-  return new URL(`./assets/data/img/${image}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  if (isResized) {
+    if (imgExtension === "png")
+      fileExtension = imgExtension;
+    else
+      fileExtension = "webp";
+  } else {
+    fileExtension = imgExtension;
+  }
+
+  return new URL(`./assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
 }
 
 function imageSizes(image) {

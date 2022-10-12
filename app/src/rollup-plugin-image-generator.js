@@ -33,22 +33,26 @@ export default function imageGenerator(options = {}) {
         const mode = sizes.widths ? "widths" : "heights";
 
         for (let image of images) {
-          const srcImgName = `${image}.jpg`,
-            srcImgPath = `${imgBasePath}/${srcImgName}`;
+          const srcImgMatch = image.match(/(.*?)(\.(\w+))?$/),
+            srcImgName = srcImgMatch[1],
+            srcImgExtension = srcImgMatch[3] || "jpg",
+            srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,
+            srcImgPath = `${imgBasePath}/${srcImgNameWithExtension}`;
 
           // Skip if the source image doesn't exist
-          if (!existingImages[srcImgName])
+          if (!existingImages[srcImgNameWithExtension])
             continue;
 
           for (let imgWidthOrHeight of sizes[mode]) {
             const sizeSuffix = mode === "widths" ? `${imgWidthOrHeight}x0` : `0x${imgWidthOrHeight}`,
-              scaledImgName = `${image}_${sizeSuffix}.webp`;
+              scaledImgExtension = srcImgExtension  === "png" ? srcImgExtension : "webp",
+              scaledImgNameWithExtension = `${srcImgName}_${sizeSuffix}.${scaledImgExtension}`;
 
             // Skip if the scaled image already exists
-            if (existingImages[scaledImgName])
+            if (existingImages[scaledImgNameWithExtension])
               continue;
 
-            const scaledImgPath = `${imgBasePath}/${scaledImgName}`,
+            const scaledImgPath = `${imgBasePath}/${scaledImgNameWithExtension}`,
               magick = gm(srcImgPath);
 
             if (mode === "widths")
@@ -70,7 +74,7 @@ export default function imageGenerator(options = {}) {
                   if (config.command !== "serve") { // In 'vite dev' build, emitFile is not available
                     self.emitFile({
                       type: "asset",
-                      name: scaledImgName,
+                      name: scaledImgNameWithExtension,
                       source: buffer
                     });
                   }
