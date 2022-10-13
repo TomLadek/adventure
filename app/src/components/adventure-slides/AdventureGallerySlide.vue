@@ -123,7 +123,7 @@ onMounted(initGallery);
   flex-direction: column;
 
   margin: 3rem 0;
-  max-width: 75vw;
+  max-width: calc(100vw - 6rem);
   max-height: 75vh;
   padding: 2rem;
   border-radius: 24px;
@@ -201,6 +201,38 @@ onMounted(initGallery);
 
   .slide-gallery .content-outer.narrow p {
     margin: 0;
+  }
+
+  .slide-gallery .content-outer.top {
+    top: 1rem;
+  }
+
+  .slide-gallery .content-outer.bottom {
+    bottom: 0;
+  }
+
+  .slide-gallery .content-outer.start {
+    left: 1rem;
+  }
+
+  .slide-gallery .content-outer.end {
+    right: 2.8rem;
+  }
+
+  @media (max-width: 768px) {
+    .slide-gallery .content-outer.start {
+      left: 0;
+    }
+
+    .slide-gallery .content-outer.end {
+      right: 0;
+    }
+  }
+}
+
+@media (orientation: portrait) and (max-width: 768px) {
+  .slide-gallery .content-outer {
+    padding: 1.5rem;
   }
 }
 

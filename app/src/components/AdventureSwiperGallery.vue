@@ -56,6 +56,12 @@ const galleryThumbsClass = computed(() => {
   overflow-x: scroll;
 }
 
+@media (orientation: landscape) and (max-height: 500px) {
+  .gallery-thumbs.row {
+    min-height: 4rem;
+  }
+}
+
 .gallery-thumbs.grid {
   display: grid;
   grid-template-columns: repeat(2, 6rem);
@@ -63,6 +69,13 @@ const galleryThumbsClass = computed(() => {
   row-gap: 0.5rem;
   column-gap: 0.5rem;
   align-self: center;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .gallery-thumbs.grid {
+    grid-template-columns: repeat(2, 4rem);
+    grid-template-rows: repeat(2, 4rem);
+  }
 }
 
 @media (min-width: 768px) {
@@ -84,6 +97,17 @@ const galleryThumbsClass = computed(() => {
 .gallery-thumbs.grid img {
   height: 6rem;
   width: 6rem;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .gallery-thumbs.row img {
+    height: 4rem;
+  }
+
+  .gallery-thumbs.grid img {
+    height: 4rem;
+    width: 4rem;
+  }
 }
 
 @media (min-width: 800px) {

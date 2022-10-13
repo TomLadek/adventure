@@ -49,10 +49,16 @@ const { t } = useI18n();
 }
 
 .slide-intro .headline {
-  font-size: min(min(21vw, 10em), 12vh);
+  font-size: min(min(18vw, 10em), 12vh);
   text-align: center;
   text-shadow: 3px 3px 2px #ececec75;
   margin: max(2rem, 6vh) 0;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .slide-intro .headline {
+    font-size: min(min(18vw, 10em), 18vh);
+  }
 }
 
 .slide-intro .subheadline {
@@ -71,7 +77,6 @@ const { t } = useI18n();
 .slide-intro .content-outer p {
   text-align: center;
   hyphens: auto;
-  font-style: italic;
 }
 
 .slide-intro .content-inner {
@@ -81,6 +86,12 @@ const { t } = useI18n();
   border-radius: 20px;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);
   backdrop-filter: blur(10px) grayscale(0.5);
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .slide-intro .content-inner {
+    max-width: 75vw;
+  }
 }
 
 .slide-intro .text-wrapper {
