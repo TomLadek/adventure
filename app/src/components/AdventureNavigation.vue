@@ -69,7 +69,7 @@ ol.dots {
   transition: background-color var(--default-anim-time) ease;
 }
 
-.light .dots li {
+.dots li {
   background-color: white;
 }
 

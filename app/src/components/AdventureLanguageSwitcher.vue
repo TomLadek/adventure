@@ -46,7 +46,7 @@ function setLang(lang) {
   transition: backdrop-filter var(--default-anim-time) ease;
 }
 
-.light .lang-switcher button.active {
+.lang-switcher button.active {
   backdrop-filter: brightness(0.8);
 }
 

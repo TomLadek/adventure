@@ -39,6 +39,7 @@
 /* own variables */
 :root {
   --default-anim-time: 0.7s;
+  --color-black: #262626;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -141,12 +142,12 @@ body {
   transition: color var(--default-anim-time) ease;
 }
 
-.light body {
+body {
   color: white;
 }
 
 .dark body {
-  color: #262626;
+  color: var(--color-black);
 }
 
 h2 {
