@@ -29,7 +29,7 @@ const { t } = useI18n();
 
     <div class="content-outer">
       <h1 class="headline">
-        {{ t(slide.headline) }}
+        <span v-html="t(slide.headline)"></span>
         <span class="subheadline" v-html="t(slide.subheadline)"></span>
       </h1>
 
