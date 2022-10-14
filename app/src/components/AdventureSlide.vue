@@ -17,8 +17,19 @@ const props = defineProps({
   },
   slideIdx: {
     type: Number,
-    required: true,
+    required: true
   },
+  slideChange: {
+    last: {
+      type: Number
+    },
+    current: {
+      type: Number
+    },
+    duration: {
+      type: Number
+    }
+  }
 });
 
 const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.xs));
@@ -32,8 +43,8 @@ const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl
 </script>
 
 <template>
-  <AdventureIntroSlide v-if="slide.intro" :slide="slide" :slideIdx="slideIdx" />
-  <AdventureGallerySlide v-else :slide="slide" :slideIdx="slideIdx" />
+  <AdventureIntroSlide v-if="slide.intro" :slide="slide" :showing="slideChange.current === slideIdx" />
+  <AdventureGallerySlide v-else :slide="slide" />
 </template>
 
 <style>

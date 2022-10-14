@@ -177,6 +177,7 @@ updatePageTheme(slides[0].theme);
       v-bind:key="s.id"
       :slide="s"
       :slideIdx="i"
+      :slideChange="slideChange"
     />
   </main>
 </template>

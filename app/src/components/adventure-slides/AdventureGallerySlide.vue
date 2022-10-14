@@ -18,12 +18,8 @@ let pswpInstance;
 const props = defineProps({
   slide: {
     type: Object,
-    required: true,
-  },
-  slideIdx: {
-    type: Number,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const slideContentClass = computed(() => {

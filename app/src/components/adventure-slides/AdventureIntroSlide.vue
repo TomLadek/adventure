@@ -1,20 +1,71 @@
 <script>
 import { useI18n } from "vue-i18n";
+import { ref, onMounted, computed, watch } from "vue";
 </script>
 
 <script setup>
 const props = defineProps({
   slide: {
     type: Object,
-    required: true,
+    required: true
   },
-  slideIdx: {
-    type: Number,
-    required: true,
-  },
+  showing: {
+    type: Boolean,
+    required: true
+  }
 });
 
 const { t } = useI18n();
+
+const startLinkHasSpace = ref(false);
+
+const startLinkClass = computed(() => {
+  return {
+    "start-link": true,
+    cornered: !startLinkHasSpace.value
+  }
+});
+
+let startLinkElement,
+
+  startLinkAnimation = gsap.timeline({
+    delay: 4,
+    repeat: -1,
+    repeatDelay: 2
+  });
+
+onMounted(() => {
+  startLinkElement = document.querySelector(".slide-intro .start-link");
+
+  const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
+    checkStartLinkSpace = () => 0 <
+      (window.innerHeight - contentOuterElement.clientHeight) / 2 /* remaining space below the actual slide content */
+      - (matchMedia("(orientation: landscape) and (max-height: 500px)").matches ? 16 : 48) /* link's distance from the bottom */
+      - (startLinkElement.clientHeight) /* height of the link */;
+
+  startLinkAnimation.to(startLinkElement, { y: "-10" });
+  startLinkAnimation.to(startLinkElement, { y: "0", ease: "elastic", duration: 1.7 });
+
+  startLinkHasSpace.value = checkStartLinkSpace();
+
+  window.addEventListener("resize", () => {
+    startLinkHasSpace.value = checkStartLinkSpace();
+  });
+});
+
+watch(() => props.showing, (showing) => {
+  // perform one time actions when this slide stops showing
+  if (!showing) {
+    if (startLinkAnimation) {
+      startLinkAnimation.revert();
+      startLinkAnimation = null;
+    }
+
+    if (startLinkElement && startLinkElement.style.opacity !== 0) {
+      startLinkElement.style.opacity = 0;
+    }
+  }
+});
 </script>
 
 <template>
@@ -40,6 +91,12 @@ const { t } = useI18n();
   
       </div>
     </div>
+
+    <a href="#slide1" :class="startLinkClass">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="22" viewBox="0 0 35 22" class="start-link-icon">
+        <path d="M4,4 L18,18 L32,4" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </a>
   </section>
 </template>
 
@@ -112,5 +169,35 @@ const { t } = useI18n();
   .slide-intro .text-wrapper {
     font-size: min(min(10vw, 1.5rem), 6vh);
   }
+}
+
+.slide-intro .start-link {
+  position: absolute;
+  bottom: 48px;
+  transition: opacity var(--default-anim-time) ease;
+}
+
+.slide-intro .start-link.cornered {
+  bottom: 16px;
+  right: 16px;
+}
+
+.slide-intro .start-link.cornered svg {
+  width: 30px;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .slide-intro .start-link {
+    bottom: 16px;
+  }
+}
+
+.slide-intro .start-link-icon path {
+  stroke: white;
+  transition: stroke var(--default-anim-time) ease;
+}
+
+.dark .slide-intro .start-link-icon path {
+  stroke: var(--color-black);
 }
 </style>
