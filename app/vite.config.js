@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import imageGenerator from "./src/rollup-plugin-image-generator.js";
+import dataManager from "./src/rollup-plugin-data-manager.js";
 
 // https://vitejs.dev/config/
 export default defineConfig((command) => {
@@ -12,7 +13,7 @@ export default defineConfig((command) => {
       __VUE_I18N_LEGACY_API__: false,
       __INTLIFY_PROD_DEVTOOLS__: false,
     },
-    plugins: [vue(), imageGenerator()],
+    plugins: [vue(), imageGenerator(), dataManager()],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

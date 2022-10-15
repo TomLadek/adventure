@@ -1,0 +1,36 @@
+import fs from "fs";
+
+const slidesJsonContent = '{"slides":[{"id":"intro","mainImg":{"src":"intro","width":1920,"height":1080},"theme":"dark","intro":true,"headline":"intro.headline","subheadline":"intro.subheadline","content":{"text":"intro.content"}},{"id":"slide1","mainImg":{"src":"slide1","caption":"caption","width":1920,"height":1280},"transition":1,"headline":"slide1.headline","content":{"text":"slide.content","position":"top start"},"gallery":{"images":[{"src":"gallery1","caption":"caption","width":1920,"height":1282},{"src":"gallery2","caption":"caption","width":1080,"height":1920},{"src":"gallery3","caption":"caption","width":1920,"height":1282},{"src":"gallery4","caption":"caption","width":1080,"height":1920}]}},{"id":"slide2","mainImg":{"src":"slide2","caption":"caption","width":1920,"height":1239},"transition":2,"headline":"slide2.headline","content":{"text":"slide.content","position":"bottom end"},"gallery":{"images":[{"src":"gallery1","caption":"caption","width":1920,"height":1282},{"src":"gallery2","caption":"caption","width":1080,"height":1920},{"src":"gallery3","caption":"caption","width":1920,"height":1282},{"src":"gallery4","caption":"caption","width":1080,"height":1920}],"style":"grid"}}],"meta":{"basePath":"/adventure/demo/","title":"meta.title","desc":"meta.desc"},"messages":{"en":{"meta.title":"Adventure DEMO","meta.desc":"This is a demo page for the Adventure CMS","intro.headline":"Adventure Demo","intro.subheadline":"&copy; Tom Ladek, 2022","intro.content":"Browse the features of the Adventure CMS platform","slide1.headline":"Slide 1","slide2.headline":"Slide 2","caption":"Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.","slide.content":"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet."},"de":{"meta.desc":"Dies ist eine Demoseite für das Adventure CMS","intro.headline":"Demo für Adventure","intro.content":"Stöbere in den Features der Adventure CMS Plattform"},"fr":{"meta.desc":"Il s\'agit d\'une page de démonstration pour le système de gestion de contenu (CMS) Adventure.","intro.headline":"Démo l\'Adventure","intro.content":"Parcourez les caractéristiques de la plateforme CMS Adventure"}}}';
+
+export default function dataManager(options = {}) {
+  return {
+    name: "data-manager",
+    configResolved(resolvedConfig) {
+      config = resolvedConfig;
+    },
+    buildStart(options) {
+      const dataDirPath = "/adventure/src/assets/data",
+        sampleImgPath = "/adventure/img_samples";
+      
+      if (!fs.existsSync(dataDirPath))
+        fs.mkdirSync(dataDirPath);
+
+      if (!fs.existsSync(`${dataDirPath}/img`))
+        fs.mkdirSync(`${dataDirPath}/img`);
+      
+      const dataDir = fs.readdirSync(new URL(dataDirPath, import.meta.url));
+
+      if (!dataDir.includes("slides.json")) {
+        fs.writeFileSync(`${dataDirPath}/slides.json`, slidesJsonContent);
+        this.addWatchFile(`${dataDirPath}/slides.json`);
+
+        for (let img of fs.readdirSync(new URL(sampleImgPath, import.meta.url))) {
+          const copiedImgPath = `${dataDirPath}/img/${img}`;
+
+          fs.copyFileSync(`${sampleImgPath}/${img}`, copiedImgPath);
+          this.addWatchFile(copiedImgPath);
+        }
+      }
+    }
+  };
+}
