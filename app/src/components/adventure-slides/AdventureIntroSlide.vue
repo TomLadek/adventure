@@ -70,7 +70,7 @@ watch(() => props.showing, (showing) => {
 
 <template>
   <section
-    :id="slide.id"
+    :id="`slide_${slide.id}`"
     class="slide slide-intro"
   >
     <span

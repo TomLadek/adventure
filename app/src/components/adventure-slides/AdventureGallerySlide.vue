@@ -38,7 +38,7 @@ function initGallery() {
 
   // Init photoswipe
   pswpInstance = new PhotoSwipeLightbox({
-      gallery: "#" + props.slide.id,
+      gallery: `#slide_${props.slide.id}`,
       children: "a",
       wheelToZoom: true,
       preload: [1, 1], // One before, one after - PhotSwipe minimum
@@ -87,7 +87,7 @@ onMounted(initGallery);
 
 <template>
   <section
-    :id="slide.id"
+    :id="`slide_${slide.id}`"
     class="slide slide-gallery"
   >
     <a
