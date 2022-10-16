@@ -1,8 +1,12 @@
 .pswp__dynamic-caption {
-    text-align: justify;
-    hyphens: auto;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.pswp__dynamic-caption p:not(:nth-child(1)) {
+  margin-top: 0.5rem;
 }
 
 .pswp__dynamic-caption--below {
-    padding-bottom: 15px;
+  padding-bottom: 15px;
 }
