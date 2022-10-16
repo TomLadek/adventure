@@ -13,10 +13,10 @@ export default function dataManager(options = {}) {
         sampleImgPath = `${samplePath}/img`;
       
       if (!fs.existsSync(dataDirPath))
-      fs.mkdirSync(dataDirPath);
+        fs.mkdirSync(dataDirPath);
       
       if (!fs.existsSync(`${dataDirPath}/img`))
-      fs.mkdirSync(`${dataDirPath}/img`);
+        fs.mkdirSync(`${dataDirPath}/img`);
       
       const dataDir = fs.readdirSync(new URL(dataDirPath, import.meta.url));
       
