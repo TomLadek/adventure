@@ -104,7 +104,7 @@
     }
   ],
   "meta": {
-    "basePath": "/adventure/demo/",
+    "basePath": "/",
     "title": "meta.title",
     "desc": "meta.desc"
   },
