@@ -120,7 +120,7 @@ watch(() => props.showing, (showing) => {
 }
 
 .dark .slide-intro .headline {
-  text-shadow: 3px 3px 2px #ececec75;
+  text-shadow: 4px -4px 7px #646464;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
