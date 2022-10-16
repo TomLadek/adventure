@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from "node:url";
 
 export default function dataManager(options = {}) {
   return {
-    name: "dataManager",
+    name: "data-manager",
     config() {
       // Reads the slides data from ./src/assets/data/slides.json to get to the base path setting.
       // If the file (or the directory) doesn't exist, sample data is copied from ./sample_data to
