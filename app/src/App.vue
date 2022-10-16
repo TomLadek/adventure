@@ -92,10 +92,6 @@ const props = defineProps({
   pageMeta: {
     type: Object,
     required: false
-  },
-  languages: {
-    type: Array,
-    required: true
   }
 });
 

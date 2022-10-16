@@ -8,8 +8,7 @@ import slidesData from "./assets/data/slides.json";
 
 const app = createApp(App, {
     slidesData: slidesData.slides,
-    pageMeta: slidesData.meta,
-    languages: Object.keys(slidesData.messages)
+    pageMeta: slidesData.meta
 });
 
 app.use(createPinia());
