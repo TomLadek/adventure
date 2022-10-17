@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2016 Matheus Almeida,
- * Copyright (c) 2021 Tom Ladek
+ * Copyright (c) 2021-2022 Tom Ladek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

@@ -1,7 +1,3 @@
-# adventure
-
-This template should help get you started developing with Vue 3 in Vite.
-
 > Note: This project was created by running the following command:
 > ```
 > npm init -y vue@3.3.4
@@ -20,6 +16,8 @@ This template should help get you started developing with Vue 3 in Vite.
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
+
+> Note: Preferred setup is with Docker, see [this README](../README.md). 
 
 ```sh
 npm install
@@ -42,8 +40,3 @@ npm run build
 ```sh
 npm run lint
 ```
-
-
-## Docker
-
-Go to this [README](../docker/README.md) to find out how to run the above commands using Docker.
