@@ -85,7 +85,7 @@ const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl
     .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 
-  @media (orientation: portrait) and (max-height: 432px) {
+  @media (orientation: portrait) and (max-height: 575px) {
     .slide { background-image: v-bind(mainImgUrlXs); }
   }
   @media (orientation: portrait) and (min-height: 576px) {
@@ -125,7 +125,7 @@ const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl
     .slide { background-image: v-bind(mainImgUrlXxxxl); }
   }
 
-  @media (orientation: portrait) and (max-height: 216px) {
+  @media (orientation: portrait) and (max-height: 287px) {
     .slide { background-image: v-bind(mainImgUrlXs); }
   }
   @media (orientation: portrait) and (min-height: 288px) {

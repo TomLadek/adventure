@@ -107,7 +107,9 @@ onMounted(initGallery);
           <p v-html="t(slide.content.text)"></p>
         </div>
   
-        <AdventureSwiperGallery v-if="slide.gallery" :gallery="slide.gallery" />
+        <AdventureSwiperGallery
+          v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
+          :gallery="slide.gallery" />
       </div>
     </div>
   </section>
@@ -232,17 +234,15 @@ onMounted(initGallery);
   }
 }
 
-.slide-gallery .content-inner {
+.slide-gallery .content-outer .content-inner {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .slide-gallery .content-outer .content-inner {
-    overflow-y: scroll;
-  }
-
   .slide-gallery .content-outer.narrow .content-inner {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -252,7 +252,6 @@ onMounted(initGallery);
   .slide-gallery .content-outer.narrow .content-inner p {
     max-height: calc(2 * 6rem + 0.5rem);
     padding-right: 10px;
-    overflow: scroll;
   }
 }
 </style>

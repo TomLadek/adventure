@@ -45,20 +45,18 @@ const galleryThumbsClass = computed(() => {
 </template>
 
 <style>
-.gallery-thumbs {
-  overflow-y: hidden;
-}
 
 .gallery-thumbs.row {
   display: flex;
+  justify-content: center;
   gap: 0.5rem;
-  min-height: 6rem;
+  min-height: calc(6rem + 10px);
   overflow-x: scroll;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
   .gallery-thumbs.row {
-    min-height: 4rem;
+    min-height: calc(4rem + 10px);
   }
 }
 
@@ -85,6 +83,7 @@ const galleryThumbsClass = computed(() => {
 }
 
 .gallery-thumbs img {
+  display: block;
   object-fit: cover;
   border-radius: 8px;
 }
