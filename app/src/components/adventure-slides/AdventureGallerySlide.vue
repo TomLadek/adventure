@@ -2,7 +2,7 @@
 import { onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import AdventureSlideGallery from "../AdventureSwiperGallery.vue";
+import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
@@ -107,7 +107,7 @@ onMounted(initGallery);
           <p v-html="t(slide.content.text)"></p>
         </div>
   
-        <AdventureSlideGallery v-if="slide.gallery" :gallery="slide.gallery" />
+        <AdventureSwiperGallery v-if="slide.gallery" :gallery="slide.gallery" />
       </div>
     </div>
   </section>
