@@ -7,7 +7,7 @@ The best way to see its features is to run the code in a Docker container (see b
 
 ## Usage
 
-> Note: The paths in this file assume the working directory is *this* directory.
+> **Note**: The paths in this file assume the working directory is *this* directory.
 
 Build the Docker image:
 ```
@@ -17,7 +17,7 @@ docker image build -t vuejs-gm-adventure docker/
 
 Run a Docker container from that image:
 
-> Note: In Windows PowerShell you'll need to use `${PWD}` for current directory substitution
+> **Note**: In Windows PowerShell you'll need to use `${PWD}` for current directory substitution. Also make sure that the `entrypoint.sh` file has LF line endings - this is important otherwise running the container will fail.
 
 ```
 docker container run --name vuejs-gm-adventure -itdp 5173:5173 -v $(pwd)/app:/adventure vuejs-gm-adventure
