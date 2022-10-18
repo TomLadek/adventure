@@ -17,7 +17,7 @@ docker image build -t vuejs-gm-adventure docker/
 
 Run a Docker container from that image:
 
-> Note: In Windows PowerShell you'll need to use `${PDW}` for current directory substitution
+> Note: In Windows PowerShell you'll need to use `${PWD}` for current directory substitution
 
 ```
 docker container run --name vuejs-gm-adventure -itdp 5173:5173 -v $(pwd)/app:/adventure vuejs-gm-adventure
