@@ -48,8 +48,8 @@ const galleryThumbsClass = computed(() => {
 
 .gallery-thumbs.row {
   display: flex;
-  justify-content: center;
   gap: 0.5rem;
+  margin: 0 auto;
   min-height: calc(6rem + 10px);
   overflow-x: scroll;
 }
