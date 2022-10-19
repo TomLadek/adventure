@@ -12,7 +12,7 @@ const defaultMessages = {
     "misc.error.imageunloadable": "Tento obrázek nebylo možné zobrazit."
   },
   de: {
-    "misc.zoom": "Zoom",
+    "misc.zoom": "HAHAHA",
     "misc.close": "Schließen",
     "misc.previous": "Vorheriges",
     "misc.next": "Nächstes",
@@ -54,6 +54,6 @@ export function initI18n(messages) {
     locale: languageStore.language,
     fallbackLocale: availableLangs[0],
     warnHtmlMessage: false,
-    messages: mergeDeep(messages || {}, defaultMessages)
+    messages: mergeDeep(defaultMessages, messages || {})
   });
 }
