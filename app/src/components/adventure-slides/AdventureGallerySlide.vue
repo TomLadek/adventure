@@ -1,6 +1,7 @@
 <script>
 import { onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { getCaptionText } from "../../utils.js";
 
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
 
@@ -74,9 +75,9 @@ function initGallery() {
       const img = slide.data.element.querySelector("img");
 
       if (img)
-        return img.getAttribute("alt");
+        return img.dataset.caption;
 
-      return slide.data.element.title;
+      return slide.data.element.dataset.caption;
     }
   });
 }
@@ -94,7 +95,8 @@ onMounted(initGallery);
       v-if="slide.mainImg"
       :href="slide.mainImg.original"
       v-bind="slide.mainImgAttrs"
-      :title="slide.mainImgTitle && t(slide.mainImgTitle)"
+      :title="slide.mainImgTitle && getCaptionText(t(slide.mainImgTitle))"
+      :data-caption="t(slide.mainImgTitle)"
       target="_blank"
       class="main-picture"
     ></a>

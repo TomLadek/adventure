@@ -98,13 +98,15 @@ const props = defineProps({
 const { t, locale } = useI18n();
 
 const slides = props.slidesData.map((slide) => {
-  slide.mainImgAttrs = {
-    "data-pswp-width": slide.mainImg.width,
-    "data-pswp-height": slide.mainImg.height,
-    "data-cropped": true
-  };
-  slide.mainImgTitle = slide.mainImg.caption;
-  slide.mainImg = imageSizes(slide.mainImg.src);
+  if (slide.mainImg) {
+    slide.mainImgAttrs = {
+      "data-pswp-width": slide.mainImg.width,
+      "data-pswp-height": slide.mainImg.height,
+      "data-cropped": true
+    };
+    slide.mainImgTitle = slide.mainImg.caption;
+    slide.mainImg = imageSizes(slide.mainImg.src);
+  }
 
   if (slide.gallery) {
     slide.gallery.images = slide.gallery.images.map((galleryImg) => {

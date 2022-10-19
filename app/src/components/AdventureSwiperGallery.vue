@@ -1,6 +1,7 @@
 <script>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { getCaptionText } from "../utils.js";
 </script>
 
 <script setup>
@@ -31,13 +32,14 @@ const galleryThumbsClass = computed(() => {
     v-for="image in gallery.images"
     v-bind:key="image.src"
     :href="image.imgAttrs.src"
-    :title="image.title && t(image.title)"
+    :title="image.title && getCaptionText(t(image.title))"
     v-bind="image.pswpImgAttrs"
     target="_blank"
   >
     <img
       v-bind="image.imgAttrs" 
-      :alt="image.alt && t(image.alt)"
+      :alt="image.alt && getCaptionText(t(image.alt))"
+      :data-caption="t(image.title)"
       loading="lazy"
     />
   </a>

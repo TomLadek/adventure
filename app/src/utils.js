@@ -1,3 +1,14 @@
+export function getCaptionText(captionHtml) {
+  if (!captionHtml)
+    return null;
+
+  const dummy = document.createElement("span");
+
+  dummy.innerHTML = captionHtml;
+
+  return dummy.textContent;
+}
+
 export function isObject(item) {
   return (item && typeof item === 'object' && !Array.isArray(item));
 }
