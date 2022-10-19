@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { fileURLToPath, URL } from "node:url";
 
 export default function dataManager(options = {}) {
@@ -34,6 +35,22 @@ export default function dataManager(options = {}) {
 
       if (slidesData && slidesData.meta && slidesData.meta.basePath)
         return { base: slidesData.meta.basePath };
+    },
+    load: {
+      order: "pre",
+      handler(id) {
+        if (/\/data\/slides\.json$/.test(id)) {
+          const slidesData = JSON.parse(fs.readFileSync(id, "UTF-8"));
+
+          if (slidesData.import) {
+            const importedSlidesDataJsonPath = path.resolve(path.dirname(id), slidesData.import);
+
+            this.addWatchFile(importedSlidesDataJsonPath);
+
+            return fs.readFileSync(importedSlidesDataJsonPath, "UTF-8");
+          }
+        }
+      }
     }
   }
 }
