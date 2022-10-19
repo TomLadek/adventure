@@ -1,5 +1,6 @@
 <script>
 import { useLanguageStore } from "../stores/language.js";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 </script>
 
@@ -8,7 +9,9 @@ const languageStore = useLanguageStore();
 
 const { locale, availableLocales } = useI18n()
 
-if (availableLocales.indexOf(languageStore.language) >= 0)
+const languages = computed(() => { return availableLocales.sort() });
+
+if (languages.value.indexOf(languageStore.language) >= 0)
   locale.value = languageStore.language;
 
 function setLang(lang) {
@@ -18,8 +21,8 @@ function setLang(lang) {
 </script>
 
 <template>
-<div class="lang-switcher" v-if="availableLocales.length > 1">
-  <button v-for="lang in availableLocales" @click="setLang(lang)" class="lang" :class="languageStore.language === lang ? 'active' : ''">{{lang.toUpperCase()}}</button>
+<div class="lang-switcher" v-if="languages.length > 1">
+  <button v-for="lang in languages" @click="setLang(lang)" class="lang" :class="languageStore.language === lang ? 'active' : ''">{{lang.toUpperCase()}}</button>
 </div>
 </template>
 
