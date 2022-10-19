@@ -12,7 +12,7 @@ const defaultMessages = {
     "misc.error.imageunloadable": "Tento obrázek nebylo možné zobrazit."
   },
   de: {
-    "misc.zoom": "HAHAHA",
+    "misc.zoom": "Zoom",
     "misc.close": "Schließen",
     "misc.previous": "Vorheriges",
     "misc.next": "Nächstes",
