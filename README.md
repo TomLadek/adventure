@@ -2,6 +2,8 @@
 
 This is a simple JSON-based CMS that creates beautiful "Full Page Scroll" galleries of you images with short texts and captions.
 
+**[Demo](https://tomladek.com/adventure/demo/)**
+
 The best way to see its features is to run the code in a Docker container (see below) and explore the Demo page! Data for the Demo page (JSON and royalty-free images from [Pexels](https://www.pexels.com/)) is included with this repository and installed automatically when no own data is supplied.
 
 
