@@ -1,6 +1,6 @@
 # Adventure CMS
 
-This is a simple JSON-based CMS that creates beautiful "Full Page Scroll" galleries of you images with short texts and captions.
+This is a simple JSON-based CMS that creates beautiful, resp "Full Page Scroll" galleries of you images with short texts and captions.
 
 **[Demo](https://tomladek.com/adventure/demo/)**
 
