@@ -29,7 +29,7 @@ const startLinkClass = computed(() => {
 let startLinkElement,
 
   startLinkAnimation = gsap.timeline({
-    delay: 4,
+    delay: 3,
     repeat: -1,
     repeatDelay: 2
   });

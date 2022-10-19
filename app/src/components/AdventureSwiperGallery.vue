@@ -52,6 +52,7 @@ const galleryThumbsClass = computed(() => {
   display: flex;
   gap: 0.5rem;
   margin: 0 auto;
+  max-width: 100%;
   min-height: calc(6rem + 10px);
   overflow-x: scroll;
 }
