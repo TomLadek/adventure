@@ -61,3 +61,7 @@ Even the texts of built-in components like the PhotoSwipe gallery can be transla
 This project is licensed under the MIT license.
 
 It contains software that is also MIT licensed: the [PhotoSwipe](https://github.com/dimsemenov/PhotoSwipe) gallery and a modified and extendended version of the [fullPageScrollPureJS](https://github.com/amendoa/fullPageScrollPureJS) library.
+
+
+----------
+*<p align="center">For Caro ❤️</p>*
