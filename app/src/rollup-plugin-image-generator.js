@@ -20,7 +20,7 @@ export default function imageGenerator(options = {}) {
         return;
 
       const self = this,
-        imgBasePath = path.resolve(path.dirname(id), "img"),
+        imgBasePath = new URL("../public/img", import.meta.url),
         existingImages = fs.readdirSync(imgBasePath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
         slidesData = JSON.parse(fs.readFileSync(new URL(id, import.meta.url))),
         mainImgs = [],

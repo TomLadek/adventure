@@ -32,7 +32,7 @@ function imageUrl(image, width = 0, height = 0) {
     fileExtension = imgExtension;
   }
 
-  return new URL(`./assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  return new URL(`${import.meta.env.BASE_URL}img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
 }
 
 function imageSizes(image) {

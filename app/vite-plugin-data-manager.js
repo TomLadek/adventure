@@ -10,14 +10,15 @@ export default function dataManager(options = {}) {
       // If the file (or the directory) doesn't exist, sample data is copied from ./sample_data to
       // ./src/assets/data/, including the slides.json file.
       const dataDirPath = fileURLToPath(new URL("./src/assets/data", import.meta.url)),
+        imgDirPath = fileURLToPath(new URL("./public/img", import.meta.url)),
         samplePath = fileURLToPath(new URL("./sample_data", import.meta.url)),
         sampleImgPath = `${samplePath}/img`;
       
       if (!fs.existsSync(dataDirPath))
         fs.mkdirSync(dataDirPath);
       
-      if (!fs.existsSync(`${dataDirPath}/img`))
-        fs.mkdirSync(`${dataDirPath}/img`);
+      if (!fs.existsSync(imgDirPath))
+        fs.mkdirSync(imgDirPath);
       
       const dataDir = fs.readdirSync(new URL(dataDirPath, import.meta.url));
       
@@ -25,7 +26,7 @@ export default function dataManager(options = {}) {
         fs.copyFileSync(`${samplePath}/slides.json`, `${dataDirPath}/slides.json`);
         
         for (let img of fs.readdirSync(new URL(sampleImgPath, import.meta.url))) {
-          const copiedImgPath = `${dataDirPath}/img/${img}`;
+          const copiedImgPath = path.resolve(imgDirPath, img);
           
           fs.copyFileSync(`${sampleImgPath}/${img}`, copiedImgPath);
         }
