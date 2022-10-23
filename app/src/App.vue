@@ -104,7 +104,7 @@ const slides = props.slidesData.map((slide) => {
       "data-pswp-height": slide.mainImg.height,
       "data-cropped": true
     };
-    slide.mainImgTitle = slide.mainImg.caption;
+    slide.mainImgTitle = slide.mainImg.caption || "";
     slide.mainImg = imageSizes(slide.mainImg.src);
   }
 
