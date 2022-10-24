@@ -117,6 +117,10 @@ const galleryThumbsClass = computed(() => {
     scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
   }
 
+  .dark .gallery-thumbs.row {
+    scrollbar-color: rgba(110, 110, 110, 0.8) transparent; /* Firefox */
+  }
+
   .gallery-thumbs.row::-webkit-scrollbar {
     width: 5px;
     height: 5px;
@@ -132,7 +136,7 @@ const galleryThumbsClass = computed(() => {
   }
 
   .dark .gallery-thumbs.row::-webkit-scrollbar-thumb {
-    background: rgba(110, 110, 110, 0.8);
+    background: rgba(110, 110, 110, 0.8); /* Chrome etc. */
   }
 
   .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
