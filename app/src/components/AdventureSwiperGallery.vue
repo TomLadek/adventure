@@ -131,8 +131,16 @@ const galleryThumbsClass = computed(() => {
     border-radius: 4px;
   }
 
+  .dark .gallery-thumbs.row::-webkit-scrollbar-thumb {
+    background: rgba(110, 110, 110, 0.8);
+  }
+
   .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
     background: rgb(85, 85, 85);
+  }
+
+  .dark .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
+    background: rgb(59, 59, 59);
   }
 }
 </style>
