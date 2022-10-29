@@ -73,8 +73,10 @@ ol.dots {
   background-color: white;
 }
 
-.dark .dots li {
-  background-color: #4e4e4e;
+@media (min-width: 768px) {
+  .dark .dots li {
+    background-color: #4e4e4e;
+  }
 }
 
 @media (min-width: 768px) {
