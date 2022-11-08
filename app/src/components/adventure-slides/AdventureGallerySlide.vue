@@ -155,6 +155,10 @@ onMounted(initGallery);
   hyphens: auto;
 }
 
+.slide-gallery .content-outer p:not(:first-child) {
+  margin-top: 0.5em;
+}
+
 .slide-gallery .content-outer.top, .slide-gallery .content-outer.bottom, .slide-gallery .content-outer.start, .slide-gallery .content-outer.end {
   position: relative;
 }
