@@ -489,7 +489,7 @@
 				dY = -50;
 			} else if (event.keyCode === 40) { // down
 				dY = 50;
-			} else if (event.deltaY !== 0) {
+			} else if (event.deltaY < 0 || event.deltaY > 0) {
 				// Consider only sufficiently large wheel events
 				if (!_self.defaults.oversizeSectionScroll && Math.abs(event.deltaY) < 5)
 					return;
