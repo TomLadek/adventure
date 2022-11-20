@@ -11,6 +11,10 @@ function getCssUrlString(url) {
 
 <script setup>
 const props = defineProps({
+  author: {
+    type: Object,
+    required: false
+  },
   slide: {
     type: Object,
     required: true,
@@ -43,7 +47,7 @@ const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl
 </script>
 
 <template>
-  <AdventureIntroSlide v-if="slide.intro" :slide="slide" :showing="slideChange.current === slideIdx" />
+  <AdventureIntroSlide v-if="slide.intro" :slide="slide" :author="author" :showing="slideChange.current === slideIdx" />
   <AdventureGallerySlide v-else :slide="slide" />
 </template>
 

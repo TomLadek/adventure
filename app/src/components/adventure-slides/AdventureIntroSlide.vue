@@ -5,6 +5,10 @@ import { ref, onMounted, computed, watch } from "vue";
 
 <script setup>
 const props = defineProps({
+  author: {
+    type: Object,
+    required: false
+  },
   slide: {
     type: Object,
     required: true
@@ -26,16 +30,27 @@ const startLinkClass = computed(() => {
   }
 });
 
-let startLinkElement,
+let startLinkElement, infoContent,
 
-  startLinkAnimation = gsap.timeline({
-    delay: 3,
-    repeat: -1,
-    repeatDelay: 2
-  });
+startLinkAnimation = gsap.timeline({
+  delay: 3,
+  repeat: -1,
+  repeatDelay: 2
+});
+
+function toggleInfo(event) {
+  if (event.target.ariaExpanded === "false") {
+    infoContent.hidden = null;
+    event.target.ariaExpanded = true;
+  } else {
+    infoContent.hidden = true;
+    event.target.ariaExpanded = false;
+  }
+}
 
 onMounted(() => {
   startLinkElement = document.querySelector(".slide-intro .start-link");
+  infoContent = document.getElementById("adventure-info-content");
 
   const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
     checkStartLinkSpace = () => 0 <
@@ -97,6 +112,14 @@ watch(() => props.showing, (showing) => {
         <path d="M4,4 L18,18 L32,4" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </a>
+
+    <div class="adventure-info">
+      <button class="info-button" aria-controls="adventure-info-content" aria-expanded="false" @click.prevent="toggleInfo">i</button>
+      <div id="adventure-info-content" class="adventure-info-content" hidden>
+        <div>Made <span v-if="author && author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
+        <div class="author-content" v-if="author && author.content">Content &copy; {{ author.content }}</div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -199,5 +222,52 @@ watch(() => props.showing, (showing) => {
 
 .dark .slide-intro .start-link-icon path {
   stroke: var(--color-black);
+}
+
+.slide-intro .adventure-info {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+}
+
+.slide-intro .adventure-info-content {
+  position: absolute;
+  bottom: 28px;
+  left: 28px;
+  width: max-content;
+  padding: 1rem;
+  color: white;
+  text-shadow: 0 0 4px rgb(0 0 0 / 45%);
+  border-radius: 20px 20px 20px 0;
+  box-shadow: 0 0 3px 0 rgb(0 0 0 / 70%);
+  backdrop-filter: blur(4px) grayscale(0.5) brightness(0.8);
+}
+
+.slide-intro .adventure-info-content a {
+  text-shadow: none;
+}
+
+.slide-intro .info-button {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding-bottom: 2px;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 18pt;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);
+  backdrop-filter: blur(10px) grayscale(0.5);
+  text-shadow: 0px 0px 4px rgb(0 0 0 / 45%);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.slide-intro .adventure-info-content .author-content {
+  margin-top: 0.5rem;
 }
 </style>

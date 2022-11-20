@@ -85,6 +85,10 @@ function updatePageTheme(theme) {
 
 <script setup>
 const props = defineProps({
+  author: {
+    type: String,
+    required: false
+  },
   slidesData: {
     type: Array,
     required: true
@@ -173,6 +177,7 @@ updatePageTheme(slides[0].theme);
     <AdventureSlide
       v-for="(s, i) in slides"
       v-bind:key="s.id"
+      :author="pageMeta.author"
       :slide="s"
       :slideIdx="i"
       :slideChange="slideChange"
