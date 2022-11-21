@@ -30,7 +30,8 @@ const startLinkClass = computed(() => {
   }
 });
 
-let startLinkElement, infoContent,
+let startLinkElement,
+  infoShowing = ref(false),
 
 startLinkAnimation = gsap.timeline({
   delay: 3,
@@ -38,19 +39,8 @@ startLinkAnimation = gsap.timeline({
   repeatDelay: 2
 });
 
-function toggleInfo(event) {
-  if (event.target.ariaExpanded === "false") {
-    infoContent.hidden = null;
-    event.target.ariaExpanded = true;
-  } else {
-    infoContent.hidden = true;
-    event.target.ariaExpanded = false;
-  }
-}
-
 onMounted(() => {
   startLinkElement = document.querySelector(".slide-intro .start-link");
-  infoContent = document.getElementById("adventure-info-content");
 
   const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
     checkStartLinkSpace = () => 0 <
@@ -114,8 +104,8 @@ watch(() => props.showing, (showing) => {
     </a>
 
     <div class="adventure-info">
-      <button class="info-button" aria-controls="adventure-info-content" aria-expanded="false" @click.prevent="toggleInfo">i</button>
-      <div id="adventure-info-content" class="adventure-info-content" hidden>
+      <button class="info-button" aria-controls="adventure-info-content" :aria-expanded="infoShowing" @click.prevent="infoShowing = !infoShowing">i</button>
+      <div id="adventure-info-content" class="adventure-info-content" :hidden="!infoShowing">
         <div>Made <span v-if="author && author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
         <div class="author-content" v-if="author && author.content">Content &copy; {{ author.content }}</div>
       </div>
