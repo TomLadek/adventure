@@ -77,3 +77,39 @@ h2 {
 p {
   margin: 0;
 }
+
+@media (min-width: 800px) {
+  div {
+    scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
+  }
+
+  .dark div {
+    scrollbar-color: rgba(110, 110, 110, 0.8) transparent; /* Firefox */
+  }
+
+  div::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  div.row::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+  }
+  
+  div::-webkit-scrollbar-thumb {
+    background: rgba(250, 250, 250, 0.8); /* Chrome etc. */
+    border-radius: 4px;
+  }
+
+  .dark div::-webkit-scrollbar-thumb {
+    background: rgba(110, 110, 110, 0.8); /* Chrome etc. */
+  }
+
+  div::-webkit-scrollbar-thumb:hover {
+    background: rgb(85, 85, 85);
+  }
+
+  .dark div::-webkit-scrollbar-thumb:hover {
+    background: rgb(59, 59, 59);
+  }
+}

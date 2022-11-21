@@ -111,40 +111,4 @@ const galleryThumbsClass = computed(() => {
     width: 4rem;
   }
 }
-
-@media (min-width: 800px) {
-  .gallery-thumbs.row {
-    scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
-  }
-
-  .dark .gallery-thumbs.row {
-    scrollbar-color: rgba(110, 110, 110, 0.8) transparent; /* Firefox */
-  }
-
-  .gallery-thumbs.row::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  
-  .gallery-thumbs.row::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0);
-  }
-  
-  .gallery-thumbs.row::-webkit-scrollbar-thumb {
-    background: rgba(250, 250, 250, 0.8); /* Chrome etc. */
-    border-radius: 4px;
-  }
-
-  .dark .gallery-thumbs.row::-webkit-scrollbar-thumb {
-    background: rgba(110, 110, 110, 0.8); /* Chrome etc. */
-  }
-
-  .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
-    background: rgb(85, 85, 85);
-  }
-
-  .dark .gallery-thumbs.row::-webkit-scrollbar-thumb:hover {
-    background: rgb(59, 59, 59);
-  }
-}
 </style>

@@ -120,7 +120,7 @@ onMounted(initGallery);
     ></a>
 
     <div class="content-outer" :class="slideContentClass">
-      <h2>{{ t(slide.headline) }}</h2>
+      <h2 class="headline">{{ t(slide.headline) }}</h2>
 
       <div class="content-inner">
         <div class="text-wrapper">
@@ -150,6 +150,10 @@ onMounted(initGallery);
   backdrop-filter: blur(10px) grayscale(0.5);
 }
 
+.slide-gallery .content-outer .headline {
+  padding: 0 5px;
+} 
+
 .slide-gallery .content-outer p {
   text-align: justify;
   hyphens: auto;
@@ -176,7 +180,7 @@ onMounted(initGallery);
     max-width: 30rem;
     align-self: unset;
     margin: 0;
-    padding: 3rem;
+    padding: 3rem calc(3rem - 5px);
     border-radius: 48px;
   }
 
@@ -264,6 +268,7 @@ onMounted(initGallery);
   gap: 1rem;
   max-height: 50vh;
   overflow-y: auto;
+  padding: 0 5px;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
