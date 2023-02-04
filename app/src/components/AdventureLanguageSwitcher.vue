@@ -22,7 +22,7 @@ function setLang(lang) {
 
 <template>
 <div class="lang-switcher" v-if="languages.length > 1">
-  <button v-for="lang in languages" @click="setLang(lang)" class="lang" :class="languageStore.language === lang ? 'active' : ''">{{lang.toUpperCase()}}</button>
+  <button v-for="lang in languages" @click="setLang(lang)" class="lang" :class="{ active: languageStore.language === lang }">{{lang.toUpperCase()}}</button>
 </div>
 </template>
 
