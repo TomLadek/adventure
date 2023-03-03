@@ -1,5 +1,5 @@
 export function getCaptionText(captionHtml) {
-  if (!captionHtml)
+  if (!captionHtml || typeof document !== "object")
     return null;
 
   const dummy = document.createElement("span");

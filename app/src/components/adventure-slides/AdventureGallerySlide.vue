@@ -10,17 +10,6 @@ import "photoswipe/style.css";
 import PhotoSwipeDynamicCaption from "photoswipe-dynamic-caption-plugin";
 import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
 import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
-
-function closeAllPhotoSwipes() {
-  for (let slideId in window.photoSwipes) {
-    let pswp = window.photoSwipes[slideId].pswp;
-
-    if (pswp)
-      pswp.close();
-  }
-}
-
-window.addEventListener("hashchange", closeAllPhotoSwipes);
 </script>
 
 <script setup>
@@ -42,6 +31,15 @@ const slideContentClass = computed(() => {
 });
 
 const { t, locale } = useI18n();
+
+function closeAllPhotoSwipes() {
+  for (let slideId in window.photoSwipes) {
+    let pswp = window.photoSwipes[slideId].pswp;
+
+    if (pswp)
+      pswp.close();
+  }
+}
 
 function initGallery() {
   if (window.photoSwipes === undefined)
@@ -98,6 +96,8 @@ function initGallery() {
   });
 
   window.photoSwipes[props.slide.id] = pswpInstance;
+
+  window.addEventListener("hashchange", closeAllPhotoSwipes);
 }
 
 watch(locale, async () => { initGallery() });

@@ -1,6 +1,7 @@
 <script>
 import { useI18n } from "vue-i18n";
 import { ref, onMounted, computed, watch } from "vue";
+import { gsap } from "gsap";
 </script>
 
 <script setup>
@@ -31,15 +32,15 @@ const startLinkClass = computed(() => {
 });
 
 let startLinkElement,
-  infoShowing = ref(false),
-
-startLinkAnimation = gsap.timeline({
-  delay: 3,
-  repeat: -1,
-  repeatDelay: 2
-});
+  infoShowing = ref(false);
 
 onMounted(() => {
+  let startLinkAnimation = gsap.timeline({
+    delay: 3,
+    repeat: -1,
+    repeatDelay: 2
+  });
+
   startLinkElement = document.querySelector(".slide-intro .start-link");
 
   const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
@@ -56,20 +57,20 @@ onMounted(() => {
   window.addEventListener("resize", () => {
     startLinkHasSpace.value = checkStartLinkSpace();
   });
-});
 
-watch(() => props.showing, (showing) => {
-  // perform one time actions when this slide stops showing
-  if (!showing) {
-    if (startLinkAnimation) {
-      startLinkAnimation.revert();
-      startLinkAnimation = null;
+  watch(() => props.showing, (showing) => {
+    // perform one time actions when this slide stops showing
+    if (!showing) {
+      if (startLinkAnimation) {
+        startLinkAnimation.revert();
+        startLinkAnimation = null;
+      }
+  
+      if (startLinkElement && startLinkElement.style.opacity !== 0) {
+        startLinkElement.style.opacity = 0;
+      }
     }
-
-    if (startLinkElement && startLinkElement.style.opacity !== 0) {
-      startLinkElement.style.opacity = 0;
-    }
-  }
+  });
 });
 </script>
 

@@ -1,9 +1,7 @@
-FROM node:18
+FROM node:19.7
 
 RUN apt update && \
     apt install -y graphicsmagick
-
-EXPOSE 5173
 
 COPY ./entrypoint.sh /
 

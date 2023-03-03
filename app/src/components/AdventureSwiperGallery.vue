@@ -39,7 +39,7 @@ const galleryThumbsClass = computed(() => {
     <img
       v-bind="image.imgAttrs" 
       :alt="image.alt && getCaptionText(t(image.alt))"
-      :data-caption="t(image.title)"
+      :data-caption="t(image.title ?? '[error in AdventureSwiperGallery.vue]')"
       loading="lazy"
     />
   </a>
