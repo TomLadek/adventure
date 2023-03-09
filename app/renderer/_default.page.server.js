@@ -5,7 +5,7 @@ import logoUrl from '/favicon.ico'
 
 export { onBeforeRender, render }
 // See https://vite-plugin-ssr.com/data-fetching
-export const passToClient = ['pageProps', 'urlPathname']
+export const passToClient = ['pageProps', 'routeParams']
 
 async function onBeforeRender(pageContext) {
   // console.log("onBeforeRender called", pageContext)

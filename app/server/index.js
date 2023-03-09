@@ -14,9 +14,9 @@ async function startServer() {
   const app = express()
 
   if (isProduction) {
-    const sirv = require('sirv')
+    const sirvMiddleware = require('sirv')
 
-    app.use(sirv(`${root}/dist/client`))
+    app.use(sirvMiddleware(`${root}/dist/client`))
   } else {
     const vite = require('vite'),
           viteDevMiddleware = (
@@ -30,10 +30,12 @@ async function startServer() {
   }
 
   app.get('*', async (req, res, next) => {
-    const pageContext = await renderPage({
+    const result = await renderPage({
             urlOriginal: req.originalUrl
           }),
-          { httpResponse } = pageContext
+          { httpResponse } = result
+
+    // console.log(`serving response for ${req.originalUrl}:`, result)
 
     if (!httpResponse)
       return next()
@@ -65,5 +67,5 @@ async function startServer() {
 
   app.listen(port)
 
-  console.log(`Server running at http://localhost:${port}`)
+  console.log(`Server running at http://localhost:${port} (isProduction=${isProduction}; root=${root})`)
 }
