@@ -1,4 +1,4 @@
-import { createSSRApp,h  } from 'vue'
+import { createSSRApp, h } from 'vue'
 import { setPageContext } from './usePageContext'
 import { createPinia } from "pinia";
 import { initI18n } from "./i18n";

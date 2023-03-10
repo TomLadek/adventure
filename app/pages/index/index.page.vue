@@ -2,5 +2,5 @@
 </script>
 
 <template>
-    <a href="/adventure">Adventure</a>
+    <a href="/2023-myadventure">Adventure</a>
 </template>
