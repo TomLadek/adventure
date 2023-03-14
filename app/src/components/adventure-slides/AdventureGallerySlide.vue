@@ -120,7 +120,7 @@ onMounted(initGallery);
     ></a>
 
     <div class="content-outer" :class="slideContentClass">
-      <h2 class="headline">{{ t(slide.headline) }}</h2>
+      <h2 class="headline" v-html="t(slide.headline)"></h2>
 
       <div class="content-inner">
         <div class="text-wrapper">
