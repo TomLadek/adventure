@@ -35,6 +35,7 @@ const galleryThumbsClass = computed(() => {
     :title="image.title && getCaptionText(t(image.title))"
     v-bind="image.pswpImgAttrs"
     target="_blank"
+    data-pswp-imglink
   >
     <img
       v-bind="image.imgAttrs" 
