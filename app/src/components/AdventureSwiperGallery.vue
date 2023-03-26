@@ -2,6 +2,10 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../utils.js";
+
+/* CMS */
+import { useCmsControlsStore } from "../stores/cmscontrols.js";
+/* /CMS */
 </script>
 
 <script setup>
@@ -24,6 +28,18 @@ const galleryThumbsClass = computed(() => {
 
   return baseClass;
 });
+
+/* CMS */
+const cmsControlsStore = useCmsControlsStore();
+
+const cmsImgBorder = computed(() => {
+
+  if (cmsControlsStore.editMode)
+    return "1px solid red";
+  else
+    return "none";
+})
+/* /CMS */
 </script>
 
 <template>
@@ -47,7 +63,6 @@ const galleryThumbsClass = computed(() => {
 </template>
 
 <style>
-
 .gallery-thumbs.row {
   display: flex;
   gap: 0.5rem;
@@ -90,6 +105,12 @@ const galleryThumbsClass = computed(() => {
   object-fit: cover;
   border-radius: 8px;
 }
+
+/* CMS */
+.gallery-thumbs img {
+  border: v-bind(cmsImgBorder);
+}
+/* /CMS */
 
 .gallery-thumbs.row img {
   height: 6rem;

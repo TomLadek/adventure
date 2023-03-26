@@ -2,7 +2,6 @@
 // Vue functions
 import { ref, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { usePageContext } from "../../renderer/usePageContext";
 
 // Vue components
 import AdventureSlide from "../../src/components/AdventureSlide.vue";
@@ -12,6 +11,16 @@ import AdventureNavigation from "../../src/components/AdventureNavigation.vue";
 // Custom libraries
 import { gsap } from "gsap";
 import "../../src/assets/gi-full-page-scroll.css";
+
+// SSR
+import { usePageContext } from "../../renderer/usePageContext";
+
+const getRidOfMe = 42
+
+/* CMS */
+import CmsControls from "../../src/components/CmsControls.vue";
+import { useCmsControlsStore } from "../../src/stores/cmscontrols";
+/* /CMS */
 
 export const myData = 42
 
@@ -148,6 +157,10 @@ const slides = props.slidesData.map((slide) => {
 const slideChange = ref({ last: 0, current: 0, duration: 0 });
 const theme = ref("light");
 
+/* CMS */
+const cmsControlsStore = useCmsControlsStore();
+/* /CMS */
+
 watch(theme, (value) => updatePageTheme(value));
 
 onMounted(() => {
@@ -179,6 +192,10 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- CMS -->
+  <CmsControls v-if="cmsControlsStore.isCmsView"/>
+  <!-- /CMS -->
+
   <AdventureLanguageSwitcher />
 
   <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />

@@ -12,6 +12,8 @@ export function getCaptionText(captionHtml) {
 export function isObject(item) {
   return (item && typeof item === 'object' && !Array.isArray(item));
 }
+
+export const isCmsView = process.env.NODE_ENV === 'development';
   
 export default function mergeDeep(target, source) {
   let output = Object.assign({}, target);

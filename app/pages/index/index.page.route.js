@@ -1,3 +1,5 @@
-export default process.env.NODE_ENV === 'production'
-   ? () => false
-   : "/"
+import { isCmsView } from "../../src/utils"
+
+export default isCmsView
+   ? "/"
+   : () => false
