@@ -13,7 +13,7 @@ export default function cmsBuildTransformer(isCmsView) {
         return '<template></template>'
       }
 
-      let res = await readFile(id.replace(/\?.*/, ""), 'utf8');
+      const res = await readFile(id.replace(/\?.*/, ""), 'utf8');
 
       return res
               .replace(/\/\* CMS \*\/[\s\S]*?\/\* \/CMS \*\//g, "")
