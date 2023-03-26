@@ -2,6 +2,7 @@
 :root {
   --default-anim-time: 0.7s;
   --color-black: #262626;
+  --color-white: #ffffff;
 }
 
 /* ubuntu-300 - latin */
@@ -62,7 +63,7 @@
 body {
   margin: 0;
   font-family: 'Ubuntu', sans-serif;
-  color: white;
+  color: var(--color-white);
   transition: color var(--default-anim-time) ease;
 }
 
