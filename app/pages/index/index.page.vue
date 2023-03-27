@@ -9,7 +9,7 @@ let testAdventures = new Array(5)
 </script>
 
 <template>
-  <main class="index">
+  <main id="index">
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
       <li class="cms-adventure-list-item" v-for="(_) in testAdventures">
@@ -37,7 +37,7 @@ let testAdventures = new Array(5)
   --adventure-list-item-height: 11.25rem;
 }
 
-main.index {
+main#index {
   color: initial;
   padding: 3rem;
   position: relative;

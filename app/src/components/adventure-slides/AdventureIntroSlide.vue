@@ -1,6 +1,6 @@
 <script>
 import { useI18n } from "vue-i18n";
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { gsap } from "gsap";
 </script>
 
@@ -22,17 +22,11 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-const startLinkHasSpace = ref(false);
+const startLinkHasSpace = ref(false),
+  infoShowing = ref(false),
+  slideSwitched = ref(false);
 
-const startLinkClass = computed(() => {
-  return {
-    "start-link": true,
-    cornered: !startLinkHasSpace.value
-  }
-});
-
-let startLinkElement,
-  infoShowing = ref(false);
+let startLinkElement;
 
 onMounted(() => {
   let startLinkAnimation = gsap.timeline({
@@ -60,14 +54,12 @@ onMounted(() => {
 
   watch(() => props.showing, (showing) => {
     // perform one time actions when this slide stops showing
-    if (!showing) {
+    if (!showing && !slideSwitched.value) {
+      slideSwitched.value = true;
+
       if (startLinkAnimation) {
         startLinkAnimation.revert();
         startLinkAnimation = null;
-      }
-  
-      if (startLinkElement && startLinkElement.style.opacity !== 0) {
-        startLinkElement.style.opacity = 0;
       }
     }
   });
@@ -98,7 +90,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <a href="#slide1" :class="startLinkClass">
+    <a href="#slide1" class="start-link" :class="{ cornered: !startLinkHasSpace }" :style="{ opacity: showing && !slideSwitched ? 1 : 0}">
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="22" viewBox="0 0 35 22" class="start-link-icon">
         <path d="M4,4 L18,18 L32,4" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
@@ -106,7 +98,7 @@ onMounted(() => {
 
     <div class="adventure-info">
       <button class="info-button" aria-controls="adventure-info-content" :aria-expanded="infoShowing" @click.prevent="infoShowing = !infoShowing">i</button>
-      <div id="adventure-info-content" class="adventure-info-content" :hidden="!infoShowing">
+      <div id="adventure-info-content" class="adventure-info-content" v-show="infoShowing">
         <div>Made <span v-if="author && author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
         <div class="author-content" v-if="author && author.content">Content &copy; {{ author.content }}</div>
       </div>
