@@ -44,6 +44,8 @@ const mainImgUrlXl = computed(() => getCssUrlString(props.slide.mainImg.xl));
 const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
 const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
 const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
+
+const windowInnerHeight = computed(() => `${typeof window === "object" ? window.innerHeight : 0}px`);
 </script>
 
 <template>
@@ -59,6 +61,7 @@ const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl
   align-items: center;
   position: relative;
   height: 100%;
+  min-height: v-bind(windowInnerHeight);
   background-size: cover;
   background-position: center center;
 }
