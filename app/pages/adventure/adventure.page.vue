@@ -15,7 +15,8 @@ import "../../src/assets/gi-full-page-scroll.css";
 // SSR
 import { usePageContext } from "../../renderer/usePageContext";
 
-const getRidOfMe = 42
+// Misc
+import { isCmsView } from "../../src/utils";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -41,7 +42,12 @@ function imageUrl(image, width = 0, height = 0) {
     fileExtension = imgExtension;
   }
 
-  return new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  if (isCmsView)
+    return `/src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`;
+  else {
+    return new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  }
+
 }
 
 function imageSizes(image) {
