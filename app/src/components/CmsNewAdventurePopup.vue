@@ -10,7 +10,6 @@ function closePopup() {
 }
 
 function onKeyUp(e) {
-  console.log("keyup!", e)
   if (e.key === "Escape")
     closePopup()
 }
@@ -61,13 +60,14 @@ onUnmounted(() => {
 
 .popup-button-close {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -0.5rem;
+  right: -0.5rem;
   width: 2rem;
   height: 2rem;
   padding: 0;
   border: 1px solid #787878;
   border-radius: 50%;
   background: #fff;
+  cursor: pointer;
 }
 </style>
