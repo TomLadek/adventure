@@ -73,6 +73,10 @@ p {
   margin: 0;
 }
 
+button {
+  cursor: pointer;
+}
+
 @media (min-width: 800px) {
   div {
     scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */

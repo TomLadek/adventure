@@ -79,7 +79,6 @@ main#index {
   background: none;
   padding: 0;
   border: none;
-  cursor: pointer;
 }
 
 .new-item-icon {

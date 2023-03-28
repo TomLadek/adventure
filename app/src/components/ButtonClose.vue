@@ -21,6 +21,5 @@ defineEmits(["close-click"]);
   border: 1px solid #787878;
   border-radius: 50%;
   background: #fff;
-  cursor: pointer;
 }
 </style>
