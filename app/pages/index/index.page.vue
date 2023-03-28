@@ -38,9 +38,7 @@ let testAdventures = new Array(5)
 }
 
 main#index {
-  color: initial;
   padding: 3rem;
-  position: relative;
 }
 
 .cms-adventures-hdl {
