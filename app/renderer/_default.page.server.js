@@ -31,9 +31,7 @@ async function render(pageContext) {
         <meta name="description" />
         <title>${title}</title>
       </head>
-      <body>
-        <div id="app">${dangerouslySkipEscape(appHtml)}</div>
-      </body>
+      <body>${dangerouslySkipEscape(appHtml)}</body>
     </html>`
 
   return {

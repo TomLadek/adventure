@@ -10,5 +10,5 @@ export const clientRouting = true;
 async function render(pageContext) {
   const app = createApp(pageContext)
 
-  app.mount('#app')
+  app.mount('body')
 }

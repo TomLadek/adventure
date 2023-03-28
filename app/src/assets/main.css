@@ -63,12 +63,6 @@
 body {
   margin: 0;
   font-family: 'Ubuntu', sans-serif;
-  color: var(--color-white);
-  transition: color var(--default-anim-time) ease;
-}
-
-.dark body {
-  color: var(--color-black);
 }
 
 h2 {

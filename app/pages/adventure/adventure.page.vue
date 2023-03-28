@@ -198,22 +198,35 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- CMS -->
-  <CmsControls v-if="cmsControlsStore.isCmsView"/>
-  <!-- /CMS -->
+  <div class="adventure-container">
+    <!-- CMS -->
+    <CmsControls v-if="cmsControlsStore.isCmsView"/>
+    <!-- /CMS -->
 
-  <AdventureLanguageSwitcher />
+    <AdventureLanguageSwitcher />
 
-  <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />
+    <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />
 
-  <main id="main">
-    <AdventureSlide
-      v-for="(s, i) in slides"
-      v-bind:key="s.id"
-      :author="pageMeta.author"
-      :slide="s"
-      :slideIdx="i"
-      :slideChange="slideChange"
-    />
-  </main>
+    <main id="main">
+      <AdventureSlide
+        v-for="(s, i) in slides"
+        v-bind:key="s.id"
+        :author="pageMeta.author"
+        :slide="s"
+        :slideIdx="i"
+        :slideChange="slideChange"
+      />
+    </main>
+  </div>
 </template>
+
+<style>
+.adventure-container {
+  color: var(--color-white);
+  transition: color var(--default-anim-time) ease;
+}
+
+.dark .adventure-container {
+  color: var(--color-black);
+}
+</style>
