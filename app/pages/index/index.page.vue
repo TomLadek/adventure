@@ -27,8 +27,8 @@ let testAdventures = new Array(5)
   </main>
 
   <Transition name="popup-fade">
-      <CmsNewAdventurePopup v-if="newAdventurePopupShowing" @closing="newAdventurePopupShowing = false"></CmsNewAdventurePopup>
-    </Transition>
+    <CmsNewAdventurePopup v-if="newAdventurePopupShowing" @closing="newAdventurePopupShowing = false"></CmsNewAdventurePopup>
+  </Transition>
 </template>
 
 <style>
