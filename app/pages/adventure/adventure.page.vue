@@ -175,7 +175,7 @@ onMounted(() => {
   import("../../src/assets/gi-full-page-scroll.js").then(() => {  
     // Init full page scroll
     window.fs = new window.fullScroll({
-      mainElement: "main",
+      mainElement: "adventure",
       sections: document.querySelectorAll("section"),
       sectionTransitions: slides.map((slide) => slide.transition || 0),
       onStartAnimate: (fromSlide, toSlide) => {
@@ -207,7 +207,7 @@ onMounted(() => {
 
     <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />
 
-    <main id="main">
+    <main id="adventure">
       <AdventureSlide
         v-for="(s, i) in slides"
         v-bind:key="s.id"
