@@ -26,7 +26,7 @@ function addLanguage(lang) {
   if (newAdventureData.value.langs.indexOf(lang) < 0)
     newAdventureData.value.langs.push(lang);
 
-  if (newAdventureData.value.langs.length > 1 && activeLang.value === "")
+  if (newAdventureData.value.langs.length > 0 && activeLang.value === "")
     activeLang.value = newAdventureData.value.langs[0];
 }
 
