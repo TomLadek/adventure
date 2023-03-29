@@ -14,6 +14,26 @@ function closePopup() {
 }
 
 function confirm() {
+  const data = {
+    urlPath: newAdventureData.value.urlPath,
+    title: newAdventureData.value.title,
+    author: newAdventureData.value.author,
+    authorText: newAdventureData.value.authorText,
+    activeLang: activeLang.value,
+    multiLangData: Object.entries(newAdventureDataMultilang).reduce((prev, curr) => {
+      if (newAdventureData.value.langs.indexOf(curr[0]) > -1 && curr[0] !== activeLang.value)
+        prev[curr[0]] = curr[1];
+
+      return prev;
+    }, {})
+  };
+
+  fetch("/rest/adventure/create", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
   closePopup();
 }
 

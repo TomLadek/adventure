@@ -13,6 +13,8 @@ startServer()
 async function startServer() {
   const app = express()
 
+  app.use(express.json())
+
   if (isProduction) {
     const sirvMiddleware = require('sirv')
 
@@ -63,6 +65,12 @@ async function startServer() {
     })
 
     res.status(200).type("application/json").send(`{"ok":true}`)
+  })
+
+  app.put('/rest/adventure/create', async (req, res) => {
+    // TODO Do something with req.body
+
+    res.status(200).type("application/json").send('{"ok":true}')
   })
 
   app.listen(port)
