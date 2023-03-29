@@ -23,6 +23,9 @@ function onKeyUp(e) {
 function addLanguage(lang) {
   if (newAdventureData.value.langs.indexOf(lang) < 0)
     newAdventureData.value.langs.push(lang);
+
+  if (newAdventureData.value.langs.length > 1 && activeLang.value === "")
+    activeLang.value = newAdventureData.value.langs[0];
 }
 
 function removeLanguage(lang) {
@@ -30,6 +33,28 @@ function removeLanguage(lang) {
 
   if (langIdx > -1)
     newAdventureData.value.langs.splice(langIdx, 1);
+
+  if (activeLang.value === lang) {
+    if (newAdventureData.value.langs.length > 0)
+      switchActiveLang(newAdventureData.value.langs[0]);
+    else
+      switchActiveLang("");
+  }
+}
+
+function switchActiveLang(lang) {
+  if (!newAdventureDataMultilang[activeLang.value])
+    newAdventureDataMultilang[activeLang.value] = {};
+
+  newAdventureDataMultilang[activeLang.value].title = newAdventureData.value.title;
+  newAdventureDataMultilang[activeLang.value].author = newAdventureData.value.author;
+  newAdventureDataMultilang[activeLang.value].authorText = newAdventureData.value.authorText;
+
+  activeLang.value = lang;
+
+  newAdventureData.value.title = newAdventureDataMultilang[lang] ? newAdventureDataMultilang[lang].title : "";
+  newAdventureData.value.author = newAdventureDataMultilang[lang] ? newAdventureDataMultilang[lang].author : "";
+  newAdventureData.value.authorText = newAdventureDataMultilang[lang] ? newAdventureDataMultilang[lang].authorText : "";
 }
 
 const newAdventureData = ref({
@@ -39,6 +64,8 @@ const newAdventureData = ref({
     author: "",
     authorText: ""
   }),
+  newAdventureDataMultilang = {},
+  activeLang = ref(""),
   availableLangs = ["aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az", "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce", "ch", "co", "cr", "cs", "cu", "cv", "cy", "da", "de", "dv", "dz", "ee", "el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fj", "fo", "fr", "fy", "ga", "gd", "gl", "gn", "gu", "gv", "gv", "ha", "he", "hi", "ho", "hr", "ht", "hu", "hy", "hz", "ia", "id", "ie", "ig", "ii", "ii", "ik", "in", "io", "is", "it", "iu", "ja", "ji", "jv", "ka", "kg", "ki", "kj", "kk", "kl", "kl", "km", "kn", "ko", "kr", "ks", "ku", "kv", "kw", "ky", "la", "lb", "lg", "li", "ln", "lo", "lt", "lu", "lv", "mg", "mh", "mi", "mk", "ml", "mn", "mo", "mr", "ms", "mt", "my", "na", "nb", "nd", "ne", "ng", "nl", "nn", "no", "nr", "nv", "ny", "oc", "oj", "om", "or", "os", "pa", "pi", "pl", "ps", "pt", "qu", "rm", "rn", "ro", "ru", "rw", "sa", "sd", "se", "sg", "sh", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr", "ss", "ss", "st", "su", "sv", "sw", "ta", "te", "tg", "th", "ti", "tk", "tl", "tn", "to", "tr", "ts", "tt", "tw", "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa", "wo", "xh", "yi", "yo", "za", "zh", "zu"];
 
 const inputClass = computed(() => {
@@ -81,10 +108,6 @@ onUnmounted(() => {
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-title" v-model="newAdventureData.title">
           </div>
-          <label for="input-url-path">URL path:</label>
-          <div class="field-value-container" :class="inputClass">
-            <input type="text" class="field-value" id="input-url-path" v-model="newAdventureData.urlPath">
-          </div>
           <label for="input-url-author">Author:</label>
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-url-author" v-model="newAdventureData.author">
@@ -93,10 +116,30 @@ onUnmounted(() => {
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-url-author-text" v-model="newAdventureData.authorText">
           </div>
+          <label for="input-url-path">URL path:</label>
+          <div class="field-value-container">
+            <input type="text" class="field-value" id="input-url-path" v-model="newAdventureData.urlPath">
+          </div>
       </div>
       <div class="cms-new-adventure-actions">
         <button class="button-ok" @click="confirm">OK</button>
         <button class="button-cancel" @click="closePopup">Cancel</button>
+      </div>
+      <div class="cms-new-adventure-lang-switcher">
+        <select v-if="newAdventureData.langs.length > 3"
+          :value="activeLang"
+          @change="switchActiveLang($event.target.value)"
+        >
+          <option v-for="(lang) in newAdventureData.langs" :value="lang">{{ lang }}</option>
+        </select>
+        <template v-else-if="newAdventureData.langs.length > 1">
+          <button
+            v-for="(lang) in newAdventureData.langs"
+            class="cms-new-adventure-lang"
+            :class="{ active: activeLang === lang }"
+            @click="switchActiveLang(lang)"
+          >{{ lang }}</button>
+        </template>
       </div>
     </div>
   </div>
@@ -270,5 +313,38 @@ onUnmounted(() => {
 
 .cms-new-adventure-actions button.button-cancel:active {
     background-color: rgba(145, 0, 0, 0.18);
+}
+
+.cms-new-adventure-lang-switcher {
+  position: absolute;
+  right: 2.4rem;
+  top: 2.4rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.cms-new-adventure-lang-switcher select {
+  font-size: inherit;
+}
+
+.cms-new-adventure-lang {
+  display: block;
+  position: relative;
+  border: none;
+  background: none;
+  font-size: inherit;
+  padding: 0;
+  width: 1.5em;
+}
+
+.cms-new-adventure-lang:not(:last-child)::after {
+  content: "|";
+  position: absolute;
+  right: -0.6rem;
+  font-weight: initial;
+}
+
+.cms-new-adventure-lang.active {
+  font-weight: bold;
 }
 </style>
