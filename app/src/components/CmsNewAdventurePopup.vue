@@ -1,6 +1,8 @@
 <script>
 import { defineEmits, onMounted, onUnmounted, ref, computed } from "vue";
 
+import languages from "../languages.js";
+
 // import ButtonClose from "./ButtonClose.vue";
 </script>
 
@@ -66,7 +68,7 @@ const newAdventureData = ref({
   }),
   newAdventureDataMultilang = {},
   activeLang = ref(""),
-  availableLangs = ["aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az", "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce", "ch", "co", "cr", "cs", "cu", "cv", "cy", "da", "de", "dv", "dz", "ee", "el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fj", "fo", "fr", "fy", "ga", "gd", "gl", "gn", "gu", "gv", "gv", "ha", "he", "hi", "ho", "hr", "ht", "hu", "hy", "hz", "ia", "id", "ie", "ig", "ii", "ii", "ik", "in", "io", "is", "it", "iu", "ja", "ji", "jv", "ka", "kg", "ki", "kj", "kk", "kl", "kl", "km", "kn", "ko", "kr", "ks", "ku", "kv", "kw", "ky", "la", "lb", "lg", "li", "ln", "lo", "lt", "lu", "lv", "mg", "mh", "mi", "mk", "ml", "mn", "mo", "mr", "ms", "mt", "my", "na", "nb", "nd", "ne", "ng", "nl", "nn", "no", "nr", "nv", "ny", "oc", "oj", "om", "or", "os", "pa", "pi", "pl", "ps", "pt", "qu", "rm", "rn", "ro", "ru", "rw", "sa", "sd", "se", "sg", "sh", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr", "ss", "ss", "st", "su", "sv", "sw", "ta", "te", "tg", "th", "ti", "tk", "tl", "tn", "to", "tr", "ts", "tt", "tw", "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa", "wo", "xh", "yi", "yo", "za", "zh", "zu"];
+  availableLangs = languages;
 
 const inputClass = computed(() => {
   return {
@@ -100,7 +102,7 @@ onUnmounted(() => {
               <button class="chip">+</button>
               <select @change="addLanguage($event.target.value)">
                 <option value=""></option>
-                <option v-for="(lang) in availableLangs" :value="lang">{{ lang }}</option>
+                <option v-for="(lang) in availableLangs" :value="lang.code">{{ lang.name }} ({{ lang.code }})</option>
               </select>
             </li>
           </ul>
@@ -247,8 +249,15 @@ onUnmounted(() => {
   height: 100%;
   list-style: none;
   margin: 0;
+  margin-bottom: 1rem;
   padding-right: 0;
   padding-left: 0;
+}
+
+@media(min-width: 600px) {
+  .cms-new-adventure-fields .field-value.chips-values {
+    margin-bottom: 0;
+  }
 }
 
 .cms-new-adventure-fields .field-value .chip {
