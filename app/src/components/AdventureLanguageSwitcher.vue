@@ -41,7 +41,6 @@ function setLang(lang) {
   border: none;
   border-radius: 5px;
   color: unset;
-  font-family: inherit;
 }
 
 .lang-switcher button.active {

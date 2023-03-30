@@ -112,9 +112,28 @@ onUnmounted(() => {
 
     <div class="cms-new-adventure-fields-container">
       <h2>New Adventure</h2>
+
+      <div class="cms-new-adventure-lang-switcher">
+        <select v-if="newAdventureData.langs.length > 3"
+          :value="activeLang"
+          @change="switchActiveLang($event.target.value)"
+        >
+          <option v-for="(lang) in newAdventureData.langs" :value="lang">{{ lang }}</option>
+        </select>
+
+        <template v-else-if="newAdventureData.langs.length > 1">
+          <button
+            v-for="(lang) in newAdventureData.langs"
+            class="cms-new-adventure-lang"
+            :class="{ active: activeLang === lang, long: /zh-/.test(lang) }"
+            @click="switchActiveLang(lang)"
+          >{{ lang }}</button>
+        </template>
+      </div>
+
       <div class="cms-new-adventure-fields">
           <label for="input-languages">Languages:</label>
-          <ul class="field-value chips-values">
+          <ul class="field-value-container chips-values">
             <li class="chip-container" v-for="(lang) in newAdventureData.langs">
               <button class="chip" @click="removeLanguage(lang)">{{ lang }}</button>
             </li>
@@ -126,42 +145,31 @@ onUnmounted(() => {
               </select>
             </li>
           </ul>
+
           <label for="input-title">Title:</label>
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-title" v-model="newAdventureData.title">
           </div>
+
           <label for="input-url-author">Author:</label>
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-url-author" v-model="newAdventureData.author">
           </div>
+
           <label for="input-url-author-text">Text author(s):</label>
           <div class="field-value-container" :class="inputClass">
             <input type="text" class="field-value" id="input-url-author-text" v-model="newAdventureData.authorText">
           </div>
+
           <label for="input-url-path">URL path:</label>
           <div class="field-value-container">
             <input type="text" class="field-value" id="input-url-path" v-model="newAdventureData.urlPath">
           </div>
       </div>
+
       <div class="cms-new-adventure-actions">
         <button class="button-ok" @click="confirm">OK</button>
         <button class="button-cancel" @click="closePopup">Cancel</button>
-      </div>
-      <div class="cms-new-adventure-lang-switcher">
-        <select v-if="newAdventureData.langs.length > 3"
-          :value="activeLang"
-          @change="switchActiveLang($event.target.value)"
-        >
-          <option v-for="(lang) in newAdventureData.langs" :value="lang">{{ lang }}</option>
-        </select>
-        <template v-else-if="newAdventureData.langs.length > 1">
-          <button
-            v-for="(lang) in newAdventureData.langs"
-            class="cms-new-adventure-lang"
-            :class="{ active: activeLang === lang }"
-            @click="switchActiveLang(lang)"
-          >{{ lang }}</button>
-        </template>
       </div>
     </div>
   </div>
@@ -260,7 +268,7 @@ onUnmounted(() => {
   font-size: 0.6em;
 }
 
-.cms-new-adventure-fields .field-value.chips-values {
+.cms-new-adventure-fields .field-value-container.chips-values {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -275,12 +283,12 @@ onUnmounted(() => {
 }
 
 @media(min-width: 600px) {
-  .cms-new-adventure-fields .field-value.chips-values {
+  .cms-new-adventure-fields .field-value-container.chips-values {
     margin-bottom: 0;
   }
 }
 
-.cms-new-adventure-fields .field-value .chip {
+.cms-new-adventure-fields .field-value-container .chip {
   position: relative;
   border: 1px solid #787878;
   border-radius: 8px;
@@ -289,8 +297,8 @@ onUnmounted(() => {
   font: inherit;
 }
 
-.cms-new-adventure-fields .field-value .chip:hover::after,
-.cms-new-adventure-fields .field-value .chip:focus::after {
+.cms-new-adventure-fields .field-value-container .chip:hover::after,
+.cms-new-adventure-fields .field-value-container .chip:focus::after {
   content: '×';
   position: absolute;
   right: 1px;
@@ -298,11 +306,11 @@ onUnmounted(() => {
   color: #787878;
 }
 
-.cms-new-adventure-fields .field-value .chip-container {
+.cms-new-adventure-fields .field-value-container .chip-container {
   position: relative;
 }
 
-.cms-new-adventure-fields .field-value .new-lang-chip-container select {
+.cms-new-adventure-fields .field-value-container .new-lang-chip-container select {
   position: absolute;
   top: 0;
   left: 0;
@@ -312,7 +320,7 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-.cms-new-adventure-fields .field-value .new-lang-chip-container .chip {
+.cms-new-adventure-fields .field-value-container .new-lang-chip-container .chip {
   border: 1px dashed #787878;
   color: #787878;
 }
@@ -375,5 +383,9 @@ onUnmounted(() => {
 
 .cms-new-adventure-lang.active {
   font-weight: bold;
+}
+
+.cms-new-adventure-lang.long {
+  width: 3.8rem;
 }
 </style>
