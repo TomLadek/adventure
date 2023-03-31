@@ -1,7 +1,7 @@
 <script>
-import { useLanguageStore } from "../stores/language.js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useLanguageStore } from "../stores/language.js";
 </script>
 
 <script setup>

@@ -1,7 +1,7 @@
 import { createSSRApp, h } from 'vue'
-import { setPageContext } from './usePageContext'
 import { createPinia } from "pinia";
-import { initI18n } from "./i18n";
+import { setPageContext } from './usePageContext.js'
+import { initI18n } from "./i18n.js";
 
 import PageShell from './PageShell.vue'
 import slidesData from "../src/assets/data/slides.json";

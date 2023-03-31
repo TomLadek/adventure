@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { isCmsView } from "../utils";
+import { isCmsView } from "../utils.js";
 
 export const useCmsControlsStore = defineStore("cmsControls", () => {
   const editMode = isCmsView ? ref(true) : false;

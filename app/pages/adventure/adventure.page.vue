@@ -13,14 +13,14 @@ import { gsap } from "gsap";
 import "../../src/assets/gi-full-page-scroll.css";
 
 // SSR
-import { usePageContext } from "../../renderer/usePageContext";
+import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { isCmsView } from "../../src/utils";
+import { isCmsView } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
-import { useCmsControlsStore } from "../../src/stores/cmscontrols";
+import { useCmsControlsStore } from "../../src/stores/cmscontrols.js";
 /* /CMS */
 
 export const myData = 42

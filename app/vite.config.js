@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 
 import vue from "@vitejs/plugin-vue";
 import ssr from 'vite-plugin-ssr/plugin'
-import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer";
+import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer.js";
 
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => {
