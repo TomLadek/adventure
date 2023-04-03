@@ -55,7 +55,7 @@ const cmsImgBorder = computed(() => {
     <img
       v-bind="image.imgAttrs" 
       :alt="image.alt && getCaptionText(t(image.alt))"
-      :data-caption="t(image.title ?? '[error in AdventureSwiperGallery.vue]')"
+      :data-caption="image.title ? t(image.title) : '[error in AdventureSwiperGallery.vue]'"
       loading="lazy"
     />
   </a>

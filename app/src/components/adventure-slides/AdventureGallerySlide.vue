@@ -114,7 +114,7 @@ onMounted(initGallery);
       :href="slide.mainImg.original"
       v-bind="slide.mainImgAttrs"
       :title="slide.mainImgTitle && getCaptionText(t(slide.mainImgTitle))"
-      :data-caption="t(slide.mainImgTitle)"
+      :data-caption="slide.mainImgTitle ? t(slide.mainImgTitle) : ''"
       target="_blank"
       class="main-picture"
     ></a>
