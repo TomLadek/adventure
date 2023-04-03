@@ -178,6 +178,7 @@ onMounted(() => {
       mainElement: "adventure",
       sections: document.querySelectorAll("section"),
       sectionTransitions: slides.map((slide) => slide.transition || 0),
+      activateOnInit: false,
       onStartAnimate: (fromSlide, toSlide) => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
         theme.value = slides[toSlide].theme;
