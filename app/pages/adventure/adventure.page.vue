@@ -43,9 +43,11 @@ function imageUrl(image, width = 0, height = 0) {
   }
 
   if (isCmsView)
+    // TODO get image URL from public directory even in CMS view
     return `/src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`;
   else {
-    return new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+    // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+    return `/img/${imgName}${sizeSuffix}.${fileExtension}`;
   }
 
 }
