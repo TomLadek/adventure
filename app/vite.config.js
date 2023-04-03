@@ -31,8 +31,12 @@ export default defineConfig((configEnv) => {
       }
     };
 
-  // if (!isCmsView)
-  //   conf.base = "/adventure/2023-myadventure"
+  if (isCmsView) {
+    // conf.server = {}
+  } else {
+    // conf.base = "/adventure/2023-myadventure"
+
+  }
 
   return conf;
 });
