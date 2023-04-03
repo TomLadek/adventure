@@ -42,14 +42,8 @@ function imageUrl(image, width = 0, height = 0) {
     fileExtension = imgExtension;
   }
 
-  if (isCmsView)
-    // TODO get image URL from public directory even in CMS view
-    return `/src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`;
-  else {
-    // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
-    return `/img/${imgName}${sizeSuffix}.${fileExtension}`;
-  }
-
+  // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  return `/img/${imgName}${sizeSuffix}.${fileExtension}`;
 }
 
 function imageSizes(image) {

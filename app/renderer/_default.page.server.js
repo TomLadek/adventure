@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises"
 import { createApp } from './app.js'
 import logoUrl from '/favicon.ico'
 import utilsSynchUrl from '../src/utils-synch.js?url'
+import '../src/assets/data/slides.json' // TODO maybe necessary so that slides.json is loaded by Vite on page reload?
 
 export { onBeforeRender, render }
 // See https://vite-plugin-ssr.com/data-fetching

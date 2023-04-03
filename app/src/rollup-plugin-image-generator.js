@@ -19,10 +19,14 @@ export default function imageGenerator(options = {}) {
       if (!/slides\.json$/.test(id))
         return;
 
+      console.log(`image-generator: on load of '${id}'`);
+
       const self = this,
-        imgBasePath = path.resolve(path.dirname(id), "img"),
-        existingImages = fs.readdirSync(imgBasePath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
-        slidesData = JSON.parse(fs.readFileSync(new URL(id, import.meta.url))),
+        imgOriginPath = path.resolve(path.dirname(id), "img"),
+        imgDestPath = "/adventure/public/img",
+        existingOriginImages = fs.readdirSync(imgOriginPath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
+        existingDestImages = fs.readdirSync(imgDestPath).reduce((prev, curr) => { prev[curr] = true; return prev }, {}),
+        slidesData = JSON.parse(fs.readFileSync(id)),
         mainImgs = [],
         galleryImages = {
           row: [],
@@ -37,11 +41,22 @@ export default function imageGenerator(options = {}) {
             srcImgName = srcImgMatch[1],
             srcImgExtension = srcImgMatch[3] || "jpg",
             srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,
-            srcImgPath = `${imgBasePath}/${srcImgNameWithExtension}`;
+            srcImgPath = `${imgOriginPath}/${srcImgNameWithExtension}`,
+            destImgPath = `${imgDestPath}/${srcImgNameWithExtension}`;
 
           // Skip if the source image doesn't exist
-          if (!existingImages[srcImgNameWithExtension])
+          if (!existingOriginImages[srcImgNameWithExtension])
             continue;
+
+          
+          if (!existingDestImages[srcImgNameWithExtension]) {
+            console.log(`image-generator: copying original file '${srcImgPath}' to '${destImgPath}'`);
+  
+            fs.copyFile(srcImgPath, destImgPath, (err) => {
+              if (err)
+                console.error(err);
+            });
+          }
 
           for (let imgWidthOrHeight of sizes[mode]) {
             const sizeSuffix = mode === "widths" ? `${imgWidthOrHeight}x0` : `0x${imgWidthOrHeight}`,
@@ -49,10 +64,10 @@ export default function imageGenerator(options = {}) {
               scaledImgNameWithExtension = `${srcImgName}_${sizeSuffix}.${scaledImgExtension}`;
 
             // Skip if the scaled image already exists
-            if (existingImages[scaledImgNameWithExtension])
+            if (existingDestImages[scaledImgNameWithExtension])
               continue;
 
-            const scaledImgPath = `${imgBasePath}/${scaledImgNameWithExtension}`,
+            const scaledImgDestPath = `${imgDestPath}/${scaledImgNameWithExtension}`,
               magick = gm(srcImgPath);
 
             if (mode === "widths")
@@ -79,7 +94,9 @@ export default function imageGenerator(options = {}) {
                     });
                   }
 
-                  fs.writeFile(scaledImgPath, buffer, (err) => {
+                  console.log(`image-generator: writing new scaled image '${scaledImgDestPath}'`);
+
+                  fs.writeFile(scaledImgDestPath, buffer, (err) => {
                     if (err)
                       console.error(err);
                   });
