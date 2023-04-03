@@ -20,7 +20,7 @@ const cmsControlsStore = useCmsControlsStore();
 <style>
 .cms-controls[data-id-cmspanel] {
   z-index: 100;
-  position: absolute;
+  position: fixed;
   left: 1rem;
   top: 1rem;
   padding: 1rem;

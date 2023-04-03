@@ -29,7 +29,7 @@ function setLang(lang) {
 <style>
 .lang-switcher {
   display: flex;
-  position: absolute;    
+  position: fixed;    
   top: 0.5rem;
   right: 0.5rem;
   z-index: 2;

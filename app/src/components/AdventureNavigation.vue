@@ -32,7 +32,7 @@ const props = defineProps({
 .dots {
   display: flex;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   z-index: 1;
 }
 
