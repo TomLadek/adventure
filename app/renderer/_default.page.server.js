@@ -2,6 +2,7 @@ import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { createApp } from './app.js'
 import logoUrl from '/favicon.ico'
+import utilsSynchUrl from '../src/utils-synch.js?url'
 
 export { onBeforeRender, render }
 // See https://vite-plugin-ssr.com/data-fetching
@@ -30,6 +31,7 @@ async function render(pageContext) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" />
         <title>${title}</title>
+        <script src="${utilsSynchUrl}"></script>
       </head>
       <body>${dangerouslySkipEscape(appHtml)}</body>
     </html>`

@@ -60,8 +60,7 @@ const windowInnerHeight = computed(() => `${typeof window === "object" ? window.
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 100%;
-  min-height: v-bind(windowInnerHeight);
+  min-height: calc(100 * var(--vh));
   background-size: cover;
   background-position: center center;
 }
