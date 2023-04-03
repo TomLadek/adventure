@@ -64,13 +64,20 @@ async function startServer() {
       console.log(`stdout: ${stdout}`)
     })
 
-    res.status(200).type("application/json").send(`{"ok":true}`)
+    res.status(200).json({ok: true})
   })
 
   app.put('/rest/adventure/create', async (req, res) => {
     // TODO Do something with req.body
 
-    res.status(200).type("application/json").send('{"ok":true}')
+    res.status(200).json({ok: true})
+  })
+
+  app.post('/rest/adventure/:id/edit', async (req, res) => {
+    console.log("params", req.params)
+    console.log("body", req.body)
+
+    res.status(200).json({ok: true})
   })
 
   app.listen(port)

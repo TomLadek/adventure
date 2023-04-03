@@ -120,7 +120,7 @@ const routeParams = pageContext.routeParams;
 
 const { t, locale } = useI18n();
 
-const slides = props.slidesData.map((slide) => {
+const slides = ref(props.slidesData.map((slide) => {
   if (slide.mainImg) {
     slide.mainImgAttrs = {
       "data-pswp-width": slide.mainImg.width,
@@ -158,7 +158,7 @@ const slides = props.slidesData.map((slide) => {
   }
 
   return slide;
-});
+}));
 
 const slideChange = ref({ last: 0, current: 0, duration: 0 });
 const theme = ref("light");
@@ -177,11 +177,11 @@ onMounted(() => {
     window.fs = new window.fullScroll({
       mainElement: "adventure",
       sections: document.querySelectorAll("section"),
-      sectionTransitions: slides.map((slide) => slide.transition || 0),
+      sectionTransitions: slides.value.map((slide) => slide.transition || 0),
       activateOnInit: false,
       onStartAnimate: (fromSlide, toSlide) => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
-        theme.value = slides[toSlide].theme;
+        theme.value = slides.value[toSlide].theme;
       }
     });
   });
@@ -194,14 +194,14 @@ onMounted(() => {
     watch(locale, async () => { updatePageMeta(titleGetter, descriptionGetter); });
   }
 
-  updatePageTheme(slides[0].theme);
+  updatePageTheme(slides.value[0].theme);
 });
 </script>
 
 <template>
   <div class="adventure-container">
     <!-- CMS -->
-    <CmsControls v-if="cmsControlsStore.isCmsView"/>
+    <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" :imageSizes="imageSizes"/>
     <!-- /CMS -->
 
     <AdventureLanguageSwitcher />
@@ -210,10 +210,10 @@ onMounted(() => {
 
     <main id="adventure">
       <AdventureSlide
-        v-for="(s, i) in slides"
-        v-bind:key="s.id"
+        v-for="(slide, i) in slides"
+        v-bind:key="slide.id"
         :author="pageMeta.author"
-        :slide="s"
+        :slide="slide"
         :slideIdx="i"
         :slideChange="slideChange"
       />
