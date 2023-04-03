@@ -1,5 +1,6 @@
 import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
+import { readFile } from "node:fs/promises"
 import { createApp } from './app.js'
 import logoUrl from '/favicon.ico'
 import utilsSynchUrl from '../src/utils-synch.js?url'
@@ -9,7 +10,20 @@ export { onBeforeRender, render }
 export const passToClient = ['pageProps', 'routeParams']
 
 async function onBeforeRender(pageContext) {
-  // console.log("onBeforeRender called", pageContext)
+  console.log(`onBeforeRender -- ${pageContext.urlPathname} -- ${pageContext.Page.__name}`)
+
+  const slidesJsonString = await readFile("/adventure/src/assets/data/slides.json", "utf8"),
+    slidesData = JSON.parse(slidesJsonString);
+
+  return {
+    pageContext: {
+      pageProps: {
+        slidesData: slidesData.slides,
+        pageMeta: slidesData.meta,
+        messages: slidesData.messages
+      }
+    }
+  }
 }
 
 async function render(pageContext) {

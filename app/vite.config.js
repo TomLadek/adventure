@@ -23,6 +23,11 @@ export default defineConfig((configEnv) => {
         alias: {
           "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
+      },
+      server: {
+        watch: {
+          ignored: ['/adventure/src/assets/data/slides.json']
+        }
       }
     };
 

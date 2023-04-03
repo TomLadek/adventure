@@ -4,15 +4,11 @@ import { setPageContext } from './usePageContext.js'
 import { initI18n } from "./i18n.js";
 
 import PageShell from './PageShell.vue'
-import slidesData from "../src/assets/data/slides.json";
 
 export { createApp }
 
 function createApp(pageContext) {
   let pageProps = pageContext.pageProps || {}
-  
-  pageProps.slidesData = slidesData.slides
-  pageProps.pageMeta = slidesData.meta
 
   const PageWithLayout = {
     render() {
@@ -31,7 +27,7 @@ function createApp(pageContext) {
   const app = createSSRApp(PageWithLayout);
 
   app.use(createPinia());
-  app.use(initI18n(slidesData.messages));
+  app.use(initI18n(pageProps.messages));
 
   // We make `pageContext` available from any Vue component
   setPageContext(app, pageContext)
