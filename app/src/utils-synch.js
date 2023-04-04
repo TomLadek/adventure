@@ -1,4 +1,8 @@
-(function() {  
+/*
+ This file is designed to be loaded synchronously. It should be small and be executed fast.
+*/
+
+(function() {
   if (typeof window !== "object")
     return;
 
