@@ -11,30 +11,29 @@ The best way to see its features is to run the code in a Docker container (see b
 
 > **Note**: The paths in this file assume the working directory is *this* directory.
 
-Build the Docker image:
+Build the CMS Docker image:
 ```
-docker image build -t vuejs-gm-adventure docker/
-```
-
-
-Run a Docker container from that image:
-
-> **Note**: In Windows PowerShell you'll need to use `${PWD}` for current directory substitution. Also make sure that the `entrypoint.sh` file has LF line endings - this is important otherwise running the container will fail.
-
-```
-docker container run --name vuejs-gm-adventure -itdp 5173:5173 -v $(pwd)/app:/adventure vuejs-gm-adventure
+docker image build -t adventure-cms docker/
 ```
 
 
-That's it! You can now open http://localhost:5173 on your machine and it will serve the VueJS/Vite app from `./app`.
-
-To build the app for production, exec a shell inside the container and do `npm run build`. Alternatively you can also run an independent, one-time container from the same image with that command, like so:
-
+Run the CMS and the Database as Docker containers using Compose:
 ```
-docker container run --rm -it -v $(pwd)/app:/adventure vuejs-gm-adventure npm run build
+docker compose -f docker/docker-compose.yml -p adventure-cms up
 ```
 
-Either will create the build output in the `./app/dist` directory, which you can then just copy to your webserver.
+> **Note**: Make sure that the `entrypoint.sh` file has LF line endings - this is important otherwise running the container will fail.
+
+
+That's it! You can now open http://localhost:3000 on your machine and it will serve the app from `./app`.
+
+To build the app for production, run the Docker containers for build & preview with:
+
+```
+docker compose -f docker/docker-compose-prod.yml -p adventure-cms-prod up
+```
+
+This will create the build output in the `./app/dist` directory and serve a preview of these files on http://localhost:3000. For deployment you just copy the contents of the build directory to your webserver.
 
 
 ## Details

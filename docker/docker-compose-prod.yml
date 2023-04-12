@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+  adventure-cms:
+    image: adventure-cms:3
+    volumes:
+      - ../app:/adventure
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    command: bash -c "
+        npm install --global serve &&
+        npm run build &&
+        serve dist/client"
+
+  mongodb:
+    image: mongo:5
+    restart: always
+    environment:
+      # TODO get these from environment variable
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    volumes:
+      - adventure-cms-data:/data/db
+
+volumes:
+  adventure-cms-data:

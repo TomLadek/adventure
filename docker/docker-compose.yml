@@ -10,12 +10,6 @@ services:
       - '3000:3000'
     depends_on:
       - mongodb
-    # Comment the following lines in for prod build & serve:
-    #command: bash -c "
-    #    npm install --global serve &&
-    #    npm run build &&
-    #    serve dist/client
-    #  "
 
   mongodb:
     image: mongo:5
