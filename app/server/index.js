@@ -12,6 +12,7 @@ startServer()
 
 async function startServer() {
   const app = express()
+  const { insertOneSlide } = await import('../database/db.js')
 
   app.use(express.json())
 
@@ -69,6 +70,8 @@ async function startServer() {
 
   app.put('/rest/adventure/create', async (req, res) => {
     // TODO Do something with req.body
+
+    insertOneSlide(req.body)
 
     res.status(200).json({ok: true})
   })

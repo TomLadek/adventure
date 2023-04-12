@@ -2,6 +2,7 @@ import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { readFile } from "node:fs/promises"
 import { createApp } from './app.js'
+import { findSlides } from '../database/db.js'
 import logoUrl from '/favicon.ico'
 import utilsSynchUrl from '../src/utils-synch.js?url'
 import '../src/assets/data/slides.json' // TODO maybe necessary so that slides.json is loaded by Vite on page reload?
@@ -13,6 +14,14 @@ export const passToClient = ['pageProps', 'routeParams']
 async function onBeforeRender(pageContext) {
   console.log(`onBeforeRender -- ${pageContext.urlPathname} -- ${pageContext.Page.__name}`)
 
+  findSlides()
+
+  // TODO Idea: two different data sources:
+  // 1. Database. All data is by default in the database. Changes are not watched. Updating slides writes
+  //    data to the DB.
+  // 2. slides.json. This file is constructed from the data in the database in onBeforeRender. This file
+  //    is watched. Editing/adding/deleting images is done directly in the slides.json (in addition to 
+  //    the DB) to trigger HMR.
   const slidesJsonString = await readFile("/adventure/src/assets/data/slides.json", "utf8"),
     slidesData = JSON.parse(slidesJsonString);
 
