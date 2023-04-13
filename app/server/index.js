@@ -1,7 +1,7 @@
 // Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
 
 const express = require('express')
-const { renderPage } = require('vite-plugin-ssr')
+const { renderPage } = require('vite-plugin-ssr/server')
 const { exec } = require('child_process')
 
 const isProduction = process.env.NODE_ENV === 'production',
