@@ -32,9 +32,7 @@ function confirm() {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
-  });
-
-  closePopup();
+  }).then(closePopup);
 }
 
 function onKeyUp(e) {

@@ -12,7 +12,7 @@ export { onBeforeRender, render }
 export const passToClient = ['pageProps', 'routeParams']
 
 async function onBeforeRender(pageContext) {
-  console.log(`onBeforeRender -- ${pageContext.urlPathname} -- ${pageContext.Page.__name}`)
+  console.log(`onBeforeRender -- ${pageContext.urlPathname} -- ${pageContext.Page ? pageContext.Page.__name : ""}`)
 
   findSlides()
 

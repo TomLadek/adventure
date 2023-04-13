@@ -1,11 +1,27 @@
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
 </script>
 
 <script setup>
-const newAdventurePopupShowing = ref(false)
-let testAdventures = new Array(5)
+const newAdventurePopupShowing = ref(false);
+const testAdventures = ref([]);
+
+function updateAdventuresList() {
+  fetch("/rest/adventure/list").then(async (response) => {
+    if (response.status === 200) {
+      const list = await response.json()
+      testAdventures.value.splice(0, Infinity, ...list)
+    }
+  });
+}
+
+function newAdventurePopupClosing() {
+  newAdventurePopupShowing.value = false;  
+  updateAdventuresList();
+}
+
+onMounted(updateAdventuresList);
 </script>
 
 <template>
@@ -27,7 +43,7 @@ let testAdventures = new Array(5)
   </main>
 
   <Transition name="popup-fade">
-    <CmsNewAdventurePopup v-if="newAdventurePopupShowing" @closing="newAdventurePopupShowing = false"></CmsNewAdventurePopup>
+    <CmsNewAdventurePopup v-if="newAdventurePopupShowing" @closing="newAdventurePopupClosing"></CmsNewAdventurePopup>
   </Transition>
 </template>
 

@@ -12,7 +12,7 @@ startServer()
 
 async function startServer() {
   const app = express()
-  const { insertOneSlide } = await import('../database/db.js')
+  const { insertOneSlide, findSlides } = await import('../database/db.js')
 
   app.use(express.json())
 
@@ -68,12 +68,23 @@ async function startServer() {
     res.status(200).json({ok: true})
   })
 
+  app.get('/rest/adventure/list', async (req, res) => {
+    try {
+      const slides = await findSlides()
+      res.status(200).json(slides)
+    } catch (ex) {
+      res.status(500).json(ex)
+    }
+  })
+
   app.put('/rest/adventure/create', async (req, res) => {
-    // TODO Do something with req.body
+    try {
+      await insertOneSlide(req.body)
+    } catch (ex) {
+      res.status(500).json(ex)
+    }
 
-    insertOneSlide(req.body)
-
-    res.status(200).json({ok: true})
+    return res.status(200).end()
   })
 
   app.post('/rest/adventure/:id/edit', async (req, res) => {
