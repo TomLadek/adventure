@@ -113,7 +113,7 @@ const props = defineProps({
 
 const pageContext = usePageContext();
 
-const routeParams = pageContext.routeParams;
+const routeParams = pageContext.routeParams; // get the current URL path
 
 const { t, locale } = useI18n();
 
