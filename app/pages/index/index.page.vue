@@ -1,6 +1,7 @@
 <script>
 import { ref } from "vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
+import CmsAdventureItemButtonNew from "../../src/components/CmsAdventureItemButtonNew.vue";
 
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
@@ -31,15 +32,10 @@ function newAdventurePopupClosing() {
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
       <li class="cms-adventure-list-item" v-for="adventure in adventures" :key="adventure.id">
-        <a :href="adventure.meta.basePath" class="cms-adventure-link" :id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
+        <a :href="adventure.meta.basePath" class="cms-adventure-link" :data-adventure-id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
       </li>
       <li class="cms-adventure-list-item new-item">
-        <button class="cms-adventure-item-button-new" @click="newAdventurePopupShowing = true">
-          <svg width="32px" height="32px" class="new-item-icon">
-            <rect x="13" y="0" rx="2" ry="2" width="6" height="32" fill="#CCCCCC"/>
-            <rect x="0" y="13" rx="2" ry="2" width="32" height="6" fill="#CCCCCC"/>
-          </svg>
-        </button>
+        <CmsAdventureItemButtonNew @click="newAdventurePopupShowing = true" />
       </li>
     </ul>
   </main>
@@ -89,20 +85,6 @@ main#index {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-}
-
-.cms-adventure-item-button-new {
-  width: 100%;
-  height: 100%;
-  background: none;
-  padding: 0;
-  border: none;
-}
-
-.new-item-icon {
-  border: 1px solid #CCCCCC;
-  border-radius: 50%;
-  padding: 10px;
 }
 
 .cms-adventure-link {

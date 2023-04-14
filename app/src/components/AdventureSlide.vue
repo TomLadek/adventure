@@ -45,12 +45,16 @@ const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
 const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
 const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
 
-const windowInnerHeight = computed(() => `${typeof window === "object" ? window.innerHeight : 0}px`);
+const slideType = computed(() => {
+  if (props.slide.intro)
+    return AdventureIntroSlide
+  else
+    return AdventureGallerySlide
+});
 </script>
 
 <template>
-  <AdventureIntroSlide v-if="slide.intro" :slide="slide" :author="author" :showing="slideChange.current === slideIdx" />
-  <AdventureGallerySlide v-else :slide="slide" />
+  <component :is="slideType" :slide="slide" :author="author" :showing="slideChange.current === slideIdx" />
 </template>
 
 <style>

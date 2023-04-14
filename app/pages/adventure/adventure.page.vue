@@ -20,6 +20,7 @@ import { isCmsView } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
+import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdventureNewSlide.vue";
 import { useCmsControlsStore } from "../../src/stores/cmscontrols.js";
 /* /CMS */
 
@@ -213,6 +214,10 @@ onMounted(() => {
         :slideIdx="i"
         :slideChange="slideChange"
       />
+
+      <!-- CMS -->
+      <CmsAdventureNewSlide />
+      <!-- /CMS -->
     </main>
   </div>
 </template>
