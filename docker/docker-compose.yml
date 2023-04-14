@@ -21,5 +21,9 @@ services:
     volumes:
       - adventure-cms-data:/data/db
 
+    # Only add port for debug purposes so that you can connect to MongoDB on localhost:8027
+    ports:
+      - '8027:27017'
+
 volumes:
   adventure-cms-data:
