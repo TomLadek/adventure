@@ -12,8 +12,10 @@ startServer()
 
 async function startServer() {
   const app = express()
-  const { insertOneSlide, findSlides } = await import('../database/db.js')
+  const { insertOneAdventure, findAdventures } = await import('../database/db.js')
 
+
+  /* Middlewares */
   app.use(express.json())
 
   if (isProduction) {
@@ -31,26 +33,10 @@ async function startServer() {
 
     app.use(viteDevMiddleware)
   }
+  /* ----------- */
 
-  app.get('*', async (req, res, next) => {
-    const result = await renderPage({
-            urlOriginal: req.originalUrl
-          }),
-          { httpResponse } = result
 
-    // console.log(`serving response for ${req.originalUrl}:`, result)
-
-    if (!httpResponse)
-      return next()
-
-    const { body, statusCode, contentType, earlyHints } = httpResponse
-
-    if (res.writeEarlyHints)
-      res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
-
-    res.status(statusCode).type(contentType).send(body)
-  })
-
+  /* Routes */
   app.get('/rest/deploy', async (_, res) => {
     exec("npm run build", (error, stdout, stderr) => {
       if (error) {
@@ -70,8 +56,8 @@ async function startServer() {
 
   app.get('/rest/adventure/list', async (req, res) => {
     try {
-      const slides = await findSlides()
-      res.status(200).json(slides)
+      const adventures = await findAdventures()
+      res.status(200).json(adventures)
     } catch (ex) {
       res.status(500).json(ex)
     }
@@ -79,7 +65,7 @@ async function startServer() {
 
   app.put('/rest/adventure/create', async (req, res) => {
     try {
-      await insertOneSlide(req.body)
+      await insertOneAdventure(req.body)
     } catch (ex) {
       res.status(500).json(ex)
     }
@@ -94,7 +80,32 @@ async function startServer() {
     res.status(200).json({ok: true})
   })
 
+  // IMPORTANT: Catch-all-route needs to be after /rest routes otherwise
+  // vite-plugin-ssr tries to handle those as well.
+  app.get('*', async (req, res, next) => {
+    const result = await renderPage({
+            urlOriginal: req.originalUrl
+          }),
+          { httpResponse } = result
+
+    // console.log(`serving response for ${req.originalUrl}:`, result)
+
+    if (!httpResponse)
+      return next()
+
+    const { body, statusCode, contentType, earlyHints } = httpResponse
+
+    if (res.writeEarlyHints)
+      res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+
+    res.status(statusCode).type(contentType).send(body)
+  })
+  /* ------ */
+
+
+  /* Ports */
   app.listen(port)
+  /* ----- */
 
   console.log(`Server running at http://localhost:${port} (isProduction=${isProduction}; root=${root})`)
 }

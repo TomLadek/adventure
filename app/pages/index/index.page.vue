@@ -1,17 +1,21 @@
 <script>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
+
+// SSR
+import { usePageContext } from "../../renderer/usePageContext.js";
 </script>
 
 <script setup>
-const newAdventurePopupShowing = ref(false);
-const testAdventures = ref([]);
+const pageContext = usePageContext(),
+      adventures = ref(pageContext.adventures),
+      newAdventurePopupShowing = ref(false);
 
 function updateAdventuresList() {
   fetch("/rest/adventure/list").then(async (response) => {
     if (response.status === 200) {
       const list = await response.json()
-      testAdventures.value.splice(0, Infinity, ...list)
+      adventures.value.splice(0, Infinity, ...list)
     }
   });
 }
@@ -20,16 +24,14 @@ function newAdventurePopupClosing() {
   newAdventurePopupShowing.value = false;  
   updateAdventuresList();
 }
-
-onMounted(updateAdventuresList);
 </script>
 
 <template>
   <main id="index">
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
-      <li class="cms-adventure-list-item" v-for="(_) in testAdventures">
-        <a href="/2023-myadventure" class="cms-adventure-link">Adventure</a>
+      <li class="cms-adventure-list-item" v-for="adventure in adventures" :key="adventure.id">
+        <a :href="adventure.meta.basePath" class="cms-adventure-link" :id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
       </li>
       <li class="cms-adventure-list-item new-item">
         <button class="cms-adventure-item-button-new" @click="newAdventurePopupShowing = true">
