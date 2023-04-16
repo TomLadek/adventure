@@ -8,7 +8,7 @@ import PageShell from './PageShell.vue'
 export { createApp }
 
 function createApp(pageContext) {
-  let pageProps = pageContext.pageProps || {}
+  const messages = pageContext.pageProps.adventure ? pageContext.pageProps.adventure.messages : {}
 
   const PageWithLayout = {
     render() {
@@ -17,7 +17,7 @@ function createApp(pageContext) {
         {},
         {
           default() {
-            return h(pageContext.Page, pageProps)
+            return h(pageContext.Page)
           }
         }
       )
@@ -27,7 +27,7 @@ function createApp(pageContext) {
   const app = createSSRApp(PageWithLayout);
 
   app.use(createPinia());
-  app.use(initI18n(pageProps.messages));
+  app.use(initI18n(messages));
 
   // We make `pageContext` available from any Vue component
   setPageContext(app, pageContext)

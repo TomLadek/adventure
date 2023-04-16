@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 export default function cmsBuildTransformer(isCmsView) {
   return {
     async load(id) {
-      if (isCmsView || !/adventure\/(src|pages|renderer|server)/.test(id))
+      if (isCmsView || !/adventure\/(src|pages|renderer|server|database)/.test(id))
         return null
 
       // console.log(id)

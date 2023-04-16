@@ -6,7 +6,7 @@ import utilsSynchUrl from '../src/utils-synch.js?url'
 
 export { render }
 
-export const passToClient = ['pageProps']
+export const passToClient = ['pageProps', 'routeParams']
 
 async function render(pageContext) {
   const app = createApp(pageContext)

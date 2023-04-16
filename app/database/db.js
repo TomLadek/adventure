@@ -29,6 +29,7 @@ export async function insertOneSlide(data) {
     console.log(`A slide was inserted with the _id: ${res.insertedId}`)
   } catch(ex) {
     console.error(ex)
+    throw ex
   } finally {
     releaseClient()
   }
@@ -79,21 +80,6 @@ export async function insertOneAdventure(data) {
   }
 }
 
-export async function findSlides() {
-  const slidesColl = getCollection("slides"),
-        slidesCursor = slidesColl.find()
-
-  try {
-    const res = await slidesCursor.toArray()
-    // console.log(`Slides: ${JSON.stringify(res)}`)
-    return res;
-  } catch (ex) {
-    console.error(ex)
-  } finally {
-    releaseClient()    
-  }
-}
-
 export async function findAdventures() {
   const adventuresColl = getCollection("adventures"),
         adventuresCursor = adventuresColl.find()
@@ -108,7 +94,26 @@ export async function findAdventures() {
     });
   } catch (ex) {
     console.error(ex)
+    throw ex
   } finally {
     releaseClient()    
+  }
+}
+
+export async function findAdventure(urlPath) {
+  const adventuresColl = getCollection("adventures"),
+        adventureCursor = adventuresColl.find({ "meta.basePath": new RegExp(`${urlPath}/?`) } )
+
+  try {
+    if (await adventureCursor.hasNext()) {
+      return await adventureCursor.next()
+    } else {
+      return null
+    }
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  } finally {
+    releaseClient()
   }
 }

@@ -9,7 +9,7 @@ import { usePageContext } from "../../renderer/usePageContext.js";
 
 <script setup>
 const pageContext = usePageContext(),
-      adventures = ref(pageContext.adventures),
+      adventures = ref(pageContext.pageProps.adventureList),
       newAdventurePopupShowing = ref(false);
 
 function updateAdventuresList() {

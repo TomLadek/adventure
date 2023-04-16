@@ -78,7 +78,7 @@ function gallerySrcSet(image, baseHeight = 96) {
           .join(",");
 }
 
-function updatePageMeta(titleGetter, descriptionGetter) {
+function updateAdventureMeta(titleGetter, descriptionGetter) {
   const title = titleGetter(),
     description = descriptionGetter();
 
@@ -96,28 +96,14 @@ function updatePageTheme(theme) {
 </script>
 
 <script setup>
-const props = defineProps({
-  author: {
-    type: String,
-    required: false
-  },
-  slidesData: {
-    type: Array,
-    required: true
-  },
-  pageMeta: {
-    type: Object,
-    required: false
-  }
-});
-
-const pageContext = usePageContext();
+const pageContext = usePageContext(),
+      adventure = pageContext.pageProps.adventure;
 
 const routeParams = pageContext.routeParams; // get the current URL path
 
 const { t, locale } = useI18n();
 
-const slides = ref(props.slidesData.map((slide) => {
+const slides = ref(adventure.slides.map((slide) => {
   if (slide.mainImg) {
     slide.mainImgAttrs = {
       "data-pswp-width": slide.mainImg.width,
@@ -183,15 +169,17 @@ onMounted(() => {
     });
   });
 
-  if (props.pageMeta) {
-    const titleGetter = () => props.pageMeta.title ? t(props.pageMeta.title) : "",
-      descriptionGetter = () => props.pageMeta.desc ? t(props.pageMeta.desc) : "";
+  if (adventure.meta) {
+    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
+      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
 
-    updatePageMeta(titleGetter, descriptionGetter);
-    watch(locale, async () => { updatePageMeta(titleGetter, descriptionGetter); });
+    updateAdventureMeta(titleGetter, descriptionGetter);
+    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
   }
 
-  updatePageTheme(slides.value[0].theme);
+  if (slides.value.length > 0 && slides.value[0].theme) {
+    updatePageTheme(slides.value[0].theme);
+  }
 });
 </script>
 
@@ -209,7 +197,7 @@ onMounted(() => {
       <AdventureSlide
         v-for="(slide, i) in slides"
         v-bind:key="slide.id"
-        :author="pageMeta.author"
+        :author="adventure.meta.author"
         :slide="slide"
         :slideIdx="i"
         :slideChange="slideChange"
