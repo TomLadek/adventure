@@ -11,9 +11,11 @@ export const passToClient = ['pageProps', 'routeParams']
 async function render(pageContext) {
   const app = createApp(pageContext)
   const appHtml = await renderToString(app)
-
+  
   const { documentProps } = pageContext.exports
   const title = (documentProps && documentProps.title) || 'Adventure CMS'
+  const isPrivatePage = false // TODO get the value for this from a setting somewhere
+  const robotsIndex = isPrivatePage ? "noindex" : ""
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -25,6 +27,7 @@ async function render(pageContext) {
         <link rel="icon" href="${logoUrl}" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" />
+        <meta name="robots" content="${robotsIndex}" />
         <title>${title}</title>
         <script src="${utilsSynchUrl}"></script>
       </head>
