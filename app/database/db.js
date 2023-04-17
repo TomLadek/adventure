@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 
 let client
 
@@ -19,14 +19,31 @@ function releaseClient() {
   }
 }
 
-export async function insertOneSlide(data) {
-  const slidesColl = getCollection("slides")
+export async function insertOneSlide(adventureId, mainImg) {
+  const adventureColl = getCollection("adventures")
   
-  const transformedData = data
+  const newSlide = {
+    id: `slide-${Math.floor(Math.random() * 1000)}`,
+    mainImg: {
+      src: mainImg,
+      caption: "NewCaption",
+      width: 4080,
+      height: 3072
+    },
+    transition: 0,
+    headline: "NewHeadline",
+    content: {
+      text: "NewText",
+      position: "top start"
+    }
+  }
 
   try {
-    const res = await slidesColl.insertOne(transformedData)
-    console.log(`A slide was inserted with the _id: ${res.insertedId}`)
+    await adventureColl.updateOne(
+      { _id: new ObjectId(adventureId) },
+      { $push: { slides: newSlide } }
+    )
+    console.log(`A slide was inserted into adventure ${adventureId}`)
   } catch(ex) {
     console.error(ex)
     throw ex
@@ -85,12 +102,12 @@ export async function findAdventures() {
         adventuresCursor = adventuresColl.find()
 
   try {
-    const res = await adventuresCursor.toArray()
+    const adventureList = await adventuresCursor.toArray()
     // console.log(`Adventures: ${JSON.stringify(res)}`)
-    return res.map(value => {
-      value.id = value._id.toHexString()
-      delete value._id
-      return value
+    return adventureList.map(adventure => {
+      adventure.id = adventure._id.toHexString()
+      delete adventure._id
+      return adventure
     });
   } catch (ex) {
     console.error(ex)
@@ -106,7 +123,10 @@ export async function findAdventure(urlPath) {
 
   try {
     if (await adventureCursor.hasNext()) {
-      return await adventureCursor.next()
+      const adventure = await adventureCursor.next()
+      adventure.id = adventure._id.toHexString()
+      delete adventure._id
+      return adventure
     } else {
       return null
     }

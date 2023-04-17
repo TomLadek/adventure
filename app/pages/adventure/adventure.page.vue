@@ -1,6 +1,6 @@
 <script>
 // Vue functions
-import { ref, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // Vue components
@@ -97,13 +97,12 @@ function updatePageTheme(theme) {
 
 <script setup>
 const pageContext = usePageContext(),
-      adventure = pageContext.pageProps.adventure;
-
-const routeParams = pageContext.routeParams; // get the current URL path
+      adventure = ref(pageContext.pageProps.adventure),
+      routeParams = pageContext.routeParams; // get the current URL path
 
 const { t, locale } = useI18n();
 
-const slides = ref(adventure.slides.map((slide) => {
+const slides = computed(() => adventure.value.slides.map((slide) => {
   if (slide.mainImg) {
     slide.mainImgAttrs = {
       "data-pswp-width": slide.mainImg.width,
@@ -148,6 +147,46 @@ const theme = ref("light");
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore();
+
+function onAddSlide(file) {
+  console.log("onAddSlide", file)
+  
+  function createImage(file) {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      console.log("onload", e.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const formData = new FormData();
+
+  formData.append("slide", "create");
+  formData.append("slideIdx", slides.value.length + 1);
+  formData.append("mainImg", file);
+  fetch(`/rest/adventure/${adventure.value.id}/edit`, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    adventure.value.slides.push({
+      id: `slide-${Math.floor(Math.random()*1000)}`,
+      mainImg: {
+        src: "PXL_20230205_115940933",
+        caption: "Dummy Caption",
+        "width": 4080,
+        "height": 3072
+      },
+      transition: 0,
+      headline: "MyDummyHeadline",
+      content: {
+        text: "Dummy Content",
+        position: "bottom end"
+      },
+    })
+  });
+
+}
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));
@@ -155,7 +194,7 @@ watch(theme, (value) => updatePageTheme(value));
 onMounted(() => {
   window.gsap = gsap;
 
-  import("../../src/assets/gi-full-page-scroll.js").then(() => {  
+  import("../../src/assets/gi-full-page-scroll.js").then(() => {
     // Init full page scroll
     window.fs = new window.fullScroll({
       mainElement: "adventure",
@@ -204,7 +243,7 @@ onMounted(() => {
       />
 
       <!-- CMS -->
-      <CmsAdventureNewSlide />
+      <CmsAdventureNewSlide @add-slide="onAddSlide"/>
       <!-- /CMS -->
     </main>
   </div>
