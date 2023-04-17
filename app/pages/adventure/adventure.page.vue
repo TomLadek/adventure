@@ -197,7 +197,7 @@ onMounted(() => {
       <AdventureSlide
         v-for="(slide, i) in slides"
         v-bind:key="slide.id"
-        :author="adventure.meta.author"
+        :adventureMeta="adventure.meta"
         :slide="slide"
         :slideIdx="i"
         :slideChange="slideChange"

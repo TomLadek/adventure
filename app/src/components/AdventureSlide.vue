@@ -11,7 +11,7 @@ function getCssUrlString(url) {
 
 <script setup>
 const props = defineProps({
-  author: {
+  adventureMeta: {
     type: Object,
     required: false
   },
@@ -54,7 +54,7 @@ const slideType = computed(() => {
 </script>
 
 <template>
-  <component :is="slideType" :slide="slide" :author="author" :showing="slideChange.current === slideIdx" />
+  <component :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx" />
 </template>
 
 <style>

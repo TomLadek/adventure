@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 
 <script setup>
 const props = defineProps({
-  author: {
+  adventureMeta: {
     type: Object,
     required: false
   },
@@ -24,7 +24,8 @@ const { t } = useI18n();
 
 const startLinkHasSpace = ref(false),
   infoShowing = ref(false),
-  slideSwitched = ref(false);
+  slideSwitched = ref(false),
+  author = props.adventureMeta ? props.adventureMeta.author : {};
 
 let startLinkElement;
 
@@ -99,8 +100,8 @@ onMounted(() => {
     <div class="adventure-info">
       <button class="info-button" aria-controls="adventure-info-content" :aria-expanded="infoShowing" @click.prevent="infoShowing = !infoShowing">i</button>
       <div id="adventure-info-content" class="adventure-info-content" v-show="infoShowing">
-        <div>Made <span v-if="author && author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
-        <div class="author-content" v-if="author && author.content">Content &copy; {{ author.content }}</div>
+        <div>Made <span v-if="author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
+        <div class="author-content" v-if="author.content">Content &copy; {{ author.content }}</div>
       </div>
     </div>
   </section>
