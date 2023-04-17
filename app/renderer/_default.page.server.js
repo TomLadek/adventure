@@ -14,7 +14,7 @@ async function render(pageContext) {
   
   const { documentProps } = pageContext.exports
   const title = (documentProps && documentProps.title) || 'Adventure CMS'
-  const isPrivatePage = false // TODO get the value for this from a setting somewhere
+  const isPrivatePage = true // TODO get the value for this from a setting somewhere
   const robotsIndex = isPrivatePage ? "noindex" : ""
 
   const documentHtml = escapeInject`<!DOCTYPE html>
