@@ -3,6 +3,7 @@ version: '3.1'
 services:
   adventure-cms:
     image: adventure-cms:3
+    restart: unless-stopped
     volumes:
       - ../app:/adventure
     ports:
@@ -13,13 +14,14 @@ services:
 
   mongodb:
     image: mongo:5
-    restart: always
+    restart: unless-stopped
     environment:
       # TODO get these from environment variable
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
     volumes:
       - adventure-cms-data:/data/db
+    command: ["--logpath", "/var/log/mongodb/mongod.log"]
 
     # Only add port for debug purposes so that you can connect to MongoDB on localhost:8027
     ports:
