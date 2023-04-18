@@ -70,7 +70,7 @@ onMounted(() => {
 <template>
   <section
     :id="`slide_${slide.id}`"
-    class="slide slide-intro"
+    class="slide-intro"
   >
     <span
       v-if="slide.mainImg"
@@ -104,6 +104,8 @@ onMounted(() => {
         <div class="author-content" v-if="author.content">Content &copy; {{ author.content }}</div>
       </div>
     </div>
+
+    <slot name="removeSlideButton"></slot>
   </section>
 </template>
 

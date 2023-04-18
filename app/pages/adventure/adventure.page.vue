@@ -21,7 +21,9 @@ import { isCmsView } from "../../src/utils.js";
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
 import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdventureNewSlide.vue";
+import CmsConfirmActionPopup from "../../src/components/CmsConfirmActionPopup.vue";
 import { useCmsControlsStore } from "../../src/stores/cmscontrols.js";
+import { useConfirmationStore } from "../../src/stores/confirmation.js";
 /* /CMS */
 
 export const myData = 42
@@ -147,6 +149,7 @@ const theme = ref("light");
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore();
+const confirmationStore = useConfirmationStore();
 
 function onAddSlide(file) {
   console.log("onAddSlide", file)
@@ -162,30 +165,52 @@ function onAddSlide(file) {
 
   const formData = new FormData();
 
-  formData.append("slide", "create");
+  formData.append("slide", "add");
   formData.append("slideIdx", slides.value.length + 1);
   formData.append("mainImg", file);
+
   fetch(`/rest/adventure/${adventure.value.id}/edit`, {
     method: "POST",
     body: formData
-  }).then(() => {
-    adventure.value.slides.push({
-      id: `slide-${Math.floor(Math.random()*1000)}`,
-      mainImg: {
-        src: "PXL_20230205_115940933",
-        caption: "Dummy Caption",
-        "width": 4080,
-        "height": 3072
-      },
-      transition: 0,
-      headline: "MyDummyHeadline",
-      content: {
-        text: "Dummy Content",
-        position: "bottom end"
-      },
-    })
+  }).then(res => {
+    if (res.status === 200) {
+      res.json().then(ok => {
+        adventure.value.slides.push({
+          id: ok.newSlideId,
+          mainImg: {
+            src: "PXL_20230205_115940933",
+            caption: "Dummy Caption",
+            "width": 4080,
+            "height": 3072
+          },
+          transition: 0,
+          headline: "MyDummyHeadline",
+          content: {
+            text: "Dummy Content",
+            position: "bottom end"
+          },
+        })
+      });
+    }
   });
+}
 
+function onRemoveSlide(id) {
+  const formData = new FormData();
+
+  formData.append("slide", "remove");
+  formData.append("slideId", id);
+
+  fetch(`/rest/adventure/${adventure.value.id}/edit`, {
+    method: "POST",
+    body: formData
+  }).then((res) => {
+    if (res.status === 200) {
+      const slideIdxToRemove = adventure.value.slides.findIndex(slide => slide.id === id);
+
+      adventure.value.slides.splice(slideIdxToRemove, 1);
+    }
+  })
 }
 /* /CMS */
 
@@ -226,6 +251,8 @@ onMounted(() => {
   <div class="adventure-container">
     <!-- CMS -->
     <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" :imageSizes="imageSizes"/>
+
+    <CmsConfirmActionPopup :confirmPopupShowing="confirmationStore.pending" />
     <!-- /CMS -->
 
     <AdventureLanguageSwitcher />
@@ -240,10 +267,11 @@ onMounted(() => {
         :slide="slide"
         :slideIdx="i"
         :slideChange="slideChange"
+        @removeSlideClick="onRemoveSlide"
       />
 
       <!-- CMS -->
-      <CmsAdventureNewSlide @add-slide="onAddSlide"/>
+      <CmsAdventureNewSlide @addSlide="onAddSlide"/>
       <!-- /CMS -->
     </main>
   </div>

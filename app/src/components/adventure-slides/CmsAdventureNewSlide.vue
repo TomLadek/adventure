@@ -6,10 +6,6 @@ const emit = defineEmits(["addSlide"]);
 
 const imgData = ref("")
 
-function onNewSlideClick() {
-  console.log("onNewSlideClick")
-}
-
 function fileSelected(e) {
   emit("addSlide", e.target.files[0])
 }
@@ -20,7 +16,7 @@ const img = computed(() => `url(${imgData.value})`)
 <template>
   <section class="cms-new-adventure-slide">
     <div class="new-slide-container">
-      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" @click="onNewSlideClick" />
+      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" />
       <input type="file" @change="fileSelected">
     </div>
   </section>

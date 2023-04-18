@@ -107,7 +107,7 @@ onMounted(initGallery);
 <template>
   <section
     :id="`slide_${slide.id}`"
-    class="slide slide-gallery"
+    class="slide-gallery"
   >
     <a
       v-if="slide.mainImg"
@@ -132,6 +132,8 @@ onMounted(initGallery);
           :gallery="slide.gallery" />
       </div>
     </div>
+
+    <slot name="removeSlideButton"></slot>
   </section>
 </template>
 

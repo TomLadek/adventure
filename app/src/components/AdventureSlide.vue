@@ -4,6 +4,8 @@ import { computed } from "vue";
 import AdventureGallerySlide from "./adventure-slides/AdventureGallerySlide.vue";
 import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 
+import { useConfirmationStore } from "../stores/confirmation.js";
+
 function getCssUrlString(url) {
   return `url(${url})`;
 }
@@ -36,6 +38,8 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(["removeSlideClick"]);
+
 const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.xs));
 const mainImgUrlSm = computed(() => getCssUrlString(props.slide.mainImg.sm));
 const mainImgUrlMd = computed(() => getCssUrlString(props.slide.mainImg.md));
@@ -51,10 +55,28 @@ const slideType = computed(() => {
   else
     return AdventureGallerySlide
 });
+
+const confirmationStore = useConfirmationStore();
+
+function onRemoveSlideClick(slideId) {
+  confirmationStore.getConfirmation(
+    "Confirm slide removal",
+    `
+      <p>Really remove slide "${slideId}"?</p>
+      <p>This will also remove any contents that is present on this slide (any galleries, text, etc).</p>
+      <p style="color:red">THIS CANNOT BE UNDONE</p>
+    `,
+    () => emit("removeSlideClick", slideId)
+  )
+}
 </script>
 
 <template>
-  <component :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx" />
+  <component class="slide" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
+    <template #removeSlideButton>
+      <button class="remove-slide-button" @click="onRemoveSlideClick(slide.id)">Remove</button>
+    </template>
+  </component>
 </template>
 
 <style>
@@ -164,5 +186,11 @@ const slideType = computed(() => {
   top: 0;
   right: 0;
   bottom: 0;
+}
+
+.slide .remove-slide-button {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }
 </style>

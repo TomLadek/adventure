@@ -1,12 +1,18 @@
 <script>
 import { defineEmits, onMounted, onUnmounted, ref, computed } from "vue";
 
+import CmsPopup from "./CmsPopup.vue";
+import CmsPopupActionButtons from "./CmsPopupActionButtons.vue";
 import languages from "../languages.js";
-
-// import ButtonClose from "./ButtonClose.vue";
 </script>
 
 <script setup>
+const props = defineProps({
+  popupShowing: {
+    required: true,
+    type: Boolean
+  }
+})
 const emit = defineEmits(["closing"]);
 
 function closePopup() {
@@ -107,114 +113,73 @@ onUnmounted(() => {
 </script>
 
 <template>
-<div class="cms-new-adventure-popup">
-  <div class="cms-new-adventure-popup-content">
-    <!-- <ButtonClose class="popup-button-close" @close-click="closePopup" /> -->
+  <CmsPopup :popupShowing="popupShowing">
+    <div class="cms-new-adventure-header">
+      <h2>New Adventure</h2>
 
-    <div class="cms-new-adventure-fields-container">
-      <div class="cms-new-adventure-header">
-        <h2>New Adventure</h2>
-  
-        <select
-          v-if="newAdventureData.langs.length > 3"
-          class="cms-new-adventure-lang-switcher"
-          :value="activeLang"
-          @change="switchActiveLang($event.target.value)"
-        >
-          <option v-for="(lang) in newAdventureData.langs" :value="lang">{{ lang }}</option>
-        </select>
-  
-        <ul v-else-if="newAdventureData.langs.length > 1" class="cms-new-adventure-lang-switcher">
-          <li v-for="(lang) in newAdventureData.langs" class="cms-new-adventure-lang-item">
-            <button
-              class="cms-new-adventure-lang"
-              :class="{ active: activeLang === lang, long: isLongLang(lang) }"
-              @click="switchActiveLang(lang)"
-            >{{ lang }}</button>
-          </li>
-        </ul>
+      <select
+        v-if="newAdventureData.langs.length > 3"
+        class="cms-new-adventure-lang-switcher"
+        :value="activeLang"
+        @change="switchActiveLang($event.target.value)"
+      >
+        <option v-for="(lang) in newAdventureData.langs" :value="lang">{{ lang }}</option>
+      </select>
+
+      <ul v-else-if="newAdventureData.langs.length > 1" class="cms-new-adventure-lang-switcher">
+        <li v-for="(lang) in newAdventureData.langs" class="cms-new-adventure-lang-item">
+          <button
+            class="cms-new-adventure-lang"
+            :class="{ active: activeLang === lang, long: isLongLang(lang) }"
+            @click="switchActiveLang(lang)"
+          >{{ lang }}</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="cms-adventure-popup-fields">
+      <label for="input-languages">Languages:</label>
+      <ul class="field-value-container chips-values">
+        <li class="chip-container" v-for="(lang) in newAdventureData.langs">
+          <button class="chip" @click="removeLanguage(lang)">{{ lang }}</button>
+        </li>
+        <li class="chip-container new-lang-chip-container">
+          <button class="chip">+</button>
+          <select @change="addLanguage($event.target.value)">
+            <option v-for="(lang) in availableLangs" :value="lang.code">{{ lang.name }} ({{ lang.code }})</option>
+          </select>
+        </li>
+      </ul>
+
+      <label for="input-title">Title:</label>
+      <div class="field-value-container">
+        <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
+        <input type="text" class="field-value" :class="multilingualClass" id="input-title" v-model="newAdventureData.title">
       </div>
 
-      <div class="cms-new-adventure-fields">
-        <label for="input-languages">Languages:</label>
-        <ul class="field-value-container chips-values">
-          <li class="chip-container" v-for="(lang) in newAdventureData.langs">
-            <button class="chip" @click="removeLanguage(lang)">{{ lang }}</button>
-          </li>
-          <li class="chip-container new-lang-chip-container">
-            <button class="chip">+</button>
-            <select @change="addLanguage($event.target.value)">
-              <option v-for="(lang) in availableLangs" :value="lang.code">{{ lang.name }} ({{ lang.code }})</option>
-            </select>
-          </li>
-        </ul>
-
-        <label for="input-title">Title:</label>
-        <div class="field-value-container">
-          <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
-          <input type="text" class="field-value" :class="multilingualClass" id="input-title" v-model="newAdventureData.title">
-        </div>
-
-        <label for="input-url-author">Author:</label>
-        <div class="field-value-container">
-          <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
-          <input type="text" class="field-value" :class="multilingualClass" id="input-url-author" v-model="newAdventureData.author">
-        </div>
-
-        <label for="input-url-author-text">Text author(s):</label>
-        <div class="field-value-container">
-          <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
-          <input type="text" class="field-value" :class="multilingualClass" id="input-url-author-text" v-model="newAdventureData.authorText">
-        </div>
-
-        <label for="input-url-path">URL path:</label>
-        <div class="field-value-container">
-          <input type="text" class="field-value" id="input-url-path" v-model="newAdventureData.urlPath">
-        </div>
+      <label for="input-url-author">Author:</label>
+      <div class="field-value-container">
+        <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
+        <input type="text" class="field-value" :class="multilingualClass" id="input-url-author" v-model="newAdventureData.author">
       </div>
 
-      <div class="cms-new-adventure-actions">
-        <button class="button-ok" @click="confirm">OK</button>
-        <button class="button-cancel" @click="closePopup">Cancel</button>
+      <label for="input-url-author-text">Text author(s):</label>
+      <div class="field-value-container">
+        <span class="active-lang" :class="{ long: isLongLang(activeLang) }" v-if="newAdventureData.langs.length > 1">{{ activeLang }}</span>
+        <input type="text" class="field-value" :class="multilingualClass" id="input-url-author-text" v-model="newAdventureData.authorText">
+      </div>
+
+      <label for="input-url-path">URL path:</label>
+      <div class="field-value-container">
+        <input type="text" class="field-value" id="input-url-path" v-model="newAdventureData.urlPath">
       </div>
     </div>
-  </div>
-</div>
+
+    <CmsPopupActionButtons @confirm="confirm" @cancel="closePopup" />
+  </CmsPopup>
 </template>
 
 <style>
-.cms-new-adventure-popup {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #00000036;
-}
-
-.cms-new-adventure-popup-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(30rem, 80vw);
-  transform: translate(-50%, -50%);
-  border-radius: 32px;
-  background: #fff;
-  box-shadow: 0px 0px 32px 0px #686868;
-}
-
-/*
-.popup-button-close {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-}
-*/
-
-.cms-new-adventure-fields-container {
-  padding: 2rem;
-}
-
 .cms-new-adventure-header {
   display: flex;
   justify-content: space-between;
@@ -269,7 +234,7 @@ onUnmounted(() => {
 }
 
 @media(min-width: 600px) {
-  .cms-new-adventure-fields {
+  .cms-adventure-popup-fields {
     display: grid;
     gap: 1rem;
     grid-template-columns: auto 1fr;
@@ -277,28 +242,28 @@ onUnmounted(() => {
   }
 }
 
-.cms-new-adventure-fields label {
+.cms-adventure-popup-fields label {
   display: block;
   height: 100%;
   margin-bottom: calc(6rem / 16);
 }
 
 @media(min-width: 600px) {
-  .cms-new-adventure-fields label {
+  .cms-adventure-popup-fields label {
     margin: 0;
     display: flex;
     align-items: center;
   }
 }
 
-.cms-new-adventure-fields .field-value-container {
+.cms-adventure-popup-fields .field-value-container {
   position: relative;
   width: 100%;
   height: 2.5rem;
   margin-bottom: 1rem;
 }
 
-.cms-new-adventure-fields .field-value {
+.cms-adventure-popup-fields .field-value {
   width: 100%;
   height: 100%;
   padding: 0.25rem 0.5rem;
@@ -307,25 +272,25 @@ onUnmounted(() => {
   border: 1px solid #767676
 }
 
-.cms-new-adventure-fields .field-value.multilingual {
+.cms-adventure-popup-fields .field-value.multilingual {
   padding-right: 2em;
 }
 
-.cms-new-adventure-fields .field-value.multilingual.long {
+.cms-adventure-popup-fields .field-value.multilingual.long {
   padding-right: 3.7em;
 }
 
-.cms-new-adventure-fields .field-value-container:last-child {
+.cms-adventure-popup-fields .field-value-container:last-child {
   margin-bottom: 0;
 }
 
 @media(min-width: 600px) {
-  .cms-new-adventure-fields .field-value-container {
+  .cms-adventure-popup-fields .field-value-container {
     margin-bottom: 0;
   }
 }
 
-.cms-new-adventure-fields .field-value-container.chips-values {
+.cms-adventure-popup-fields .field-value-container.chips-values {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -340,12 +305,12 @@ onUnmounted(() => {
 }
 
 @media(min-width: 600px) {
-  .cms-new-adventure-fields .field-value-container.chips-values {
+  .cms-adventure-popup-fields .field-value-container.chips-values {
     margin-bottom: 0;
   }
 }
 
-.cms-new-adventure-fields .field-value-container .chip {
+.cms-adventure-popup-fields .field-value-container .chip {
   position: relative;
   border: 1px solid #787878;
   border-radius: 8px;
@@ -354,8 +319,8 @@ onUnmounted(() => {
   font: inherit;
 }
 
-.cms-new-adventure-fields .field-value-container .chip:hover::after,
-.cms-new-adventure-fields .field-value-container .chip:focus::after {
+.cms-adventure-popup-fields .field-value-container .chip:hover::after,
+.cms-adventure-popup-fields .field-value-container .chip:focus::after {
   content: '×';
   position: absolute;
   right: 1px;
@@ -363,11 +328,11 @@ onUnmounted(() => {
   color: #787878;
 }
 
-.cms-new-adventure-fields .field-value-container .chip-container {
+.cms-adventure-popup-fields .field-value-container .chip-container {
   position: relative;
 }
 
-.cms-new-adventure-fields .field-value-container .new-lang-chip-container select {
+.cms-adventure-popup-fields .field-value-container .new-lang-chip-container select {
   position: absolute;
   top: 0;
   left: 0;
@@ -377,12 +342,12 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-.cms-new-adventure-fields .field-value-container .new-lang-chip-container .chip {
+.cms-adventure-popup-fields .field-value-container .new-lang-chip-container .chip {
   border: 1px dashed #787878;
   color: #787878;
 }
 
-.cms-new-adventure-fields .field-value-container .active-lang {
+.cms-adventure-popup-fields .field-value-container .active-lang {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -397,34 +362,7 @@ onUnmounted(() => {
   font-size: 0.8em;
 }
 
-.cms-new-adventure-fields .field-value-container .active-lang.long {
+.cms-adventure-popup-fields .field-value-container .active-lang.long {
   width: 4.2em;
-}
-
-.cms-new-adventure-actions {
-  display: flex;
-  justify-content: end;
-  gap: 0.5rem;
-  margin-top: 2rem;
-}
-
-.cms-new-adventure-actions button {
-  border: 1px solid #787878;
-  border-radius: 8px;
-  background: none;
-  padding: 12px;
-  font-size: 1em;
-}
-
-.cms-new-adventure-actions button.button-ok {
-  background-color: rgba(0, 255, 21, 0.178);
-}
-
-.cms-new-adventure-actions button.button-ok:active {
-    background-color: rgb(0 145 12 / 18%);
-}
-
-.cms-new-adventure-actions button.button-cancel:active {
-    background-color: rgba(145, 0, 0, 0.18);
 }
 </style>

@@ -40,9 +40,7 @@ function newAdventurePopupClosing() {
     </ul>
   </main>
 
-  <Transition name="popup-fade">
-    <CmsNewAdventurePopup v-if="newAdventurePopupShowing" @closing="newAdventurePopupClosing"></CmsNewAdventurePopup>
-  </Transition>
+  <CmsNewAdventurePopup :popupShowing="newAdventurePopupShowing" @closing="newAdventurePopupClosing" />
 </template>
 
 <style>
@@ -91,14 +89,5 @@ main#index {
   display: inline-block;
   width: 100%;
   height: 100%;
-}
-
-.popup-fade-enter-active, .popup-fade-leave-active {
-  transition: all 0.2s ease;
-}
-
-.popup-fade-enter-from,
-.popup-fade-leave-to {
-  opacity: 0;
 }
 </style>

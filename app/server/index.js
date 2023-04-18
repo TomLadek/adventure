@@ -27,7 +27,7 @@ function init() {
 
 async function startServer() {
   const app = express()
-  const { insertOneAdventure, findAdventures, insertOneSlide } = await import('../database/db.js')
+  const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide } = await import('../database/db.js')
 
 
   /* Middlewares */
@@ -84,19 +84,35 @@ async function startServer() {
 
   app.post('/rest/adventure/:id/edit', upload.single('mainImg'), async (req, res) => {
     try {
-      const adventureId = req.params.id,
-            newName = `${pad(req.body.slideIdx)}_main.jpg`,
-            targetDir = path.resolve(root, 'public', 'img', adventureId),
-            newPath = path.resolve(targetDir, newName)
+      const adventureId = req.params.id
 
-      // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
-      // TODO get the parent owner dynamically instead of setting this hardcoded
-      execSync(`install -d -o node -m 00755 ${targetDir}`)
+      if (req.body.slide) {
+        switch (req.body.slide) {
+          case "add":
+            const newName = `${pad(req.body.slideIdx)}_main.jpg`,
+                  targetDir = path.resolve(root, 'public', 'img', adventureId),
+                  newPath = path.resolve(targetDir, newName)
+      
+            // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
+            // TODO get the parent owner dynamically instead of setting this hardcoded
+            execSync(`install -d -o node -m 00755 ${targetDir}`)
+      
+            fs.renameSync(req.file.path, newPath)
+            console.log(`moved new file ${req.file.path} to ${newPath}`)
+      
+            const newSlideId = await insertOneSlide(adventureId, newName)
 
-      fs.renameSync(req.file.path, newPath)
-      console.log(`moved new file ${req.file.path} to ${newPath}`)
+            res.status(200).json({ok: true, newSlideId: newSlideId})
+            return
 
-      await insertOneSlide(adventureId, newName)
+          case "remove":
+            const slideId = req.body.slideId
+    
+            await removeOneSlide(adventureId, slideId)
+            break
+        }
+      }
+
       res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)

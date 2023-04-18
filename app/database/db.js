@@ -22,29 +22,51 @@ function releaseClient() {
 export async function insertOneSlide(adventureId, mainImg) {
   const adventureColl = getCollection("adventures")
   
-  const newSlide = {
-    id: `slide-${Math.floor(Math.random() * 1000)}`,
-    mainImg: {
-      src: mainImg,
-      caption: "NewCaption",
-      width: 4080,
-      height: 3072
-    },
-    transition: 0,
-    headline: "NewHeadline",
-    content: {
-      text: "NewText",
-      position: "top start"
-    }
-  }
+  const newSlideId = `slide-${Math.floor(Math.random() * 1000)}`,
+        newSlide = {
+          id: newSlideId,
+          mainImg: {
+            src: mainImg,
+            caption: "NewCaption",
+            width: 4080,
+            height: 3072
+          },
+          transition: 0,
+          headline: "NewHeadline",
+          content: {
+            text: "NewText",
+            position: "top start"
+          }
+        }
 
   try {
     await adventureColl.updateOne(
       { _id: new ObjectId(adventureId) },
       { $push: { slides: newSlide } }
     )
-    console.log(`A slide was inserted into adventure ${adventureId}`)
-  } catch(ex) {
+
+    console.log(`Inserted slide '${newSlideId}' into adventure ${adventureId}`)
+
+    return newSlideId
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  } finally {
+    releaseClient()
+  }
+}
+
+export async function removeOneSlide(adventureId, slideId) {
+  const adventureColl = getCollection("adventures")
+  
+  try {
+    await adventureColl.updateOne(
+      { _id: new ObjectId(adventureId) },
+      { $pull: { slides: { id: slideId } }}
+    )
+
+    console.log(`Removed slide '${slideId}' from adventure ${adventureId}`)
+  } catch (ex) {
     console.error(ex)
     throw ex
   } finally {
@@ -89,7 +111,7 @@ export async function insertOneAdventure(data) {
     const res = await adventureColl.insertOne(adventureDoc)
 
     console.log(`An adventure was inserted with the _id: ${res.insertedId}`)
-  } catch(ex) {
+  } catch (ex) {
     console.error(ex)
     throw ex
   } finally {
