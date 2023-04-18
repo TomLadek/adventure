@@ -16,13 +16,14 @@ services:
 
   mongodb:
     image: mongo:5
-    restart: always
+    restart: unless-stopped
     environment:
       # TODO get these from environment variable
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
     volumes:
       - adventure-cms-data:/data/db
+    command: ["--logpath", "/var/log/mongodb/mongod.log"]
 
 volumes:
   adventure-cms-data:
