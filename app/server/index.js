@@ -1,16 +1,17 @@
 // Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
 
 const fs = require('fs')
+const path = require('path')
 const express = require('express')
 const multer = require('multer')
 const { renderPage } = require('vite-plugin-ssr/server')
-const { exec } = require('child_process')
+const { execSync } = require('child_process')
 
 const upload = multer({ dest: 'server/uploads/' })
 
 const isProduction = process.env.NODE_ENV === 'production',
       port = process.env.PORT || 3000,
-      root = `${__dirname}/..`
+      root = path.resolve(__dirname, '..')
 
 function pad(str) {
   while (str.length < 2)
@@ -19,7 +20,10 @@ function pad(str) {
   return str
 }
 
-startServer()
+function init() {
+  // Set the SetGID flag on the public/img/ directory so that child directories inherit the group (usually 'node')
+  fs.chmodSync(path.resolve(root, 'public', 'img'), 0o2755)
+}
 
 async function startServer() {
   const app = express()
@@ -32,7 +36,7 @@ async function startServer() {
   if (isProduction) {
     const sirvMiddleware = require('sirv')
 
-    app.use(sirvMiddleware(`${root}/dist/client`))
+    app.use(sirvMiddleware(path.resolve(root, 'dist', 'client')))
   } else {
     const vite = require('vite'),
           viteDevMiddleware = (
@@ -49,20 +53,13 @@ async function startServer() {
 
   /* Routes */
   app.get('/rest/deploy', async (_, res) => {
-    exec("npm run build", (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`)
-        return
-      }
-
-      if (stderr) {
-        console.log(`stderr: ${stderr}`)
-      }
-
-      console.log(`stdout: ${stdout}`)
-    })
-
-    res.status(200).json({ok: true})
+    try {
+      execSync("npm run build")
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json(ex)
+    }
   })
 
   app.get('/rest/adventure/list', async (req, res) => {
@@ -70,38 +67,46 @@ async function startServer() {
       const adventures = await findAdventures()
       res.status(200).json(adventures)
     } catch (ex) {
+      console.error(ex)
       res.status(500).json(ex)
-      return
     }
   })
 
   app.put('/rest/adventure/create', async (req, res) => {
     try {
       await insertOneAdventure(req.body)
+      return res.status(200).end()
     } catch (ex) {
+      console.error(ex)
       res.status(500).json(ex)
-      return
     }
-
-    return res.status(200).end()
   })
 
   app.post('/rest/adventure/:id/edit', upload.single('mainImg'), async (req, res) => {
     try {
       const adventureId = req.params.id,
-            newName = `${adventureId}_${pad(req.body.slideIdx)}_main.jpg`,
-            newPath = `public/img/${newName}`
+            newName = `${pad(req.body.slideIdx)}_main.jpg`,
+            targetDir = path.resolve(root, 'public', 'img', adventureId),
+            newPath = path.resolve(targetDir, newName)
+
+      // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
+      // TODO get the parent owner dynamically instead of setting this hardcoded
+      execSync(`install -d -o node -m 00755 ${targetDir}`)
 
       fs.renameSync(req.file.path, newPath)
       console.log(`moved new file ${req.file.path} to ${newPath}`)
 
       await insertOneSlide(adventureId, newName)
+      res.status(200).json({ok: true})
     } catch (ex) {
+      console.error(ex)
       res.status(500).json(ex)
-      return
     }
+  })
 
-    res.status(200).json({ok: true})
+  app.get('/img/*', async (req, res) => {
+    console.log(`${req.originalUrl}`)
+    res.status(404).end()
   })
 
   // IMPORTANT: Catch-all-route needs to be after /rest routes otherwise
@@ -133,3 +138,6 @@ async function startServer() {
 
   console.log(`Server running at http://localhost:${port} (isProduction=${isProduction}; root=${root})`)
 }
+
+init()
+startServer()
