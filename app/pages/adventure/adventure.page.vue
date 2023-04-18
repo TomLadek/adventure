@@ -104,7 +104,7 @@ const pageContext = usePageContext(),
 
 const { t, locale } = useI18n();
 
-const slides = computed(() => adventure.value.slides.map((slide) => {
+const slides = computed(() => (adventure.value.slides || []).map((slide) => {
   if (slide.mainImg) {
     slide.mainImgAttrs = {
       "data-pswp-width": slide.mainImg.width,
