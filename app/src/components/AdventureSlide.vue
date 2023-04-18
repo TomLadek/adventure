@@ -4,7 +4,9 @@ import { computed } from "vue";
 import AdventureGallerySlide from "./adventure-slides/AdventureGallerySlide.vue";
 import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 
+/* CMS */
 import { useConfirmationStore } from "../stores/confirmation.js";
+/* /CMS */
 
 function getCssUrlString(url) {
   return `url(${url})`;
@@ -56,6 +58,7 @@ const slideType = computed(() => {
     return AdventureGallerySlide
 });
 
+/* CMS */
 const confirmationStore = useConfirmationStore();
 
 function onRemoveSlideClick(slideId) {
@@ -69,13 +72,16 @@ function onRemoveSlideClick(slideId) {
     () => emit("removeSlideClick", slideId)
   )
 }
+/* /CMS */
 </script>
 
 <template>
   <component class="slide" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
+    <!-- CMS -->
     <template #removeSlideButton>
       <button class="remove-slide-button" @click="onRemoveSlideClick(slide.id)">Remove</button>
     </template>
+    <!-- /CMS -->
   </component>
 </template>
 
