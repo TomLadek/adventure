@@ -60,11 +60,11 @@ const confirmationStore = useConfirmationStore();
 
 function onRemoveSlideClick(slideId) {
   confirmationStore.getConfirmation(
-    "Confirm slide removal",
+    `Remove ${slideId}`,
     `
-      <p>Really remove slide "${slideId}"?</p>
-      <p>This will also remove any contents that is present on this slide (any galleries, text, etc).</p>
-      <p style="color:red">THIS CANNOT BE UNDONE</p>
+      <p>Are you sure you want to remove slide "${slideId}"?</p>
+      <p>This will also remove any contents of that slide including all gallery images, text, etc.</p>
+      <p style="color:red">THIS CANNOT BE UNDONE!</p>
     `,
     () => emit("removeSlideClick", slideId)
   )

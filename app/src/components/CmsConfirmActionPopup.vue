@@ -26,6 +26,6 @@ const confirmationStore = useConfirmationStore();
 
 <style>
   .cms-adventure-popup .confirmation-content p {
-    margin: 0.5rem 0;
+    margin: 1rem 0;
   }
 </style>
