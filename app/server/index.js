@@ -27,7 +27,7 @@ function init() {
 
 async function startServer() {
   const app = express()
-  const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide } = await import('../database/db.js')
+  const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide, findImgReference } = await import('../database/db.js')
 
 
   /* Middlewares */
@@ -48,6 +48,11 @@ async function startServer() {
 
     app.use(viteDevMiddleware)
   }
+
+  app.use((req, _, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+  })
   /* ----------- */
 
 
@@ -120,8 +125,23 @@ async function startServer() {
     }
   })
 
-  app.get('/img/*', async (req, res) => {
-    console.log(`${req.originalUrl}`)
+  app.get('/img/:adventureId/:filename', async (req, res) => {
+    const match = req.params.filename.match(/(?<name>.*?)_(?<size>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/)
+
+    if (match) {
+      if (await findImgReference(req.params.adventureId, match.groups.name)) {
+        console.log(`${match.groups.name} in ${req.params.adventureId} -- found!`)
+      } else {
+        console.log(`${match.groups.name} in ${req.params.adventureId} -- not found :(`)
+      }
+    } else {
+      console.error(`wrong format: ${req.params.filename}`)
+    }
+
+    res.status(404).end()
+  })
+
+  app.get('/img/*', (req, res) => {
     res.status(404).end()
   })
 

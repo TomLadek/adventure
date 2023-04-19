@@ -28,7 +28,7 @@ import { useConfirmationStore } from "../../src/stores/confirmation.js";
 
 export const myData = 42
 
-function imageUrl(image, width = 0, height = 0) {
+function imageUrl(adventureId, image, width = 0, height = 0) {
   const imgMatch = image.match(/(.*?)(\.(\w+))?$/),
     imgName = imgMatch[1],
     imgExtension = imgMatch[3] || "jpg",
@@ -46,10 +46,10 @@ function imageUrl(image, width = 0, height = 0) {
   }
 
   // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
-  return `/img/${imgName}${sizeSuffix}.${fileExtension}`;
+  return `/img/${adventureId}/${imgName}${sizeSuffix}.${fileExtension}`;
 }
 
-function imageSizes(image) {
+function imageSizes(adventureId, image) {
   return [
     {size: "original", width: 0},
     {size: "xs", width: 576},
@@ -61,22 +61,22 @@ function imageSizes(image) {
     {size: "xxxl", width: 1920},
     {size: "xxxxl", width: 2200}
   ].reduce((prev, curr) => {
-    prev[curr.size] = imageUrl(image, curr.width); return prev;
+    prev[curr.size] = imageUrl(adventureId, image, curr.width); return prev;
   }, {});
 }
 
-function gallerySrc(image, height = 96) {
-  return imageUrl(image, 0, height);
+function gallerySrc(adventureId, image, height = 96) {
+  return imageUrl(adventureId, image, 0, height);
 }
 
-function gallerySrcSet(image, baseHeight = 96) {
+function gallerySrcSet(adventureId, image, baseHeight = 96) {
   let heights;
 
   if (baseHeight === 96)
     heights = ["96", "192", "288"];
 
   return heights
-          .map((size, i) => `${gallerySrc(image, size)} ${i + 1}x`)
+          .map((size, i) => `${gallerySrc(adventureId, image, size)} ${i + 1}x`)
           .join(",");
 }
 
@@ -114,14 +114,14 @@ const slides = computed(() => (adventure.value.slides || []).map((slide) => {
     slide.mainImgTitle = slide.mainImg.caption || "";
 
     if (!slide.mainImg.original)
-      slide.mainImg = imageSizes(slide.mainImg.src);
+      slide.mainImg = imageSizes(adventure.value.meta.id, slide.mainImg.src);
   }
 
   if (slide.gallery) {
     slide.gallery.images = slide.gallery.images.map((galleryImg) => {
       galleryImg.imgAttrs = {
-        src: gallerySrc(galleryImg.src, 0),
-        srcset: gallerySrcSet(galleryImg.src),
+        src: gallerySrc(adventure.value.meta.id, galleryImg.src, 0),
+        srcset: gallerySrcSet(adventure.value.meta.id, galleryImg.src),
         width: galleryImg.width,
         height: galleryImg.height
       };
@@ -169,7 +169,7 @@ function onAddSlide(file) {
   formData.append("slideIdx", slides.value.length + 1);
   formData.append("mainImg", file);
 
-  fetch(`/rest/adventure/${adventure.value.id}/edit`, {
+  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
     method: "POST",
     body: formData
   }).then(res => {
@@ -201,7 +201,7 @@ function onRemoveSlide(id) {
   formData.append("slide", "remove");
   formData.append("slideId", id);
 
-  fetch(`/rest/adventure/${adventure.value.id}/edit`, {
+  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
     method: "POST",
     body: formData
   }).then((res) => {

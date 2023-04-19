@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from "mongodb"
+import { escapeRegExp } from "../utils/utils.js"
 
 let client
 
@@ -141,17 +142,37 @@ export async function findAdventures() {
 
 export async function findAdventure(urlPath) {
   const adventuresColl = getCollection("adventures"),
-        adventureCursor = adventuresColl.find({ "meta.basePath": new RegExp(`${urlPath}/?`) } )
+        adventureCursor = adventuresColl.find({ "meta.basePath": new RegExp(`${escapeRegExp(urlPath)}/?`) } )
 
   try {
     if (await adventureCursor.hasNext()) {
       const adventure = await adventureCursor.next()
-      adventure.id = adventure._id.toHexString()
+      adventure.meta.id = adventure._id.toHexString()
       delete adventure._id
       return adventure
     } else {
       return null
     }
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  } finally {
+    releaseClient()
+  }
+}
+
+export async function findImgReference(adventureId, imgName) {
+  const adventuresColl = getCollection("adventures"),
+        imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\.[a-zA-Z0-9]+)?$`)
+        
+  try {
+    return await adventuresColl.countDocuments({
+      _id: new ObjectId(adventureId), 
+      $or: [
+        { "slides.mainImg.src": { $regex: imgRegex } },
+        { "slides.gallery.images.src": { $regex: imgRegex } }
+      ]
+    }) > 0
   } catch (ex) {
     console.error(ex)
     throw ex
