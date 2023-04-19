@@ -16,7 +16,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { isCmsView } from "../../src/utils.js";
+import { isCmsView } from "../../utils/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";

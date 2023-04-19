@@ -1,7 +1,7 @@
 <script>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText } from "../utils.js";
+import { getCaptionText } from "../../utils/utils.js";
 
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";

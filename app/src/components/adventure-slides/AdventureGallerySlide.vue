@@ -1,7 +1,7 @@
 <script>
 import { onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText } from "../../utils.js";
+import { getCaptionText } from "../../../utils/utils.js";
 
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
 
