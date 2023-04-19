@@ -24,11 +24,6 @@ export default defineConfig((configEnv) => {
         alias: {
           "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
-      },
-      server: {
-        watch: {
-          ignored: ['/adventure/src/assets/data/slides.json']
-        }
       }
     };
 
@@ -36,7 +31,6 @@ export default defineConfig((configEnv) => {
     // conf.server = {}
   } else {
     // conf.base = "/adventure/2023-myadventure"
-
   }
 
   return conf;
