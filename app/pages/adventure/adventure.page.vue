@@ -175,6 +175,8 @@ function onAddSlide(file) {
       formData.append("slide", "add");
       formData.append("slideIdx", slides.value.length + 1);
       formData.append("mainImg", file);
+      formData.append("imgWidth", img.width);
+      formData.append("imgHeight", img.height);
     
       fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
         method: "POST",

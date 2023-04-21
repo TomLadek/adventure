@@ -102,7 +102,7 @@ async function startServer() {
             fs.renameSync(req.file.path, newPath)
             console.log(`moved new file ${req.file.path} to ${newPath}`)
       
-            const newSlideId = await insertOneSlide(adventureId, fileExt === "jpg" ? newName : newNameWithExt)
+            const newSlideId = await insertOneSlide(adventureId, fileExt === "jpg" ? newName : newNameWithExt, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
             res.status(200).json({ok: true, newSlideId: newSlideId})
             return

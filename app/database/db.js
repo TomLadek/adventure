@@ -20,7 +20,7 @@ function releaseClient() {
   }
 }
 
-export async function insertOneSlide(adventureId, mainImg) {
+export async function insertOneSlide(adventureId, mainImg, width, height) {
   const adventureColl = getCollection("adventures")
   
   const newSlideId = `slide-${Math.floor(Math.random() * 1000)}`,
@@ -29,8 +29,8 @@ export async function insertOneSlide(adventureId, mainImg) {
           mainImg: {
             src: mainImg,
             caption: "NewCaption",
-            width: 4080,
-            height: 3072
+            width,
+            height
           },
           transition: 0,
           headline: "NewHeadline",
