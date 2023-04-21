@@ -15,9 +15,6 @@ import "../../src/assets/gi-full-page-scroll.css";
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
 
-// Misc
-import { isCmsView } from "../../utils/utils.js";
-
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
 import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdventureNewSlide.vue";

@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId } from "mongodb"
-import { escapeRegExp } from "../utils/utils.js"
+import { escapeRegExp } from "../utils-node/utils.js"
 
 let client
 

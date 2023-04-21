@@ -1,23 +1,5 @@
-import fs from "fs";
 import path from "path";
 import gm from "gm";
-
-export const isCmsView = process.env.NODE_ENV === 'development';
-
-export function getCaptionText(captionHtml) {
-  if (!captionHtml || typeof document !== "object")
-    return null;
-
-  const dummy = document.createElement("span");
-
-  dummy.innerHTML = captionHtml;
-
-  return dummy.textContent;
-}
-
-export function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
-}
 
 export function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -28,25 +10,6 @@ export function pad(str) {
     str = "0" + str;
 
   return str;
-}
-export function mergeDeep(target, source) {
-  let output = Object.assign({}, target);
-
-  if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach(key => {
-
-      if (isObject(source[key])) {
-        if (!(key in target))
-          Object.assign(output, { [key]: source[key] });
-        else
-          output[key] = mergeDeep(target[key], source[key]);
-      } else {
-        Object.assign(output, { [key]: source[key] });
-      }
-    });
-  }
-
-  return output;
 }
 
 export async function generateScaledImage(originalDir, originalName, targetSize) {

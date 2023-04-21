@@ -1,4 +1,4 @@
-import { isCmsView } from "../../utils/utils.js"
+import { isCmsView } from "../../src/utils.js"
 
 export default isCmsView
    ? "/"

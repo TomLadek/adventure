@@ -21,7 +21,7 @@ function init() {
 async function startServer() {
   const app = express()
   const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide, findImgReference } = await import('../database/db.js')
-  const { pad, generateScaledImage: generateScaledImage } = await import("../utils/utils.js")
+  const { pad, generateScaledImage } = await import("../utils-node/utils.js")
 
 
   /* Middlewares */
