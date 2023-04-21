@@ -1,7 +1,6 @@
 import { createI18n } from "vue-i18n";
 import { useLanguageStore } from "../src/stores/language.js";
-import mergeDeep from "../utils/utils.js";
-
+import { mergeDeep } from "../utils/utils.js";
 
 const defaultMessages = {
   cs: {

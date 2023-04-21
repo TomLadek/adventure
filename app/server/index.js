@@ -13,13 +13,6 @@ const isProduction = process.env.NODE_ENV === 'production',
       port = process.env.PORT || 3000,
       root = path.resolve(__dirname, '..')
 
-function pad(str) {
-  while (str.length < 2)
-    str = "0" + str
-
-  return str
-}
-
 function init() {
   // Set the SetGID flag on the public/img/ directory so that child directories inherit the group (usually 'node')
   fs.chmodSync(path.resolve(root, 'public', 'img'), 0o2755)
@@ -28,6 +21,7 @@ function init() {
 async function startServer() {
   const app = express()
   const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide, findImgReference } = await import('../database/db.js')
+  const { pad, generateScaledImage: generateScaledImage } = await import("../utils/utils.js")
 
 
   /* Middlewares */
@@ -50,8 +44,8 @@ async function startServer() {
   }
 
   app.use((req, _, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`)
+    next()
   })
   /* ----------- */
 
@@ -126,11 +120,20 @@ async function startServer() {
   })
 
   app.get('/img/:adventureId/:filename', async (req, res) => {
-    const match = req.params.filename.match(/(?<name>.*?)_(?<size>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/)
+    const match = req.params.filename.match(/(?<name>.*?)_(?<sizeStr>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/)
 
     if (match) {
       if (await findImgReference(req.params.adventureId, match.groups.name)) {
         console.log(`${match.groups.name} in ${req.params.adventureId} -- found!`)
+
+        try {
+          const scaledImagePath = await generateScaledImage(req.params.adventureId, match.groups.name, match.groups.sizeStr)
+          console.log(`scaledImagePath: ${scaledImagePath}`)
+          res.status(200).sendFile(scaledImagePath)
+          return
+        } catch (ex) {
+          console.error(ex)
+        }
       } else {
         console.log(`${match.groups.name} in ${req.params.adventureId} -- not found :(`)
       }
@@ -141,7 +144,7 @@ async function startServer() {
     res.status(404).end()
   })
 
-  app.get('/img/*', (req, res) => {
+  app.get('/img/*', (_, res) => {
     res.status(404).end()
   })
 
