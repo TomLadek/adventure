@@ -8,10 +8,6 @@ const props = defineProps({
   slides: {
     type: Array,
     required: false
-  },
-  imageSizes: {
-    type: Function,
-    required: false
   }
 });
 

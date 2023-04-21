@@ -88,18 +88,21 @@ async function startServer() {
       if (req.body.slide) {
         switch (req.body.slide) {
           case "add":
-            const newName = `${pad(req.body.slideIdx)}_main.jpg`,
+            const fileExt = req.file.originalname.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg"),
+                  newName = `${pad(req.body.slideIdx)}_main`,
+                  newNameWithExt = `${newName}.${fileExt}`,
                   targetDir = path.resolve(root, 'public', 'img', adventureId),
-                  newPath = path.resolve(targetDir, newName)
+                  newPath = path.resolve(targetDir, newNameWithExt)
       
             // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
             // TODO get the parent owner dynamically instead of setting this hardcoded
             execSync(`install -d -o node -m 00755 ${targetDir}`)
       
+            // TODO check file for viruses before moving it to the img directory
             fs.renameSync(req.file.path, newPath)
             console.log(`moved new file ${req.file.path} to ${newPath}`)
       
-            const newSlideId = await insertOneSlide(adventureId, newName)
+            const newSlideId = await insertOneSlide(adventureId, fileExt === "jpg" ? newName : newNameWithExt)
 
             res.status(200).json({ok: true, newSlideId: newSlideId})
             return
@@ -120,7 +123,7 @@ async function startServer() {
   })
 
   app.get('/img/:adventureId/:filename', async (req, res) => {
-    const match = req.params.filename.match(/(?<name>.*?)_(?<sizeStr>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/)
+    const match = req.params.filename.match(/(?<name>.*?)_(?<sizeStr>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/i)
 
     if (match) {
       if (await findImgReference(req.params.adventureId, match.groups.name)) {

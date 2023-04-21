@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import gm from "gm";
 
 export function escapeRegExp(string) {
@@ -6,13 +7,27 @@ export function escapeRegExp(string) {
 }
 
 export function pad(str) {
-  while (str.length < 2)
+  while (String(str).length < 2)
     str = "0" + str;
 
   return str;
 }
 
 export async function generateScaledImage(originalDir, originalName, targetSize) {
+  function getSrcImageExtension(imagesDir, originalDir) {
+    // TODO save directory contents and only generate scaled images if they don't already exist
+    return fs
+            .readdirSync(path.resolve(imagesDir, originalDir))
+            .reduce((ext, imgFile) => {
+              const match = imgFile.match(new RegExp(`${escapeRegExp(originalName)}\\.(?<imgExt>[a-zA-Z0-9]+)`));
+
+              if (match)
+                ext = match.groups.imgExt.toLowerCase();
+
+              return ext;
+            }, "") || "jpg";
+  }
+
   function parseSize(sizeStr) {
     const allowedSizes = {
             widths: [576, 768, 992, 1200, 1400, 1600, 1920, 2200],
@@ -36,13 +51,13 @@ export async function generateScaledImage(originalDir, originalName, targetSize)
   }
 
   const imagesDir = "/adventure/public/img",
+        srcImgExtension = getSrcImageExtension(imagesDir, originalDir),
         srcImgName = originalName,
-        srcImgExtension = "jpg", // TODO find the extension based on the existing file
         srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,
         srcImgPath = path.resolve(imagesDir, originalDir, srcImgNameWithExtension),
         { width, height } = parseSize(targetSize),
         sizeSuffix = targetSize,
-        scaledImgExtension = /gif|png/i.test(srcImgExtension) ? srcImgExtension : "webp",
+        scaledImgExtension = /gif|png/.test(srcImgExtension) ? srcImgExtension : "webp",
         scaledImgNameWithExtension = `${srcImgName}_${sizeSuffix}.${scaledImgExtension}`,
         scaledImgDestPath = path.resolve(imagesDir, originalDir, scaledImgNameWithExtension),
         magick = gm(srcImgPath);

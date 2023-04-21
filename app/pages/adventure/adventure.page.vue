@@ -29,24 +29,23 @@ import { useConfirmationStore } from "../../src/stores/confirmation.js";
 export const myData = 42
 
 function imageUrl(adventureId, image, width = 0, height = 0) {
-  const imgMatch = image.match(/(.*?)(\.(\w+))?$/),
-    imgName = imgMatch[1],
-    imgExtension = imgMatch[3] || "jpg",
-    isResized = width != 0 || height != 0,
-    sizeSuffix = isResized ? `_${width}x${height}` : "";
+  const imgMatch = image.match(/(?<imgName>.*?)(\.(?<imgExt>\w+))?$/),
+        imgExtension = imgMatch.groups.imgExt || "jpg",
+        isResized = width !== 0 || height !== 0,
+        sizeSuffix = isResized ? `_${width}x${height}` : "";
   let fileExtension;
 
   if (isResized) {
     if (imgExtension === "png")
-      fileExtension = imgExtension;
+      fileExtension = "png";
     else
       fileExtension = "webp";
   } else {
     fileExtension = imgExtension;
   }
 
-  // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
-  return `/img/${adventureId}/${imgName}${sizeSuffix}.${fileExtension}`;
+  // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
+  return `/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
 }
 
 function imageSizes(adventureId, image) {
@@ -154,7 +153,9 @@ const confirmationStore = useConfirmationStore();
 function onAddSlide(file) {
   console.log("onAddSlide", file);
 
-  if (!/^image\/(jpeg|png|gif)$/.test(file.type)) {
+  const fileTypeMatch = file.type.match(/^image\/(?<imgFileType>jpeg|png|gif)$/);
+
+  if (!fileTypeMatch) {
     const errMsg = `invalid file type: ${file.type}`;
     console.error(errMsg);
     alert(errMsg);
@@ -184,7 +185,7 @@ function onAddSlide(file) {
             adventure.value.slides.push({
               id: newSlideRes.newSlideId,
               mainImg: {
-                src: `${pad(adventure.value.slides.length + 1)}_main`,
+                src: `${pad(adventure.value.slides.length + 1)}_main${fileTypeMatch.groups.imgFileType === "jpeg" ? "" : `.${fileTypeMatch.groups.imgFileType}`}`,
                 caption: "Dummy Caption",
                 width: img.width,
                 height: img.height
@@ -262,7 +263,7 @@ onMounted(() => {
 <template>
   <div class="adventure-container">
     <!-- CMS -->
-    <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" :imageSizes="imageSizes"/>
+    <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" />
 
     <CmsConfirmActionPopup :confirmPopupShowing="confirmationStore.pending" />
     <!-- /CMS -->

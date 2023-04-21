@@ -163,7 +163,7 @@ export async function findAdventure(urlPath) {
 
 export async function findImgReference(adventureId, imgName) {
   const adventuresColl = getCollection("adventures"),
-        imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\.[a-zA-Z0-9]+)?$`)
+        imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\\.[a-zA-Z0-9]+)?$`)
         
   try {
     return await adventuresColl.countDocuments({
