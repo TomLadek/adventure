@@ -34,3 +34,10 @@ export function mergeDeep(target, source) {
 
   return output;
 }
+
+export function pad(str) {
+  while (String(str).length < 2)
+    str = "0" + str;
+
+  return str;
+}

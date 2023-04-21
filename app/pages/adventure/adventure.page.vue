@@ -15,6 +15,9 @@ import "../../src/assets/gi-full-page-scroll.css";
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
 
+// Misc
+import { pad } from "../../src/utils.js";
+
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
 import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdventureNewSlide.vue";
@@ -149,47 +152,59 @@ const cmsControlsStore = useCmsControlsStore();
 const confirmationStore = useConfirmationStore();
 
 function onAddSlide(file) {
-  console.log("onAddSlide", file)
-  
-  function createImage(file) {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      console.log("onload", e.target.result);
-    };
-    reader.readAsDataURL(file);
+  console.log("onAddSlide", file);
+
+  if (!/^image\/(jpeg|png|gif)$/.test(file.type)) {
+    const errMsg = `invalid file type: ${file.type}`;
+    console.error(errMsg);
+    alert(errMsg);
+    return;
   }
+  
+  const reader = new FileReader();
+  
+  reader.addEventListener("load", () => {
+    const img = new Image();
 
-  const formData = new FormData();
+    img.addEventListener("load", () => {
+      console.log("loaded image", { width: img.width, height: img.height, type: file.type, fileName: file.name });
 
-  formData.append("slide", "add");
-  formData.append("slideIdx", slides.value.length + 1);
-  formData.append("mainImg", file);
-
-  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
-    method: "POST",
-    body: formData
-  }).then(res => {
-    if (res.status === 200) {
-      res.json().then(ok => {
-        adventure.value.slides.push({
-          id: ok.newSlideId,
-          mainImg: {
-            src: "PXL_20230205_115940933",
-            caption: "Dummy Caption",
-            "width": 4080,
-            "height": 3072
-          },
-          transition: 0,
-          headline: "MyDummyHeadline",
-          content: {
-            text: "Dummy Content",
-            position: "bottom end"
-          },
-        })
+      const formData = new FormData();
+    
+      formData.append("slide", "add");
+      formData.append("slideIdx", slides.value.length + 1);
+      formData.append("mainImg", file);
+    
+      fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
+        method: "POST",
+        body: formData
+      }).then(res => {
+        if (res.status === 200) {
+          res.json().then(newSlideRes => {
+            adventure.value.slides.push({
+              id: newSlideRes.newSlideId,
+              mainImg: {
+                src: `${pad(adventure.value.slides.length + 1)}_main`,
+                caption: "Dummy Caption",
+                width: img.width,
+                height: img.height
+              },
+              transition: 0,
+              headline: "MyDummyHeadline",
+              content: {
+                text: "Dummy Content",
+                position: "bottom end"
+              },
+            });
+          });
+        }
       });
-    }
+    });
+
+    img.src = reader.result;
   });
+
+  reader.readAsDataURL(file);
 }
 
 function onRemoveSlide(id) {
@@ -207,7 +222,7 @@ function onRemoveSlide(id) {
 
       adventure.value.slides.splice(slideIdxToRemove, 1);
     }
-  })
+  });
 }
 /* /CMS */
 
