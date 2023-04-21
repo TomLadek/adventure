@@ -124,21 +124,21 @@ async function startServer() {
 
     if (match) {
       if (await findImgReference(req.params.adventureId, match.groups.name)) {
-        console.log(`${match.groups.name} in ${req.params.adventureId} -- found!`)
+        console.log(`${match.groups.name} referenced in ${req.params.adventureId} - generating ...`)
 
         try {
           const scaledImagePath = await generateScaledImage(req.params.adventureId, match.groups.name, match.groups.sizeStr)
-          console.log(`scaledImagePath: ${scaledImagePath}`)
+          console.log(`generated image: ${scaledImagePath}`)
           res.status(200).sendFile(scaledImagePath)
           return
         } catch (ex) {
           console.error(ex)
         }
       } else {
-        console.log(`${match.groups.name} in ${req.params.adventureId} -- not found :(`)
+        console.error(`Error: ${match.groups.name} not referenced in ${req.params.adventureId}`)
       }
     } else {
-      console.error(`wrong format: ${req.params.filename}`)
+      console.error(`Error: wrong format: ${req.params.filename}`)
     }
 
     res.status(404).end()
