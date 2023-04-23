@@ -110,7 +110,24 @@ async function startServer() {
           case "remove":
             const slideId = req.body.slideId
     
-            await removeOneSlide(adventureId, slideId)
+            const orphanedImages = await removeOneSlide(adventureId, slideId)
+
+            if (orphanedImages.length > 0) {
+              const adventureImgDir = path.resolve(root, 'public', 'img', adventureId)
+
+              try {
+                execSync(`rm -f ${
+                  orphanedImages
+                    .map(img => path.resolve(adventureImgDir, `${img}*`))
+                    .join(" ")
+                }`)
+                console.log("removed orphaned images")
+              } catch (ex) {
+                console.error(ex)
+                console.log("orphaned images removed with errors, see above")
+              }
+            }
+
             break
         }
       }

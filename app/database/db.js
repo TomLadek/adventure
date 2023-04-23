@@ -58,15 +58,38 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
 }
 
 export async function removeOneSlide(adventureId, slideId) {
-  const adventureColl = getCollection("adventures")
+  const adventureColl = getCollection("adventures"),
+        adventureIdObj = new ObjectId(adventureId),
+        orphanedImages = []
   
   try {
+    const foundAdventure = await adventureColl.findOne(
+      { _id: adventureIdObj, "slides.id": slideId },
+      { projection: { "slides.$": 1 } }
+    )
+
+    if (foundAdventure.slides && foundAdventure.slides.length > 0) {
+      const oldSlide = foundAdventure.slides[0]
+
+      if (oldSlide.mainImg && oldSlide.mainImg.src)
+        orphanedImages.push(oldSlide.mainImg.src)
+
+      if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
+        orphanedImages.push(...oldSlide.gallery.images.reduce((sources, galleryImg) => {
+          if (galleryImg.src)
+            sources.push(galleryImg.src)
+          return sources
+        }, []))
+      }
+    }
+
     await adventureColl.updateOne(
-      { _id: new ObjectId(adventureId) },
+      { _id: adventureIdObj },
       { $pull: { slides: { id: slideId } }}
     )
 
-    console.log(`Removed slide '${slideId}' from adventure ${adventureId}`)
+    console.log(`Removed slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
+    return orphanedImages
   } catch (ex) {
     console.error(ex)
     throw ex
@@ -163,7 +186,7 @@ export async function findAdventure(urlPath) {
 
 export async function findImgReference(adventureId, imgName) {
   const adventuresColl = getCollection("adventures"),
-        imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\\.[a-zA-Z0-9]+)?$`)
+        imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\\.(jpg|png|gif))?$`)
         
   try {
     return await adventuresColl.countDocuments({
