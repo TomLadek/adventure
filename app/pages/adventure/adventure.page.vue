@@ -147,10 +147,10 @@ const slideChange = ref({ last: 0, current: 0, duration: 0 });
 const theme = ref("light");
 
 /* CMS */
-const cmsControlsStore = useCmsControlsStore();
-const confirmationStore = useConfirmationStore();
+const cmsControlsStore = useCmsControlsStore(),
+      confirmationStore = useConfirmationStore();
 
-function onAddSlide(file) {
+cmsControlsStore.subscribeAddSlide(file => {
   console.log("onAddSlide", file);
 
   const fileTypeMatch = file.type.match(/^image\/(?<imgFileType>jpeg|png|gif)$/);
@@ -192,12 +192,7 @@ function onAddSlide(file) {
                 width: img.width,
                 height: img.height
               },
-              transition: 0,
-              headline: "MyDummyHeadline",
-              content: {
-                text: "Dummy Content",
-                position: "bottom end"
-              },
+              transition: 0
             });
           });
         }
@@ -208,25 +203,51 @@ function onAddSlide(file) {
   });
 
   reader.readAsDataURL(file);
-}
+});
 
-function onRemoveSlide(id) {
+cmsControlsStore.subscribeAddSlideContent(args => {
+  const { slideId, headline, content } = args,
+        formData = new FormData();
+
+  formData.append("slideContent", "add");
+  formData.append("slideId", slideId);
+  formData.append("headline", headline);
+  formData.append("contentText", content.text);
+  formData.append("contentPosition", content.position);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
+    method: "POST",
+    body: formData
+  }).then(res => {
+    if (res.status === 200) {
+      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+      slideToChange.headline = headline;
+      slideToChange.content = {
+        text: content.text,
+        position: content.position
+      }
+    }
+  })
+});
+
+cmsControlsStore.subscribeRemoveSlide(slideId => {
   const formData = new FormData();
 
   formData.append("slide", "remove");
-  formData.append("slideId", id);
+  formData.append("slideId", slideId);
 
   fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
     method: "POST",
     body: formData
   }).then((res) => {
     if (res.status === 200) {
-      const slideIdxToRemove = adventure.value.slides.findIndex(slide => slide.id === id);
+      const slideIdxToRemove = adventure.value.slides.findIndex(slide => slide.id === slideId);
 
       adventure.value.slides.splice(slideIdxToRemove, 1);
     }
   });
-}
+});
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));
@@ -282,11 +303,10 @@ onMounted(() => {
         :slide="slide"
         :slideIdx="i"
         :slideChange="slideChange"
-        @removeSlideClick="onRemoveSlide"
       />
 
       <!-- CMS -->
-      <CmsAdventureNewSlide @addSlide="onAddSlide"/>
+      <CmsAdventureNewSlide />
       <!-- /CMS -->
     </main>
   </div>

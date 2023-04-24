@@ -119,7 +119,7 @@ onMounted(initGallery);
       class="main-picture"
     ></a>
 
-    <div class="content-outer" :class="slideContentClass">
+    <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">{{ t(slide.headline) }}</h2>
 
       <div class="content-inner">
@@ -133,7 +133,9 @@ onMounted(initGallery);
       </div>
     </div>
 
-    <slot name="removeSlideButton"></slot>
+    <slot v-else name="cmsAddSlideContentButton"></slot>
+
+    <slot name="cmsRemoveSlideButton"></slot>
   </section>
 </template>
 

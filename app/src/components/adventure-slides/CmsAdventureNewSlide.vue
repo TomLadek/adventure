@@ -1,14 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useCmsControlsStore } from '../../stores/cmscontrols';
 import CmsAdventureItemButtonNew from '../CmsAdventureItemButtonNew.vue';
 
-const emit = defineEmits(["addSlide"]);
-
-const imgData = ref("")
-
-function fileSelected(e) {
-  emit("addSlide", e.target.files[0])
-}
+const imgData = ref(""),
+      { actionAddSlide } = useCmsControlsStore()
 
 const img = computed(() => `url(${imgData.value})`)
 </script>
@@ -17,7 +13,7 @@ const img = computed(() => `url(${imgData.value})`)
   <section class="cms-new-adventure-slide">
     <div class="new-slide-container">
       <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" />
-      <input type="file" @change="fileSelected" accept="image/jpeg,image/png,image/gif">
+      <input type="file" @change="actionAddSlide($event.target.files[0])" accept="image/jpeg,image/png,image/gif">
     </div>
   </section>
 </template>

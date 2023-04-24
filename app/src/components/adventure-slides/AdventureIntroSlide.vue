@@ -77,7 +77,7 @@ onMounted(() => {
       class="main-picture"
     ></span>
 
-    <div class="content-outer">
+    <div v-if="slide.headline || slide.content" class="content-outer">
       <h1 class="headline">
         <span v-html="t(slide.headline)"></span>
         <span class="subheadline" v-html="t(slide.subheadline)"></span>
@@ -90,6 +90,8 @@ onMounted(() => {
   
       </div>
     </div>
+
+    <slot v-else name="cmsAddSlideContentButton"></slot>
 
     <a href="#slide1" class="start-link" :class="{ cornered: !startLinkHasSpace }" :style="{ opacity: showing && !slideSwitched ? 1 : 0}">
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="22" viewBox="0 0 35 22" class="start-link-icon">
@@ -105,7 +107,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <slot name="removeSlideButton"></slot>
+    <slot name="cmsRemoveSlideButton"></slot>
   </section>
 </template>
 

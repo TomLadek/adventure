@@ -28,16 +28,10 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
           id: newSlideId,
           mainImg: {
             src: mainImg,
-            caption: "NewCaption",
             width,
             height
           },
-          transition: 0,
-          headline: "NewHeadline",
-          content: {
-            text: "NewText",
-            position: "top start"
-          }
+          transition: 0
         }
 
   try {
@@ -135,6 +129,30 @@ export async function insertOneAdventure(data) {
     const res = await adventureColl.insertOne(adventureDoc)
 
     console.log(`An adventure was inserted with the _id: ${res.insertedId}`)
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  } finally {
+    releaseClient()
+  }
+}
+
+export async function updateOneSlideContent(adventureId, slideId, slideContent) {
+  const adventuresColl = getCollection("adventures")
+
+  try {
+    const res = await adventuresColl.updateOne({
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId
+    }, {
+      $set: {
+        "slides.$.headline": slideContent.headline,
+        "slides.$.content": slideContent.content
+      }
+    })
+
+    if (res.matchedCount !== 1)
+      throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
   } catch (ex) {
     console.error(ex)
     throw ex

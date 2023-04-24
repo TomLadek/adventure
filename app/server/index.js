@@ -20,7 +20,14 @@ function init() {
 
 async function startServer() {
   const app = express()
-  const { insertOneAdventure, findAdventures, insertOneSlide, removeOneSlide, findImgReference } = await import('../database/db.js')
+  const {
+    insertOneAdventure,
+    findAdventures,
+    insertOneSlide,
+    removeOneSlide,
+    findImgReference,
+    updateOneSlideContent
+  } = await import('../database/db.js')
   const { pad, generateScaledImage } = await import("../utils-node/utils.js")
 
 
@@ -129,6 +136,19 @@ async function startServer() {
             }
 
             break
+        }
+      } else if (req.body.slideContent) {
+        switch (req.body.slideContent) {
+          case "add":
+            const slideContent = {
+              headline: req.body.headline,
+              content: {
+                text: req.body.contentText,
+                position: req.body.contentPosition
+              }
+            }
+
+            await updateOneSlideContent(adventureId, req.body.slideId, slideContent)
         }
       }
 

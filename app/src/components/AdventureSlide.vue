@@ -6,6 +6,8 @@ import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 
 /* CMS */
 import { useConfirmationStore } from "../stores/confirmation.js";
+import { useCmsControlsStore } from "../stores/cmscontrols";
+import CmsAdventureItemButtonNew from "./CmsAdventureItemButtonNew.vue";
 /* /CMS */
 
 function getCssUrlString(url) {
@@ -40,8 +42,6 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["removeSlideClick"]);
-
 const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.xs));
 const mainImgUrlSm = computed(() => getCssUrlString(props.slide.mainImg.sm));
 const mainImgUrlMd = computed(() => getCssUrlString(props.slide.mainImg.md));
@@ -59,18 +59,30 @@ const slideType = computed(() => {
 });
 
 /* CMS */
-const confirmationStore = useConfirmationStore();
+const confirmationStore = useConfirmationStore(),
+      { actionAddSlideContent, actionRemoveSlide } = useCmsControlsStore();
 
-function onRemoveSlideClick(slideId) {
+function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
-    `Remove ${slideId}`,
+    `Remove ${props.slide.id}`,
     `
-      <p>Are you sure you want to remove slide "${slideId}"?</p>
+      <p>Are you sure you want to remove slide "${props.slide.id}"?</p>
       <p>This will also remove any contents of that slide including all gallery images, text, etc.</p>
       <p style="color:red">THIS CANNOT BE UNDONE!</p>
     `,
-    () => emit("removeSlideClick", slideId)
-  )
+    () => actionRemoveSlide(props.slide.id)
+  );
+}
+
+function onNewSlideContentClick() {
+  actionAddSlideContent({
+    slideId: props.slide.id,
+    headline: "Headline",
+    content: {
+      text: "Content",
+      position: "bottom end"
+    }
+  });
 }
 /* /CMS */
 </script>
@@ -78,8 +90,13 @@ function onRemoveSlideClick(slideId) {
 <template>
   <component class="slide" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
     <!-- CMS -->
-    <template #removeSlideButton>
-      <button class="remove-slide-button" @click="onRemoveSlideClick(slide.id)">Remove</button>
+    <template #cmsAddSlideContentButton>
+      <div class="cms-new-slide-content-outer">
+        <CmsAdventureItemButtonNew class="cms-new-slide-content-button" @click="onNewSlideContentClick" />
+      </div>
+    </template>
+    <template #cmsRemoveSlideButton>
+      <button class="remove-slide-button" @click="onRemoveSlideClick">Remove</button>
     </template>
     <!-- /CMS -->
   </component>
@@ -194,9 +211,30 @@ function onRemoveSlideClick(slideId) {
   bottom: 0;
 }
 
+/* CMS */
 .slide .remove-slide-button {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
 }
+
+.slide .cms-new-slide-content-outer {
+  position: absolute;
+  bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .slide .cms-new-slide-content-outer {
+    right: 3rem;  
+  }
+}
+
+.slide .cms-new-slide-content-outer .cms-new-slide-content-button {
+  width: min(32rem, 80vw);
+  height: min(20rem, 80vh);
+  border: 2px dashed grey;
+  border-radius: 2rem;
+  background: #a8a8a862;
+}
+/* /CMS */
 </style>
