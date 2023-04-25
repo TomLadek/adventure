@@ -1,9 +1,10 @@
 <script>
-import { onMounted, computed, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../../../src/utils.js";
 
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
+import AdventureTextMultiline from "../adventure-text/AdventureTextMultiline.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
@@ -101,6 +102,7 @@ function initGallery() {
 }
 
 watch(locale, async () => { initGallery() });
+
 onMounted(initGallery);
 </script>
 
@@ -123,9 +125,7 @@ onMounted(initGallery);
       <h2 class="headline">{{ t(slide.headline) }}</h2>
 
       <div class="content-inner">
-        <div class="text-wrapper">
-          <p v-html="t(slide.content.text)"></p>
-        </div>
+        <AdventureTextMultiline :locale="locale" :text="slide.content.text" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"

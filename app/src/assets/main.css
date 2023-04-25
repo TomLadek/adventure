@@ -78,6 +78,10 @@ button {
   font-family: inherit;
 }
 
+div:empty {
+  display: none;
+}
+
 @media (min-width: 800px) {
   div {
     scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
