@@ -54,14 +54,37 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
 export async function removeOneSlide(adventureId, slideId) {
   const adventureColl = getCollection("adventures"),
         adventureIdObj = new ObjectId(adventureId),
+        messageUnsetDoc = {},
         orphanedImages = []
   
   try {
+    // Find the adventure doc by its ID and return only the slide with the specified ID
     const foundAdventure = await adventureColl.findOne(
       { _id: adventureIdObj, "slides.id": slideId },
       { projection: { "slides.$": 1 } }
     )
 
+    // Find all available locales (keys in the 'messages' doc) in the adventure doc
+    const messagesLangKeys = await adventureColl.aggregate([
+      { $match: { _id: adventureIdObj } },
+      { 
+        $project: {
+          "arrayofkeyvalue": {
+            $objectToArray: "$$ROOT.messages"
+          }
+        }
+      },
+      { $project: { keys: "$arrayofkeyvalue.k" } }
+    ]).next()
+
+    // Construct an $unset doc to remove all messages referenced in that slide
+    if (messagesLangKeys && messagesLangKeys.keys) {
+      for (let lang of messagesLangKeys.keys) {
+        messageUnsetDoc[`messages.${lang}.${slideId}`] = ""
+      }
+    }
+
+    // Collect all images that are referenced in the slide to be removed
     if (foundAdventure.slides && foundAdventure.slides.length > 0) {
       const oldSlide = foundAdventure.slides[0]
 
@@ -69,17 +92,20 @@ export async function removeOneSlide(adventureId, slideId) {
         orphanedImages.push(oldSlide.mainImg.src)
 
       if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
-        orphanedImages.push(...oldSlide.gallery.images.reduce((sources, galleryImg) => {
+        for (let galleryImg of oldSlide.gallery.images) {
           if (galleryImg.src)
-            sources.push(galleryImg.src)
-          return sources
-        }, []))
+            orphanedImages.push(galleryImg.src)
+        }
       }
     }
 
+    // Do the actual doc update
     await adventureColl.updateOne(
       { _id: adventureIdObj },
-      { $pull: { slides: { id: slideId } }}
+      {
+        $pull: { slides: { id: slideId } }, // Remove the slide with the specified ID
+        $unset: messageUnsetDoc // Remove all messages referenced in the slide with the specified ID
+      }
     )
 
     console.log(`Removed slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
@@ -182,18 +208,17 @@ export async function findAdventures() {
 }
 
 export async function findAdventure(urlPath) {
-  const adventuresColl = getCollection("adventures"),
-        adventureCursor = adventuresColl.find({ "meta.basePath": new RegExp(`${escapeRegExp(urlPath)}/?`) } )
+  const adventuresColl = getCollection("adventures")
 
   try {
-    if (await adventureCursor.hasNext()) {
-      const adventure = await adventureCursor.next()
+    const adventure = await adventuresColl.findOne({ "meta.basePath": new RegExp(`${escapeRegExp(urlPath)}/?`) } )
+
+    if (adventure == null)
+      return null
+
       adventure.meta.id = adventure._id.toHexString()
       delete adventure._id
       return adventure
-    } else {
-      return null
-    }
   } catch (ex) {
     console.error(ex)
     throw ex
