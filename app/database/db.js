@@ -163,19 +163,31 @@ export async function insertOneAdventure(data) {
   }
 }
 
-export async function updateOneSlideContent(adventureId, slideId, slideContent) {
-  const adventuresColl = getCollection("adventures")
+export async function updateOneSlideContent(adventureId, slideId, slideContent, locale) {
+  const updateDocument = { $set: {} }
+
+  if (slideContent) {
+    if (slideContent.headline) {
+      updateDocument.$set["slides.$.headline"] = `${slideId}.headline`
+      updateDocument.$set[`messages.${locale}.${slideId}.headline`] = slideContent.headline
+    }
+
+    if (slideContent.content) {
+      updateDocument.$set["slides.$.content.text"] = `${slideId}.content`
+      updateDocument.$set["slides.$.content.position"] = slideContent.content.position
+      updateDocument.$set[`messages.${locale}.${slideId}.content`] = slideContent.content.text
+    }
+  }
+
+  if (Object.keys(updateDocument.$set).length < 1)
+    return
 
   try {
-    const res = await adventuresColl.updateOne({
+    const adventuresColl = getCollection("adventures"),
+          res = await adventuresColl.updateOne({
       _id: new ObjectId(adventureId),
       "slides.id": slideId
-    }, {
-      $set: {
-        "slides.$.headline": slideContent.headline,
-        "slides.$.content": slideContent.content
-      }
-    })
+    }, updateDocument)
 
     if (res.matchedCount !== 1)
       throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
@@ -216,9 +228,9 @@ export async function findAdventure(urlPath) {
     if (adventure == null)
       return null
 
-      adventure.meta.id = adventure._id.toHexString()
-      delete adventure._id
-      return adventure
+    adventure.meta.id = adventure._id.toHexString()
+    delete adventure._id
+    return adventure
   } catch (ex) {
     console.error(ex)
     throw ex

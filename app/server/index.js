@@ -148,7 +148,7 @@ async function startServer() {
               }
             }
 
-            await updateOneSlideContent(adventureId, req.body.slideId, slideContent)
+            await updateOneSlideContent(adventureId, req.body.slideId, slideContent, req.body.locale)
         }
       }
 

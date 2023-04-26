@@ -101,7 +101,7 @@ const pageContext = usePageContext(),
       adventure = ref(pageContext.pageProps.adventure),
       routeParams = pageContext.routeParams; // get the current URL path
 
-const { t, locale } = useI18n();
+const { t, locale, messages } = useI18n();
 
 const slides = computed(() => (adventure.value.slides || []).map((slide) => {
   if (slide.mainImg) {
@@ -188,7 +188,6 @@ cmsControlsStore.subscribeAddSlide(file => {
               id: newSlideRes.newSlideId,
               mainImg: {
                 src: `${pad(adventure.value.slides.length + 1)}_main${fileTypeMatch.groups.imgFileType === "jpeg" ? "" : `.${fileTypeMatch.groups.imgFileType}`}`,
-                caption: "Dummy Caption",
                 width: img.width,
                 height: img.height
               },
@@ -207,26 +206,33 @@ cmsControlsStore.subscribeAddSlide(file => {
 
 cmsControlsStore.subscribeAddSlideContent(args => {
   const { slideId, headline, content } = args,
-        formData = new FormData();
+        formData = new FormData(),
+        currentLocale = locale.value;
 
   formData.append("slideContent", "add");
   formData.append("slideId", slideId);
   formData.append("headline", headline);
   formData.append("contentText", content.text);
   formData.append("contentPosition", content.position);
+  formData.append("locale", currentLocale)
 
   fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
     method: "POST",
     body: formData
   }).then(res => {
     if (res.status === 200) {
-      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+            headlineTextModule = `${slideToChange.id}.headline`,
+            contentTextModule = `${slideToChange.id}.content`;
 
-      slideToChange.headline = headline;
+      slideToChange.headline = headlineTextModule;
       slideToChange.content = {
-        text: content.text,
+        text: contentTextModule,
         position: content.position
-      }
+      };
+
+      messages.value[currentLocale][headlineTextModule] = headline;
+      messages.value[currentLocale][contentTextModule] = content.text;
     }
   })
 });

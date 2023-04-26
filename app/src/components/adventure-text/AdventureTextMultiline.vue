@@ -14,7 +14,7 @@ const props = defineProps({
     required: true,
     type: String
   },
-  text: {
+  textModule: {
     required: false,
     type: String
   }
@@ -25,7 +25,10 @@ const { t } = useI18n();
 const realTextDisplay = ref(true);
 
 const finalText = computed(() => {
-  let textTmp = t(props.text);
+  if (!props.textModule)
+    return "";
+
+  let textTmp = t(props.textModule);
   
   if (textTmp.length === 0)
     return "";
@@ -35,7 +38,7 @@ const finalText = computed(() => {
 
 /* CMS */
 const editor = useEditor({
-  content: t(props.text),
+  content: props.textModule ? t(props.textModule) : "",
   extensions: [ StarterKit ],
   onBeforeCreate() {
     realTextDisplay.value = false

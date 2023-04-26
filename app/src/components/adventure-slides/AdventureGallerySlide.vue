@@ -125,7 +125,7 @@ onMounted(initGallery);
       <h2 class="headline">{{ t(slide.headline) }}</h2>
 
       <div class="content-inner">
-        <AdventureTextMultiline :locale="locale" :text="slide.content.text" />
+        <AdventureTextMultiline :locale="locale" :textModule="slide.content.text" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
