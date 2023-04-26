@@ -81,7 +81,7 @@ async function startServer() {
   app.put('/rest/adventure/create', async (req, res) => {
     try {
       await insertOneAdventure(req.body)
-      return res.status(200).end()
+      res.status(200).end()
     } catch (ex) {
       console.error(ex)
       res.status(500).json(ex)
