@@ -287,4 +287,8 @@ onMounted(initGallery);
     padding-right: 10px;
   }
 }
+
+div.pswp__bg {
+  display: initial; /* Override div:empty{display:none} */
+}
 </style>
