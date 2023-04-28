@@ -208,17 +208,16 @@ cmsControlsStore.subscribeAddSlideContent(args => {
         formData = new FormData(),
         currentLocale = locale.value;
 
-  formData.append("slideId", slideId);
   formData.append("headline", headline);
   formData.append("contentText", content.text);
   formData.append("contentPosition", content.position);
   formData.append("locale", currentLocale)
 
-  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/content`, {
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/content`, {
     method: "PUT",
     body: formData
   }).then(res => {
-    if (res.status === 200) {
+    if (res.status === 201) {
       const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
             headlineTextModule = `${slideToChange.id}.headline`,
             contentTextModule = `${slideToChange.id}.content`;

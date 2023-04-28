@@ -122,17 +122,18 @@ async function startServer() {
   })
 
   // Add slide content
-  app.put('/rest/adventure/:adventureId/slide/content', upload.fields(["slideId", "locale", "contentPosition", "headline", "contentText"]), async (req, res) => {
+  app.put('/rest/adventure/:adventureId/slide/:slideId/content', upload.fields(["locale", "contentPosition", "headline", "contentText"]), async (req, res) => {
     try {
-      const slideContent = {
-        headline: req.body.headline,
-        content: {
-          text: req.body.contentText,
-          position: req.body.contentPosition
-        }
-      }
+      const adventureId = req.params.adventureId,
+            slideContent = {
+              headline: req.body.headline,
+              content: {
+                text: req.body.contentText,
+                position: req.body.contentPosition
+              }
+            }
 
-      await updateOneSlideContent(adventureId, req.body.slideId, slideContent, req.body.locale)
+      await updateOneSlideContent(adventureId, req.params.slideId, slideContent, req.body.locale)
 
       res.status(201).json({ok: true})
     } catch (ex) {
