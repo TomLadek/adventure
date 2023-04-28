@@ -42,7 +42,7 @@ function getTranslatedText() {
 const cmsControlsStore = useCmsControlsStore(),
       editorControlsShown = ref(false),
       cmsControlsPosition = ref({ top: 0, left: 0 }),
-      syncStatusValue = { SYNCING: 0, SYNCED: 1 },
+      syncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
       syncStatus = ref(syncStatusValue.SYNCED);
 
 let syncTimeout = 0;
@@ -54,29 +54,30 @@ const editor = useEditor({
     realTextDisplay.value = false;
   },
   onUpdate({ editor }) {
-    syncStatus.value = syncStatusValue.SYNCING;
+    syncStatus.value = syncStatusValue.WRITING;
 
     clearTimeout(syncTimeout);
 
     syncTimeout = setTimeout(() => {
-      console.log("saving following content:", editor.getHTML());
+      syncStatus.value = syncStatusValue.SYNCING;
 
       cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
         textModule: props.textModule, 
         locale: locale,
         newText: editor.getHTML()
-      }).then((value) => {
-        console.log("resolved", value);
-
+      }).then(() => {
         syncStatus.value = syncStatusValue.SYNCED;
-  
+      }).catch(reason => {
+        console.error(reason)
+        syncStatus.value = syncStatusValue.ERROR;  
+      }).finally(() => {
         setTimeout(() => {
           if (!editor.isFocused)
             editorControlsShown.value = false;
         }, 3000);
-  
-        syncTimeout = 0;
-      }).catch(reason => console.error(reason));
+
+        syncTimeout = 0;        
+      });
     }, 1000);
   },
   onFocus() {
@@ -89,6 +90,15 @@ const editor = useEditor({
   onCreate({ editor }) {
     cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
     cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
+  }
+});
+
+const syncStatusLabel = computed(() => {
+  switch (syncStatus.value) {
+    case syncStatusValue.WRITING: return "...";
+    case syncStatusValue.SYNCED: return "synced";
+    case syncStatusValue.SYNCING: return "syncing";
+    case syncStatusValue.ERROR: return "error";
   }
 });
 
@@ -106,7 +116,7 @@ watch(locale, () => {
     <EditorContent :editor="editor" class="cms-text-editor" />
 
     <div class="cms-text-editor-controls" v-show="editorControlsShown">
-      <span>{{ syncStatus === syncStatusValue.SYNCING ? "syncing" : "synced" }}</span>
+      <span>{{ syncStatusLabel }}</span>
     </div>
   </div>
   <!-- /CMS -->

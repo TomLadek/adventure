@@ -264,7 +264,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
     if (res.status === 200) {
       messages.value[locale][textModule] = newText;
 
-      resolve("ok");
+      resolve();
     } else {
       res.json().then(error => reject(error.message))
     }
