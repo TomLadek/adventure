@@ -172,14 +172,13 @@ cmsControlsStore.subscribeAddSlide(file => {
 
       const formData = new FormData();
     
-      formData.append("slide", "add");
-      formData.append("slideIdx", slides.value.length + 1);
       formData.append("mainImg", file);
+      formData.append("slideIdx", slides.value.length + 1);
       formData.append("imgWidth", img.width);
       formData.append("imgHeight", img.height);
     
-      fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
-        method: "POST",
+      fetch(`/rest/adventure/${adventure.value.meta.id}/slide`, {
+        method: "PUT",
         body: formData
       }).then(res => {
         if (res.status === 200) {
@@ -209,15 +208,14 @@ cmsControlsStore.subscribeAddSlideContent(args => {
         formData = new FormData(),
         currentLocale = locale.value;
 
-  formData.append("slideContent", "add");
   formData.append("slideId", slideId);
   formData.append("headline", headline);
   formData.append("contentText", content.text);
   formData.append("contentPosition", content.position);
   formData.append("locale", currentLocale)
 
-  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
-    method: "POST",
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/content`, {
+    method: "PUT",
     body: formData
   }).then(res => {
     if (res.status === 200) {
@@ -240,11 +238,8 @@ cmsControlsStore.subscribeAddSlideContent(args => {
 cmsControlsStore.subscribeRemoveSlide(slideId => {
   const formData = new FormData();
 
-  formData.append("slide", "remove");
-  formData.append("slideId", slideId);
-
-  fetch(`/rest/adventure/${adventure.value.meta.id}/edit`, {
-    method: "POST",
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}`, {
+    method: "DELETE",
     body: formData
   }).then((res) => {
     if (res.status === 200) {
