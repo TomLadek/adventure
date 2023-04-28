@@ -26,7 +26,8 @@ async function startServer() {
     insertOneSlide,
     removeOneSlide,
     findImgReference,
-    updateOneSlideContent
+    updateOneSlideContent,
+    updateOneText
   } = await import('../database/db.js')
   const { pad, generateScaledImage } = await import("../utils-node/utils.js")
 
@@ -156,6 +157,28 @@ async function startServer() {
     } catch (ex) {
       console.error(ex)
       res.status(500).json(ex)
+    }
+  })
+
+  // Edit text
+  app.post('/rest/adventure/:adventureId/edit/text', upload.fields(["textModule", "locale", "newText"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            textModule = req.body.textModule,
+            locale = req.body.locale,
+            newText = req.body.newText
+
+      console.log(`updating text '${textModule}' (lang '${locale}') in adventure ${adventureId}`)
+
+      const success = await updateOneText(adventureId, textModule, locale, newText)
+
+      if (success)
+        res.status(200).json({ok: true})
+      else
+        res.status(404).json({ok: false, message: `adventure '${adventureId}' not found`})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
     }
   })
 

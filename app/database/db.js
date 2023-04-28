@@ -199,6 +199,26 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
+export async function updateOneText(adventureId, textModule, locale, newText) {
+  try {
+    const adventuresColl = getCollection("adventures"),
+          res = await adventuresColl.updateOne({
+            _id: new ObjectId(adventureId)
+          }, {
+            $set: {
+              [`messages.${locale}.${textModule}`]: newText
+            }
+          })
+
+    return res.matchedCount > 0
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  } finally {
+    releaseClient()
+  }
+}
+
 export async function findAdventures() {
   const adventuresColl = getCollection("adventures"),
         adventuresCursor = adventuresColl.find()

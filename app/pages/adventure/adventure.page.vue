@@ -254,6 +254,28 @@ cmsControlsStore.subscribeRemoveSlide(slideId => {
     }
   });
 });
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, resolve, reject) => {
+  const { textModule, locale, newText } = args,
+        formData = new FormData();
+
+  formData.append("textModule", textModule);
+  formData.append("locale", locale);
+  formData.append("newText", newText);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/edit/text`, {
+    method: "POST",
+    body: formData
+  }).then((res) => {
+    if (res.status === 200) {
+      messages.value[locale][textModule] = newText;
+
+      resolve("ok");
+    } else {
+      res.json().then(error => reject(error.message))
+    }
+  });
+});
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));
