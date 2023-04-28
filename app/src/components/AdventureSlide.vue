@@ -234,7 +234,12 @@ function onNewSlideContentClick() {
   height: min(20rem, 80vh);
   border: 2px dashed grey;
   border-radius: 2rem;
-  background: #a8a8a862;
+  background-color: #a8a8a862;
+  transition: background-color 0.1s ease;
+}
+
+.slide .cms-new-slide-content-outer .cms-new-slide-content-button:hover {
+  background-color: #a8a8a899;
 }
 /* /CMS */
 </style>
