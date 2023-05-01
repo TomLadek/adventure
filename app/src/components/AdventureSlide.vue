@@ -42,14 +42,14 @@ const props = defineProps({
   }
 });
 
-const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.xs));
-const mainImgUrlSm = computed(() => getCssUrlString(props.slide.mainImg.sm));
-const mainImgUrlMd = computed(() => getCssUrlString(props.slide.mainImg.md));
-const mainImgUrlLg = computed(() => getCssUrlString(props.slide.mainImg.lg));
-const mainImgUrlXl = computed(() => getCssUrlString(props.slide.mainImg.xl));
-const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.xxl));
-const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxl));
-const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.xxxxl));
+const mainImgUrlXs = computed(() => getCssUrlString(props.slide.mainImg.src.xs));
+const mainImgUrlSm = computed(() => getCssUrlString(props.slide.mainImg.src.sm));
+const mainImgUrlMd = computed(() => getCssUrlString(props.slide.mainImg.src.md));
+const mainImgUrlLg = computed(() => getCssUrlString(props.slide.mainImg.src.lg));
+const mainImgUrlXl = computed(() => getCssUrlString(props.slide.mainImg.src.xl));
+const mainImgUrlXxl = computed(() => getCssUrlString(props.slide.mainImg.src.xxl));
+const mainImgUrlXxxl = computed(() => getCssUrlString(props.slide.mainImg.src.xxxl));
+const mainImgUrlXxxxl = computed(() => getCssUrlString(props.slide.mainImg.src.xxxxl));
 
 const slideType = computed(() => {
   if (props.slide.intro)

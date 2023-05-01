@@ -1,16 +1,19 @@
 <script>
-import { computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, h, render } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../../../src/utils.js";
 
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
-import AdventureTextMultiline from "../adventure-text/AdventureTextMultiline.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import "photoswipe/style.css";
 import PhotoSwipeDynamicCaption from "photoswipe-dynamic-caption-plugin";
 import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css";
 import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
+
+/* CMS */
+import CmsEditableText from "../CmsEditableText.vue";
+/* /CMS */
 </script>
 
 <script setup>
@@ -31,7 +34,7 @@ const slideContentClass = computed(() => {
   return baseClass;
 });
 
-const { t, locale } = useI18n();
+const { t, locale, messages } = useI18n();
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -86,15 +89,51 @@ function initGallery() {
 
   new PhotoSwipeDynamicCaption(pswpInstance, {
     type: "auto",
-    captionContent: (slide) => {
-      const img = slide.data.element.querySelector("img");
+    captionContent: (pswpSlide) => {
+      const img = pswpSlide.data.element.querySelector("img");
 
       if (img)
         return img.dataset.caption;
 
-      return slide.data.element.dataset.caption;
+      return pswpSlide.data.element.dataset.caption;
     }
   });
+
+  /* CMS */
+  pswpInstance.on("dynamicCaptionUpdateHTML", ({ captionElement }) => {
+    const captionTextModule = captionElement.innerHTML,
+          cmsEditableTextFocusAction = ref();
+
+    captionElement.innerHTML = "";
+
+    render(
+      h(
+        CmsEditableText,
+        {
+          i18n: { t, locale },
+          textModule: captionTextModule,
+          onBlur: () => {
+            pswpInstance.dispatch("bindEvents");
+          },
+          focusAction: cmsEditableTextFocusAction
+        }
+      ),
+      captionElement
+    );
+
+    captionElement.addEventListener("click", () => {
+      const scrollWrapElement = pswpInstance.pswp.element.querySelector(".pswp__scroll-wrap");
+
+      // Remove all events of PhotoSwipe that would prevent proper interaction with ProseMirror.
+      // They can be later added again using pswp.dispatch('bindEvents')
+      scrollWrapElement.removeEventListeners("click pointercancel pointerdown");
+      document.removeEventListeners("focusin keydown");
+      window.removeEventListeners("pointermove pointerup");
+
+      cmsEditableTextFocusAction.value = Math.random();
+    })
+  });
+  /* /CMS */
 
   window.photoSwipes[props.slide.id] = pswpInstance;
 
@@ -112,20 +151,24 @@ onMounted(initGallery);
     class="slide-gallery"
   >
     <a
-      v-if="slide.mainImg"
-      :href="slide.mainImg.original"
-      v-bind="slide.mainImgAttrs"
-      :title="slide.mainImgTitle && getCaptionText(t(slide.mainImgTitle))"
-      :data-caption="slide.mainImgTitle ? t(slide.mainImgTitle) : ''"
+      v-if="slide.mainImg.src"
+      :href="slide.mainImg.src.original"
+      :data-pswp-width="slide.mainImg.width"
+      :data-pswp-height="slide.mainImg.height"
+      data-cropped="true"
+      :title="slide.mainImg.caption && getCaptionText(t(slide.mainImg.caption))"
+      :data-caption="slide.mainImg.caption"
       target="_blank"
       class="main-picture"
     ></a>
 
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
-      <h2 class="headline">{{ t(slide.headline) }}</h2>
+      <h2 class="headline">
+        <CmsEditableText :i18n="{ t, locale }" :text-module="slide.headline" />
+      </h2>
 
       <div class="content-inner">
-        <AdventureTextMultiline :locale="locale" :textModule="slide.content.text" />
+        <CmsEditableText :i18n="{ t, locale }" :textModule="slide.content.text" :isMultiline="true" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"

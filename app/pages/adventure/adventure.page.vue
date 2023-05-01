@@ -48,7 +48,7 @@ function imageUrl(adventureId, image, width = 0, height = 0) {
   return `/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
 }
 
-function imageSizes(adventureId, image) {
+function srcToUrls(adventureId, image) {
   return [
     {size: "original", width: 0},
     {size: "xs", width: 576},
@@ -104,37 +104,15 @@ const pageContext = usePageContext(),
 const { t, locale, messages } = useI18n();
 
 const slides = computed(() => (adventure.value.slides || []).map((slide) => {
-  if (slide.mainImg) {
-    slide.mainImgAttrs = {
-      "data-pswp-width": slide.mainImg.width,
-      "data-pswp-height": slide.mainImg.height,
-      "data-cropped": true
-    };
-    slide.mainImgTitle = slide.mainImg.caption || "";
-
-    if (!slide.mainImg.original)
-      slide.mainImg = imageSizes(adventure.value.meta.id, slide.mainImg.src);
-  }
+  if (slide.mainImg && typeof slide.mainImg.src !== "object")
+    slide.mainImg.src = srcToUrls(adventure.value.meta.id, slide.mainImg.src);
 
   if (slide.gallery) {
     slide.gallery.images = slide.gallery.images.map((galleryImg) => {
-      galleryImg.imgAttrs = {
-        src: gallerySrc(adventure.value.meta.id, galleryImg.src, 0),
-        srcset: gallerySrcSet(adventure.value.meta.id, galleryImg.src),
-        width: galleryImg.width,
-        height: galleryImg.height
-      };
-      galleryImg.title = galleryImg.caption,
-      galleryImg.alt = galleryImg.caption,
-      galleryImg.pswpImgAttrs = {
-        "data-pswp-width": galleryImg.width,
-        "data-pswp-height": galleryImg.height,
-        "data-cropped": true
-      };
-
-      delete galleryImg.caption;
-      delete galleryImg.width;
-      delete galleryImg.height;
+      if (!/^\/img\//.test(galleryImg.src)) {
+        galleryImg.srcset = gallerySrcSet(adventure.value.meta.id, galleryImg.src);
+        galleryImg.src = gallerySrc(adventure.value.meta.id, galleryImg.src, 0);
+      }
 
       return galleryImg;
     });
@@ -275,6 +253,18 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
 watch(theme, (value) => updatePageTheme(value));
 
 onMounted(() => {
+  if (adventure.meta) {
+    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
+      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
+
+    updateAdventureMeta(titleGetter, descriptionGetter);
+    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
+  }
+
+  if (slides.value.length > 0 && slides.value[0].theme) {
+    updatePageTheme(slides.value[0].theme);
+  }
+
   window.gsap = gsap;
 
   import("../../src/assets/gi-full-page-scroll.js").then(() => {
@@ -290,18 +280,6 @@ onMounted(() => {
       }
     });
   });
-
-  if (adventure.meta) {
-    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
-      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
-
-    updateAdventureMeta(titleGetter, descriptionGetter);
-    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
-  }
-
-  if (slides.value.length > 0 && slides.value[0].theme) {
-    updatePageTheme(slides.value[0].theme);
-  }
 });
 </script>
 

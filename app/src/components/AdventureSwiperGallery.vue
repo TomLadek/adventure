@@ -47,15 +47,20 @@ const cmsImgBorder = computed(() => {
   <a
     v-for="image in gallery.images"
     v-bind:key="image.src"
-    :href="image.imgAttrs.src"
-    :title="image.title && getCaptionText(t(image.title))"
-    v-bind="image.pswpImgAttrs"
+    :href="image.src"
+    :title="image.caption && getCaptionText(t(image.caption))"
+    :data-pswp-width="image.width"
+    :data-pswp-height="image.height"
+    data-cropped="true"
     target="_blank"
   >
     <img
-      v-bind="image.imgAttrs" 
-      :alt="image.alt && getCaptionText(t(image.alt))"
-      :data-caption="image.title ? t(image.title) : '[error in AdventureSwiperGallery.vue]'"
+      :src="image.src"
+      :srcset="image.srcset"
+      :width="image.width"
+      :height="image.height"
+      :alt="image.caption && getCaptionText(t(image.caption))"
+      :data-caption="image.caption"
       loading="lazy"
     />
   </a>

@@ -1,10 +1,13 @@
 export const isCmsView = process.env.NODE_ENV === 'development';
 
 export function getCaptionText(captionHtml) {
-  if (!captionHtml || typeof document !== "object")
-    return null;
+  if (!captionHtml)
+    return null
+  
+  if (typeof document !== "object")
+    return captionHtml;
 
-  const dummy = document.createElement("span");
+  const dummy = document.createElement("div");
 
   dummy.innerHTML = captionHtml;
 
