@@ -34,7 +34,10 @@ const slideContentClass = computed(() => {
   return baseClass;
 });
 
-const { t, locale, messages } = useI18n();
+const { t, locale } = useI18n(),
+      i18nBundle = ref({
+        t, locale
+      });
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -110,7 +113,7 @@ function initGallery() {
       h(
         CmsEditableText,
         {
-          i18n: { t, locale },
+          i18n: i18nBundle.value,
           textModule: captionTextModule,
           onBlur: () => {
             pswpInstance.dispatch("bindEvents");
@@ -140,7 +143,10 @@ function initGallery() {
   window.addEventListener("hashchange", closeAllPhotoSwipes);
 }
 
-watch(locale, async () => { initGallery() });
+watch(locale, async (newLocale) => {
+  i18nBundle.value.locale = newLocale;
+  initGallery();
+});
 
 onMounted(initGallery);
 </script>
@@ -164,11 +170,11 @@ onMounted(initGallery);
 
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">
-        <CmsEditableText :i18n="{ t, locale }" :text-module="slide.headline" />
+        <CmsEditableText :i18n="i18nBundle" :text-module="slide.headline" />
       </h2>
 
       <div class="content-inner">
-        <CmsEditableText :i18n="{ t, locale }" :textModule="slide.content.text" :isMultiline="true" />
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"

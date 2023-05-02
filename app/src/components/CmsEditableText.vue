@@ -30,15 +30,12 @@ const props = defineProps({
   }
 });
 
-const { t, locale } = props.i18n,
-      realTextDisplay = ref(true);
+const realTextDisplay = ref(true);
 
-function getTranslatedText() {
-  return props.textModule ? t(props.textModule) : "";
-}
+const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
 
-const finalText = computed(() => {
-  const textTmp = getTranslatedText();
+const sanitizedTranslatedText = computed(() => {
+  const textTmp = translatedText.value;
 
   if (!props.isMultiline)
     return textTmp;
@@ -63,7 +60,7 @@ let cmsTextSyncTimeout = 0;
 
 const editor = useEditor({
   extensions: [ StarterKit ],
-  content: getTranslatedText(),
+  content: translatedText.value,
   onBeforeCreate() {
     realTextDisplay.value = false;
   },
@@ -81,7 +78,7 @@ const editor = useEditor({
 
       cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
         textModule: props.textModule,
-        locale: locale,
+        locale: props.i18n.locale,
         newText: editor.getHTML()
       }).then(() => {
         cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
@@ -132,7 +129,7 @@ function editorAction(type) {
   editor.value.commands.focus();
 }
 
-watch(() => props.textModule, newContent => editor.value.commands.setContent(newContent));
+watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
 
 if (props.focusAction)
   watch(props.focusAction, () => editor.value.commands.focus());
@@ -140,7 +137,7 @@ if (props.focusAction)
 </script>
 
 <template>
-  <div v-if="finalText" class="text-wrapper" v-html="finalText" v-show="realTextDisplay"></div>
+  <div v-if="sanitizedTranslatedText" class="text-wrapper" v-html="sanitizedTranslatedText" v-show="realTextDisplay"></div>
 
   <!-- CMS -->
   <div class="cms-text-editor-container" v-show="!realTextDisplay">
