@@ -14,6 +14,7 @@ import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 /* CMS */
 import CmsEditableText from "../CmsEditableText.vue";
+import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 /* /CMS */
 </script>
 
@@ -36,7 +37,8 @@ const slideContentClass = computed(() => {
 });
 
 const { t, locale } = useI18n(),
-      { i18nBundle } = useI18nBundle();
+      { i18nBundle } = useI18nBundle(),
+      cmsControlsStore = useCmsControlsStore();
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -124,6 +126,9 @@ function initGallery() {
     );
 
     captionElement.addEventListener("click", () => {
+      if (!cmsControlsStore.editMode)
+        return;
+
       const scrollWrapElement = pswpInstance.pswp.element.querySelector(".pswp__scroll-wrap");
 
       // Remove all events of PhotoSwipe that would prevent proper interaction with ProseMirror.

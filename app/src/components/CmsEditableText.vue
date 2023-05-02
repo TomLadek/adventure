@@ -38,9 +38,12 @@ const props = defineProps({
   }
 });
 
-const realTextDisplay = ref(true);
+const editorReady = ref(false);
+
+const realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value);
 
 const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
+
 const cssPositions = computed(() => {
   if (props.editorControlsPosition === "absolute") {
     return {
@@ -83,7 +86,7 @@ const editor = useEditor({
   extensions: [ StarterKit ],
   content: translatedText.value,
   onBeforeCreate() {
-    realTextDisplay.value = false;
+    editorReady.value = true;
   },
   onCreate({ editor }) {
     if (props.editorControlsPosition === "absolute") {
@@ -163,10 +166,10 @@ if (props.focusAction)
 </script>
 
 <template>
-  <div v-if="sanitizedTranslatedText" class="text-wrapper" :class="class" v-html="sanitizedTranslatedText" v-show="realTextDisplay"></div>
+  <div v-if="realTextDisplay" class="text-wrapper" :class="class" v-html="sanitizedTranslatedText"></div>
 
   <!-- CMS -->
-  <div class="cms-text-editor-container" :class="class" v-show="!realTextDisplay">
+  <div v-else class="cms-text-editor-container" :class="class">
     <EditorContent class="cms-text-editor" :editor="editor" />
     
     <div class="cms-text-editor-controls" v-show="cmsEditorControlsShown">

@@ -60,7 +60,8 @@ const slideType = computed(() => {
 
 /* CMS */
 const confirmationStore = useConfirmationStore(),
-      { actionAddSlideContent, actionRemoveSlide } = useCmsControlsStore();
+      cmsControlsStore = useCmsControlsStore(),
+      { actionAddSlideContent, actionRemoveSlide } = cmsControlsStore;
 
 function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
@@ -96,7 +97,7 @@ function onNewSlideContentClick() {
       </div>
     </template>
     <template #cmsRemoveSlideButton>
-      <button class="remove-slide-button" @click="onRemoveSlideClick">Remove</button>
+      <button v-if="cmsControlsStore.editMode" class="remove-slide-button" @click="onRemoveSlideClick">Remove</button>
     </template>
     <!-- /CMS -->
   </component>
