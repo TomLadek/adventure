@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch, h, render } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../../../src/utils.js";
+import { useI18nBundle } from "../../composables/i18nBundle";
 
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
 
@@ -35,9 +36,7 @@ const slideContentClass = computed(() => {
 });
 
 const { t, locale } = useI18n(),
-      i18nBundle = ref({
-        t, locale
-      });
+      { i18nBundle } = useI18nBundle();
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -143,10 +142,7 @@ function initGallery() {
   window.addEventListener("hashchange", closeAllPhotoSwipes);
 }
 
-watch(locale, async (newLocale) => {
-  i18nBundle.value.locale = newLocale;
-  initGallery();
-});
+watch(locale, initGallery);
 
 onMounted(initGallery);
 </script>

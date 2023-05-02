@@ -27,12 +27,33 @@ const props = defineProps({
   focusAction: {
     type: Object,
     required: false
+  },
+  class: {
+    type: String,
+    required: false
+  },
+  editorControlsPosition: {
+    type: String,
+    required: false
   }
 });
 
 const realTextDisplay = ref(true);
 
 const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
+const cssPositions = computed(() => {
+  if (props.editorControlsPosition === "absolute") {
+    return {
+      container: "relative",
+      editorControls: "absolute"
+    }
+  } else {
+    return {
+      container: "initial",
+      editorControls: "fixed"
+    }
+  }
+})
 
 const sanitizedTranslatedText = computed(() => {
   const textTmp = translatedText.value;
@@ -65,8 +86,13 @@ const editor = useEditor({
     realTextDisplay.value = false;
   },
   onCreate({ editor }) {
-    cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
-    cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
+    if (props.editorControlsPosition === "absolute") {
+      cmsControlsPosition.value.top = "0px";
+      cmsControlsPosition.value.left = "0px";
+    } else {
+      cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
+      cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
+    }
   },
   onUpdate({ editor }) {
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
@@ -105,7 +131,7 @@ const editor = useEditor({
       setTimeout(() => {
         if (!editor.isFocused)
           cmsEditorControlsShown.value = false;
-      }, 500);
+      }, 100);
     }
   }
 });
@@ -137,10 +163,10 @@ if (props.focusAction)
 </script>
 
 <template>
-  <div v-if="sanitizedTranslatedText" class="text-wrapper" v-html="sanitizedTranslatedText" v-show="realTextDisplay"></div>
+  <div v-if="sanitizedTranslatedText" class="text-wrapper" :class="class" v-html="sanitizedTranslatedText" v-show="realTextDisplay"></div>
 
   <!-- CMS -->
-  <div class="cms-text-editor-container" v-show="!realTextDisplay">
+  <div class="cms-text-editor-container" :class="class" v-show="!realTextDisplay">
     <EditorContent class="cms-text-editor" :editor="editor" />
     
     <div class="cms-text-editor-controls" v-show="cmsEditorControlsShown">
@@ -156,6 +182,10 @@ if (props.focusAction)
 
 <style>
 /* CMS */
+.cms-text-editor-container {
+  position: v-bind("cssPositions.container");
+}
+
 .cms-text-editor .ProseMirror {
   white-space: pre-wrap;
 }
@@ -166,7 +196,7 @@ if (props.focusAction)
 }
 
 .cms-text-editor-container .cms-text-editor-controls {
-  position: fixed;
+  position: v-bind("cssPositions.editorControls");
   top: v-bind("cmsControlsPosition.top");
   left: v-bind("cmsControlsPosition.left");
   display: flex;

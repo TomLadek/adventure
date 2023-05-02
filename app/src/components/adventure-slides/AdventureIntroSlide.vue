@@ -2,6 +2,8 @@
 import { useI18n } from "vue-i18n";
 import { ref, onMounted, watch } from "vue";
 import { gsap } from "gsap";
+import { useI18nBundle } from "../../composables/i18nBundle";
+import CmsEditableText from "../CmsEditableText.vue";
 </script>
 
 <script setup>
@@ -20,7 +22,7 @@ const props = defineProps({
   }
 });
 
-const { t } = useI18n();
+const { i18nBundle } = useI18nBundle();
 
 const startLinkHasSpace = ref(false),
   infoShowing = ref(false),
@@ -79,15 +81,12 @@ onMounted(() => {
 
     <div v-if="slide.headline || slide.content" class="content-outer">
       <h1 class="headline">
-        <span v-html="t(slide.headline)"></span>
-        <span class="subheadline" v-html="t(slide.subheadline)"></span>
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.headline" editorControlsPosition="absolute" />
+        <CmsEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" editorControlsPosition="absolute" />
       </h1>
 
       <div class="content-inner">
-        <div class="text-wrapper">
-          <p v-html="t(slide.content.text)"></p>
-        </div>
-  
+        <CmsEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" />
       </div>
     </div>
 
@@ -172,12 +171,12 @@ onMounted(() => {
   backdrop-filter: blur(10px) grayscale(0.5);
 }
 
-.slide-intro .text-wrapper {
+.slide-intro .content-text {
   font-size: 1.5rem;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .slide-intro .text-wrapper {
+  .slide-intro .content-text {
     font-size: min(min(10vw, 1.5rem), 6vh);
   }
 }
