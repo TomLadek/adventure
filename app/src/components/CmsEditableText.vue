@@ -38,9 +38,7 @@ const props = defineProps({
   }
 });
 
-const editorReady = ref(false);
-
-const realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value);
+let realTextDisplay = true;
 
 const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
 
@@ -78,7 +76,10 @@ const cmsControlsStore = useCmsControlsStore(),
       cmsEditorControlsShown = ref(false),
       cmsControlsPosition = ref({ top: 0, left: 0 }),
       cmsTextSyncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
-      cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED);
+      cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED),
+      editorReady = ref(false);
+
+realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value)
 
 let cmsTextSyncTimeout = 0;
 
