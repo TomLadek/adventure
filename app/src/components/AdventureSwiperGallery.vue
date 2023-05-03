@@ -68,35 +68,13 @@ const cmsImgBorder = computed(() => {
 </template>
 
 <style>
-.gallery-thumbs.row {
+.gallery-thumbs.row, .gallery-thumbs.grid {
   display: flex;
   gap: 0.5rem;
   margin: 0 auto;
   max-width: 100%;
-  min-height: calc(6rem + 10px);
+  min-height: calc(4rem + 10px);
   overflow-x: scroll;
-}
-
-@media (orientation: landscape) and (max-height: 500px) {
-  .gallery-thumbs.row {
-    min-height: calc(4rem + 10px);
-  }
-}
-
-.gallery-thumbs.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 6rem);
-  grid-template-rows: repeat(2, 6rem);
-  row-gap: 0.5rem;
-  column-gap: 0.5rem;
-  align-self: center;
-}
-
-@media (orientation: landscape) and (max-height: 500px) {
-  .gallery-thumbs.grid {
-    grid-template-columns: repeat(2, 4rem);
-    grid-template-rows: repeat(2, 4rem);
-  }
 }
 
 @media (min-width: 768px) {
@@ -111,30 +89,81 @@ const cmsImgBorder = computed(() => {
   border-radius: 8px;
 }
 
-/* CMS */
-.gallery-thumbs img {
-  border: v-bind(cmsImgBorder);
-}
-/* /CMS */
-
 .gallery-thumbs.row img {
-  height: 6rem;
+  height: 4rem;
   width: auto;
 }
 
 .gallery-thumbs.grid img {
-  height: 6rem;
-  width: 6rem;
+  height: 4rem;
+  width: 4rem;
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
-  .gallery-thumbs.row img {
-    height: 4rem;
+@media (orientation: landscape) {
+  .gallery-thumbs.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 4rem);
+    grid-template-rows: repeat(2, 4rem);
+    row-gap: 0.5rem;
+    column-gap: 0.5rem;
+    align-self: center;
   }
+  
+  @media (min-height: 600px) {
+    .gallery-thumbs.grid {
+      grid-template-columns: repeat(2, 6rem);
+      grid-template-rows: repeat(2, 6rem);
+    }
+  
+    .gallery-thumbs.grid img {
+      height: 6rem;
+      width: 6rem;
+    }    
 
-  .gallery-thumbs.grid img {
-    height: 4rem;
-    width: 4rem;
+    .gallery-thumbs.row img {
+      height: 6rem;
+    }  
   }
 }
+
+@media (orientation: portrait) {
+  @media (min-height: 525px) {
+    .gallery-thumbs.grid img {
+      height: 4rem;
+      width: auto;
+    }
+  }
+  
+  @media (min-height: 768px) {
+    .gallery-thumbs.grid {
+      display: grid;
+      grid-template-columns: repeat(2, 6rem);
+      grid-template-rows: repeat(2, 6rem);
+      row-gap: 0.5rem;
+      column-gap: 0.5rem;
+      align-self: center;
+    }
+    
+    .gallery-thumbs.row {
+      min-height: calc(6rem + 10px);
+    }
+
+    .gallery-thumbs.grid img {
+      height: 6rem;
+      width: 6rem;
+    }
+
+    .gallery-thumbs.row img {
+      height: 6rem;
+    }    
+  }
+}
+
+
+/* CMS */
+.gallery-thumbs img {
+  box-sizing: border-box;
+  border: v-bind(cmsImgBorder);
+}
+/* /CMS */
 </style>

@@ -175,7 +175,7 @@ onMounted(initGallery);
       </h2>
 
       <div class="content-inner">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" />
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" editorControlsPosition="fixed" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
@@ -321,6 +321,7 @@ onMounted(initGallery);
   flex-direction: column;
   gap: 1rem;
   padding: 0 5px;
+  overflow-y: auto;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {

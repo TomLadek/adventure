@@ -31,12 +31,30 @@ const props = defineProps({
   class: {
     type: String,
     required: false
+  },
+  editorControlsPosition: {
+    type: String,
+    required: false
   }
 });
 
 let realTextDisplay = true;
 
 const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
+
+const cssPositions = computed(() => {
+  if (props.editorControlsPosition === "fixed") {
+    return {
+      container: "initial",
+      editorControls: "fixed"
+    }
+  } else {
+    return {
+      container: "relative",
+      editorControls: "absolute"
+    }
+  }
+})
 
 const sanitizedTranslatedText = computed(() => {
   const textTmp = translatedText.value;
@@ -56,6 +74,7 @@ const emit = defineEmits(["blur"]);
 
 const cmsControlsStore = useCmsControlsStore(),
       cmsEditorControlsShown = ref(false),
+      cmsControlsPosition = ref({ top: 0, left: 0 }),
       cmsTextSyncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
       cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED),
       editorReady = ref(false);
@@ -70,7 +89,14 @@ const editor = useEditor({
   onBeforeCreate() {
     editorReady.value = true;
   },
-  onCreate() {
+  onCreate({ editor }) {
+    if (props.editorControlsPosition === "fixed") {
+      cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
+      cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
+    } else {
+      cmsControlsPosition.value.top = 0;
+      cmsControlsPosition.value.left = 0;
+    }
   },
   onUpdate({ editor }) {
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
@@ -159,26 +185,9 @@ if (props.focusAction)
 </template>
 
 <style>
-.text-wrapper {
-  max-height: 10rem;
-  overflow-y: auto;
-}
-
-@media (min-height: 525px) {
-  .text-wrapper {
-    max-height: 14rem;
-  }
-}
-
-@media (min-height: 744px) {
-  .text-wrapper {
-    max-height: 20rem;
-  }
-}
-
 /* CMS */
 .cms-text-editor-container {
-  position: relative;
+  position: v-bind("cssPositions.container");
 }
 
 .cms-text-editor .ProseMirror {
@@ -191,9 +200,9 @@ if (props.focusAction)
 }
 
 .cms-text-editor-container .cms-text-editor-controls {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: v-bind("cssPositions.editorControls");
+  top: v-bind("cmsControlsPosition.top");
+  left: v-bind("cmsControlsPosition.left");
   display: flex;
   flex-wrap: wrap;
   align-items: center;
