@@ -31,30 +31,12 @@ const props = defineProps({
   class: {
     type: String,
     required: false
-  },
-  editorControlsPosition: {
-    type: String,
-    required: false
   }
 });
 
 let realTextDisplay = true;
 
 const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
-
-const cssPositions = computed(() => {
-  if (props.editorControlsPosition === "absolute") {
-    return {
-      container: "relative",
-      editorControls: "absolute"
-    }
-  } else {
-    return {
-      container: "initial",
-      editorControls: "fixed"
-    }
-  }
-})
 
 const sanitizedTranslatedText = computed(() => {
   const textTmp = translatedText.value;
@@ -74,7 +56,6 @@ const emit = defineEmits(["blur"]);
 
 const cmsControlsStore = useCmsControlsStore(),
       cmsEditorControlsShown = ref(false),
-      cmsControlsPosition = ref({ top: 0, left: 0 }),
       cmsTextSyncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
       cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED),
       editorReady = ref(false);
@@ -89,14 +70,7 @@ const editor = useEditor({
   onBeforeCreate() {
     editorReady.value = true;
   },
-  onCreate({ editor }) {
-    if (props.editorControlsPosition === "absolute") {
-      cmsControlsPosition.value.top = "0px";
-      cmsControlsPosition.value.left = "0px";
-    } else {
-      cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
-      cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
-    }
+  onCreate() {
   },
   onUpdate({ editor }) {
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
@@ -171,7 +145,7 @@ if (props.focusAction)
 
   <!-- CMS -->
   <div v-else class="cms-text-editor-container" :class="class">
-    <EditorContent class="cms-text-editor" :editor="editor" />
+    <EditorContent class="text-wrapper cms-text-editor" :editor="editor" />
     
     <div class="cms-text-editor-controls" v-show="cmsEditorControlsShown">
       <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
@@ -185,9 +159,26 @@ if (props.focusAction)
 </template>
 
 <style>
+.text-wrapper {
+  max-height: 10rem;
+  overflow-y: auto;
+}
+
+@media (min-height: 525px) {
+  .text-wrapper {
+    max-height: 14rem;
+  }
+}
+
+@media (min-height: 744px) {
+  .text-wrapper {
+    max-height: 20rem;
+  }
+}
+
 /* CMS */
 .cms-text-editor-container {
-  position: v-bind("cssPositions.container");
+  position: relative;
 }
 
 .cms-text-editor .ProseMirror {
@@ -200,9 +191,9 @@ if (props.focusAction)
 }
 
 .cms-text-editor-container .cms-text-editor-controls {
-  position: v-bind("cssPositions.editorControls");
-  top: v-bind("cmsControlsPosition.top");
-  left: v-bind("cmsControlsPosition.left");
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

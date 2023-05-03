@@ -320,8 +320,6 @@ onMounted(initGallery);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 50vh;
-  overflow-y: auto;
   padding: 0 5px;
 }
 
