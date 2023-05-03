@@ -82,6 +82,39 @@ div:empty {
   display: none;
 }
 
+.spinner-sm {
+  display: block;
+  height: 15px;
+  width: 15px;
+  position: relative;
+  -webkit-animation: rotation .7s infinite linear;
+  -moz-animation: rotation .7s infinite linear;
+  -o-animation: rotation .7s infinite linear;
+  animation: rotation .7s infinite linear;
+  border: 3px solid #c7c7c7;
+  border-radius: 100%;
+}
+
+.spinner-sm:before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  height: 100%;
+  width: 100%;
+  border-top: 3px solid white;
+  border-left: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-right: 0px solid transparent;
+  border-radius: 100%;
+}
+
+@keyframes rotation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(359deg); }
+}
+
 @media (min-width: 800px) {
   div {
     scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */

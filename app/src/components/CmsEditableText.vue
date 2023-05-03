@@ -152,7 +152,7 @@ if (props.focusAction)
       <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
       <button class="editor-action" @click="editorAction('undo')">Undo</button>
       <button class="editor-action" @click="editorAction('redo')">Redo</button>
-      <span class="spinner" :style="{visibility: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 'visible' : 'hidden'}"></span>
+      <span class="spinner-sm" :style="{visibility: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 'visible' : 'hidden'}"></span>
     </div>
   </div>
   <!-- /CMS -->
@@ -207,52 +207,19 @@ if (props.focusAction)
   backdrop-filter: blur(3px);
 }
 
-button.editor-action {
+.cms-text-editor-container .cms-text-editor-controls button.editor-action {
   color: inherit;
   border: none;
   background: none;
 }
 
-.editor-action-bold {
+.cms-text-editor-container .cms-text-editor-controls .editor-action-bold {
   font-weight: bold;
 }
 
-.editor-action-italics {
+.cms-text-editor-container .cms-text-editor-controls .editor-action-italics {
   font-family: monospace;
   font-style: italic;
-}
-
-.spinner {
-  display: block;
-  height: 15px;
-  width: 15px;
-  position: relative;
-  -webkit-animation: rotation .7s infinite linear;
-  -moz-animation: rotation .7s infinite linear;
-  -o-animation: rotation .7s infinite linear;
-  animation: rotation .7s infinite linear;
-  border: 3px solid #c7c7c7;
-  border-radius: 100%;
-}
-
-.spinner:before {
-  content: "";
-  display: block;
-  position: absolute;
-  left: -3px;
-  top: -3px;
-  height: 100%;
-  width: 100%;
-  border-top: 3px solid white;
-  border-left: 3px solid transparent;
-  border-bottom: 3px solid transparent;
-  border-right: 0px solid transparent;
-  border-radius: 100%;
-}
-
-@keyframes rotation {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(359deg); }
 }
 /* /CMS */
 </style>
