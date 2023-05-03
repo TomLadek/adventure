@@ -173,7 +173,7 @@ if (props.focusAction)
   <div v-else class="cms-text-editor-container" :class="class">
     <EditorContent class="text-wrapper cms-text-editor" :editor="editor" />
     
-    <div class="cms-text-editor-controls" v-show="cmsEditorControlsShown">
+    <div class="cms-text-editor-controls" :style="{ opacity: cmsEditorControlsShown ? 1 : 0 }">
       <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
       <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
       <button class="editor-action" @click="editorAction('undo')">Undo</button>
@@ -192,11 +192,13 @@ if (props.focusAction)
 
 .cms-text-editor .ProseMirror {
   white-space: pre-wrap;
+  outline: transparent solid 1px;
+  outline-offset: -1px;
+  transition: outline-color .15s ease-out;
 }
 
 .cms-text-editor .ProseMirror:focus-visible {
-  outline-style: double;
-  outline-offset: -1px;
+  outline-color: black;
 }
 
 .cms-text-editor-container .cms-text-editor-controls {
@@ -214,6 +216,7 @@ if (props.focusAction)
   border-radius: 0.4rem;
   transform: translateY(-100%);
   backdrop-filter: blur(3px);
+  transition: opacity .15s ease-out;
 }
 
 .cms-text-editor-container .cms-text-editor-controls button.editor-action {
