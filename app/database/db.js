@@ -12,11 +12,10 @@ function getCollection(type) {
           .collection(type)
 }
 
-function releaseClient() {
+export function closeDb() {
   if (client != null) {
-    const oldClient = client
-    client = null;
-    oldClient.close()
+    client.close()
+    console.log("db connection closed")
   }
 }
 
@@ -46,8 +45,6 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -113,8 +110,6 @@ export async function removeOneSlide(adventureId, slideId) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -158,8 +153,6 @@ export async function insertOneAdventure(data) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -194,8 +187,6 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -214,8 +205,6 @@ export async function updateOneText(adventureId, textModule, locale, newText) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -234,8 +223,6 @@ export async function findAdventures() {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()    
   }
 }
 
@@ -254,8 +241,6 @@ export async function findAdventure(urlPath) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }
 
@@ -274,7 +259,5 @@ export async function findImgReference(adventureId, imgName) {
   } catch (ex) {
     console.error(ex)
     throw ex
-  } finally {
-    releaseClient()
   }
 }

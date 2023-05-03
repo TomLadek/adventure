@@ -27,7 +27,8 @@ async function startServer() {
     removeOneSlide,
     findImgReference,
     updateOneSlideContent,
-    updateOneText
+    updateOneText,
+    closeDb
   } = await import('../database/db.js')
   const { pad, generateScaledImage } = await import("../utils-node/utils.js")
 
@@ -251,6 +252,11 @@ async function startServer() {
   /* ----- */
 
   console.log(`Server running at http://localhost:${port} (isProduction=${isProduction}; root=${root})`)
+
+  process.on("exit", () => {
+    console.log("shutting down")
+    closeDb()
+  })
 }
 
 init()
