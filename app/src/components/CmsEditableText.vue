@@ -109,7 +109,7 @@ const editor = useEditor({
       cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
         textModule: props.textModule,
         locale: props.i18n.locale,
-        newText: editor.getHTML()
+        newText: editor.getHTML().replace(String.fromCodePoint(0x00AD), "&shy;")
       }).then(() => {
         cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
       }).catch(reason => {
@@ -154,6 +154,9 @@ function editorAction(type) {
     case "redo":
       editor.value.commands.redo();
       break;
+    case "shy":
+      editor.value.commands.insertContent(String.fromCodePoint(0x00AD) /* &shy; */);
+      break;
   }
 
   editor.value.commands.focus();
@@ -176,9 +179,10 @@ if (props.focusAction)
     <div class="cms-text-editor-controls" :style="{ opacity: cmsEditorControlsShown ? 1 : 0 }">
       <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
       <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
+      <button class="editor-action editor-action-shy" @click="editorAction('shy')">&amp;shy;</button>
       <button class="editor-action" @click="editorAction('undo')">Undo</button>
       <button class="editor-action" @click="editorAction('redo')">Redo</button>
-      <span class="spinner-sm" :style="{visibility: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 'visible' : 'hidden'}"></span>
+      <span aria-hidden="true" class="spinner-sm" :style="{opacity: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 1 : 0}"></span>
     </div>
   </div>
   <!-- /CMS -->
@@ -232,6 +236,10 @@ if (props.focusAction)
 .cms-text-editor-container .cms-text-editor-controls .editor-action-italics {
   font-family: monospace;
   font-style: italic;
+}
+
+.cms-text-editor-container .cms-text-editor-controls .editor-action-shy {
+  font-family: monospace;
 }
 /* /CMS */
 </style>

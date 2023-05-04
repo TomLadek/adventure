@@ -93,6 +93,7 @@ div:empty {
   animation: rotation .7s infinite linear;
   border: 3px solid #c7c7c7;
   border-radius: 100%;
+  transition: opacity .15s ease-out;
 }
 
 .spinner-sm:before {

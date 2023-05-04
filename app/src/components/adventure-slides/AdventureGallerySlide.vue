@@ -206,15 +206,6 @@ onMounted(initGallery);
 
 .slide-gallery .content-outer .headline {
   padding: 0 5px;
-} 
-
-.slide-gallery .content-outer p {
-  text-align: justify;
-  hyphens: auto;
-}
-
-.slide-gallery .content-outer p:not(:first-child) {
-  margin-top: 0.5em;
 }
 
 .slide-gallery .content-outer.top, .slide-gallery .content-outer.bottom, .slide-gallery .content-outer.start, .slide-gallery .content-outer.end {
@@ -322,6 +313,15 @@ onMounted(initGallery);
   gap: 1rem;
   padding: 0 5px;
   overflow-y: auto;
+}
+
+.slide-gallery .content-outer .content-inner p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+.slide-gallery .content-outer .content-inner p:not(:first-child) {
+  margin-top: 0.5em;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
