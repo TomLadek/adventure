@@ -176,14 +176,16 @@ if (props.focusAction)
   <div v-else class="cms-text-editor-container" :class="class">
     <EditorContent class="text-wrapper cms-text-editor" :editor="editor" />
     
-    <div class="cms-text-editor-controls" :style="{ opacity: cmsEditorControlsShown ? 1 : 0 }">
-      <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
-      <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
-      <button class="editor-action editor-action-shy" @click="editorAction('shy')">&amp;shy;</button>
-      <button class="editor-action" @click="editorAction('undo')">Undo</button>
-      <button class="editor-action" @click="editorAction('redo')">Redo</button>
-      <span aria-hidden="true" class="spinner-sm" :style="{opacity: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 1 : 0}"></span>
-    </div>
+    <Transition name="editor-controls-fade">
+      <div v-show="cmsEditorControlsShown" class="cms-text-editor-controls">
+        <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
+        <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
+        <button class="editor-action editor-action-shy" @click="editorAction('shy')">&amp;shy;</button>
+        <button class="editor-action" @click="editorAction('undo')">Undo</button>
+        <button class="editor-action" @click="editorAction('redo')">Redo</button>
+        <span aria-hidden="true" class="spinner-sm" :style="{opacity: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 1 : 0}"></span>
+      </div>
+    </Transition>
   </div>
   <!-- /CMS -->
 </template>
@@ -220,7 +222,6 @@ if (props.focusAction)
   border-radius: 0.4rem;
   transform: translateY(-100%);
   backdrop-filter: blur(3px);
-  transition: opacity .15s ease-out;
 }
 
 .cms-text-editor-container .cms-text-editor-controls button.editor-action {
@@ -240,6 +241,15 @@ if (props.focusAction)
 
 .cms-text-editor-container .cms-text-editor-controls .editor-action-shy {
   font-family: monospace;
+}
+
+.editor-controls-fade-enter-active, .editor-controls-fade-leave-active {
+  transition: opacity 0.15s ease-out;
+}
+
+.editor-controls-fade-enter-from,
+.editor-controls-fade-leave-to {
+  opacity: 0;
 }
 /* /CMS */
 </style>
