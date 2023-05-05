@@ -13,6 +13,7 @@ import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css"
 import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 /* CMS */
+import CmsAdventureItemButtonNew from "../CmsAdventureItemButtonNew.vue";
 import CmsEditableText from "../CmsEditableText.vue";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 /* /CMS */
@@ -150,6 +151,14 @@ function initGallery() {
 watch(locale, initGallery);
 
 onMounted(initGallery);
+
+/* CMS */
+function onNewGalleryClick() {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY, {
+    slideId: props.slide.id
+  })
+}
+/* /CMS */
 </script>
 
 <template>
@@ -180,6 +189,10 @@ onMounted(initGallery);
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
           :gallery="slide.gallery" />
+        
+        <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
+          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="onNewGalleryClick" />
+        </div>
       </div>
     </div>
 
@@ -340,4 +353,18 @@ onMounted(initGallery);
 div.pswp__bg {
   display: initial; /* Override div:empty{display:none} */
 }
+
+/* CMS */
+.slide .cms-new-gallery-outer .cms-new-gallery-button {
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px dashed black;
+  border-radius: 1rem;
+  padding: 0.5rem 0;
+  transition: background-color 0.1s ease;
+}
+
+.slide .cms-new-gallery-outer .cms-new-gallery-button:hover {
+  background-color: #57575752;
+}
+/* /CMS */
 </style>

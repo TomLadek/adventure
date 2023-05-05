@@ -248,6 +248,24 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
     }
   });
 });
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY, args => {
+  const { slideId } = args,
+        formData = new FormData();
+
+  formData.append("galleryIdx", 0);
+  
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
+    method: "PUT",
+    body: formData
+  }).then(res => {
+    if (res.status === 201) {
+      console.log("all good")
+    } else {
+      res.json().then(error => console.error(error))
+    }
+  })
+});
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));

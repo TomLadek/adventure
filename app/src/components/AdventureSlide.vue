@@ -96,8 +96,9 @@ function onNewSlideContentClick() {
         <CmsAdventureItemButtonNew class="cms-new-slide-content-button" @click="onNewSlideContentClick" />
       </div>
     </template>
+
     <template #cmsRemoveSlideButton>
-      <button v-if="cmsControlsStore.editMode" class="remove-slide-button" @click="onRemoveSlideClick">Remove</button>
+      <button v-if="cmsControlsStore.editMode" class="cms-remove-slide-button" @click="onRemoveSlideClick">Remove</button>
     </template>
     <!-- /CMS -->
   </component>
@@ -213,7 +214,7 @@ function onNewSlideContentClick() {
 }
 
 /* CMS */
-.slide .remove-slide-button {
+.slide .cms-remove-slide-button {
   position: absolute;
   bottom: 1rem;
   right: 1rem;

@@ -228,6 +228,17 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
+export async function updateOneSlideGallery(adventureId, slideId) {
+  try {
+    const adventuresColl = getCollection("adventures")
+
+
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function updateOneText(adventureId, textModule, locale, newText) {
   try {
     const adventuresColl = getCollection("adventures"),

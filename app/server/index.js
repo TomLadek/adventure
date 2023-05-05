@@ -27,6 +27,7 @@ async function startServer() {
     removeOneSlide,
     findImgReference,
     updateOneSlideContent,
+    updateOneSlideGallery,
     updateOneText,
     closeDb
   } = await import('../database/db.js')
@@ -135,6 +136,26 @@ async function startServer() {
             }
 
       await updateOneSlideContent(adventureId, req.params.slideId, slideContent, req.body.locale)
+
+      res.status(201).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  app.put('/rest/adventure/:adventureId/slide/:slideId/gallery', upload.fields(["galleryIdx"]), async (req, res) => {
+    try {
+      console.log(req.params, req.body)
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            // fileExt = req.file.originalname.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg"),
+            newName = `${req.params.slideId}_gallery${pad(req.body.galleryIdx)}`;
+            // newNameWithExt = `${newName}.${fileExt}`,
+            // targetDir = path.resolve(root, 'public', 'img', adventureId),
+            // newPath = path.resolve(targetDir, newNameWithExt)
+
+      await updateOneSlideGallery(adventureId, slideId)
 
       res.status(201).json({ok: true})
     } catch (ex) {
