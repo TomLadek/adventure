@@ -1,5 +1,20 @@
 import { MongoClient, ObjectId } from "mongodb"
-import { escapeRegExp } from "../utils-node/utils.js"
+import { escapeRegExp, getPrimitiveValues } from "../utils-node/utils.js"
+
+const slideTextModuleFields = [
+  "slides.headline",
+  "slides.subheadline",
+  "slides.content.text",
+  "slides.mainImg.caption",
+  "slides.gallery.images.caption"
+]
+
+const textModuleFields = [
+  "meta.title",
+  "meta.desc",
+  "meta.author.madeby",
+  "meta.author.content"
+].concat(slideTextModuleFields)
 
 let client
 
@@ -76,9 +91,32 @@ export async function removeOneSlide(adventureId, slideId) {
 
     // Construct an $unset doc to remove all messages referenced in that slide
     if (messagesLangKeys && messagesLangKeys.keys) {
+      const projectDoc = slideTextModuleFields.reduce((projectDoc, textModuleField) => {
+        projectDoc[textModuleField] = 1
+        return projectDoc
+      }, { "_id": 0 })
+
+      const slideTextsAggregate = await adventureColl.aggregate([
+        {
+          $match: { _id: new ObjectId(adventureId) }
+        },
+        {
+          $unwind: "$slides"
+        },
+        {
+          $match: { "slides.id": slideId }
+        },
+        {
+          $project: projectDoc
+        }
+      ]).next()
+
       for (let lang of messagesLangKeys.keys) {
-        messageUnsetDoc[`messages.${lang}.${slideId}`] = ""
+        for (let usedText of getPrimitiveValues(slideTextsAggregate))
+          messageUnsetDoc[`messages.${lang}.${usedText}`] = ""
       }
+
+      console.log(`removing texts: ${Object.keys(messageUnsetDoc).join(', ')}`)
     }
 
     // Collect all images that are referenced in the slide to be removed

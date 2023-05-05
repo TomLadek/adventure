@@ -79,3 +79,23 @@ export async function generateScaledImage(originalDir, originalName, targetSize)
       });
   })
 }
+
+export function getPrimitiveValues(obj) {
+  let result = [];
+
+  if (Array.isArray(obj)) {
+    obj.forEach(item => {
+      result = result.concat(getPrimitiveValues(item));
+    });
+  } else if (typeof obj === 'object') {
+    Object.keys(obj).forEach(key => {
+      result = result.concat(getPrimitiveValues(obj[key]));
+    });
+  } else {
+    result.push(obj);
+  }
+
+  return result.filter(item => {
+    return typeof item !== 'object';
+  });
+}
