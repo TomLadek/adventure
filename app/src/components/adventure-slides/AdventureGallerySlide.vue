@@ -153,10 +153,14 @@ watch(locale, initGallery);
 onMounted(initGallery);
 
 /* CMS */
-function onNewGalleryClick() {
-  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY, {
-    slideId: props.slide.id
-  })
+const firstGalleryImgInput = ref(null);
+
+function onChooseFirstGalleryImg(file) {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
+    slideId: props.slide.id,
+    imgIdx: 1,
+    file: file
+  });  
 }
 /* /CMS */
 </script>
@@ -189,9 +193,10 @@ function onNewGalleryClick() {
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
           :gallery="slide.gallery" />
-        
+
         <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
-          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="onNewGalleryClick" />
+          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" />
+          <input type="file" @change="onChooseFirstGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstGalleryImgInput">
         </div>
       </div>
     </div>
@@ -365,6 +370,12 @@ div.pswp__bg {
 
 .slide .cms-new-gallery-outer .cms-new-gallery-button:hover {
   background-color: #57575752;
+}
+
+.slide .cms-new-gallery-outer input[type=file] {
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 /* /CMS */
 </style>

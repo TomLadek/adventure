@@ -228,17 +228,21 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY, args => {
-  const { slideId } = args,
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async args => {
+  const { slideId, imgIdx, file } = args,
+        { imgFile, imgType, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
-  formData.append("galleryIdx", 0);
+  formData.append("galleryImg", imgFile);
+  formData.append("imgIdx", imgIdx);
+  formData.append("imgWidth", imgWidth);
+  formData.append("imgHeight", imgHeight);
   
   fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
-    method: "PUT",
+    method: "POST",
     body: formData
   }).then(res => {
-    if (res.status === 201) {
+    if (res.status === 200) {
       console.log("all good")
     } else {
       res.json().then(error => console.error(error))

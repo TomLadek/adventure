@@ -228,7 +228,7 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
-export async function updateOneSlideGallery(adventureId, slideId) {
+export async function updateOneSlideGallery(adventureId, slideId, galleryImgName, imgWidth, imgHeight) {
   try {
     const adventuresColl = getCollection("adventures")
 
