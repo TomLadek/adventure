@@ -24,6 +24,7 @@ import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdven
 import CmsConfirmActionPopup from "../../src/components/CmsConfirmActionPopup.vue";
 import { useCmsControlsStore } from "../../src/stores/cmscontrols.js";
 import { useConfirmationStore } from "../../src/stores/confirmation.js";
+import { useImageLoader } from "../../src/composables/imageLoader";
 /* /CMS */
 
 export const myData = 42
@@ -126,59 +127,37 @@ const theme = ref("light");
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
-      confirmationStore = useConfirmationStore();
+      confirmationStore = useConfirmationStore(),
+      { loadImage } = useImageLoader();
 
-cmsControlsStore.subscribeAddSlide(file => {
-  console.log("onAddSlide", file);
+cmsControlsStore.subscribeAddSlide(async file => {
+  const { imgFile, imgType, imgWidth, imgHeight } = await loadImage(file),
+        formData = new FormData();
 
-  const fileTypeMatch = file.type.match(/^image\/(?<imgFileType>jpeg|png|gif)$/);
+  formData.append("mainImg", imgFile);
+  formData.append("slideIdx", slides.value.length + 1);
+  formData.append("imgWidth", imgWidth);
+  formData.append("imgHeight", imgHeight);
 
-  if (!fileTypeMatch) {
-    const errMsg = `invalid file type: ${file.type}`;
-    console.error(errMsg);
-    alert(errMsg);
-    return;
-  }
-  
-  const reader = new FileReader();
-  
-  reader.addEventListener("load", () => {
-    const img = new Image();
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide`, {
+    method: "PUT",
+    body: formData
+  }).then(res => {
+    if (res.status !== 200)
+      return
 
-    img.addEventListener("load", () => {
-      console.log("loaded image", { width: img.width, height: img.height, type: file.type, fileName: file.name });
-
-      const formData = new FormData();
-    
-      formData.append("mainImg", file);
-      formData.append("slideIdx", slides.value.length + 1);
-      formData.append("imgWidth", img.width);
-      formData.append("imgHeight", img.height);
-    
-      fetch(`/rest/adventure/${adventure.value.meta.id}/slide`, {
-        method: "PUT",
-        body: formData
-      }).then(res => {
-        if (res.status === 200) {
-          res.json().then(newSlideRes => {
-            adventure.value.slides.push({
-              id: newSlideRes.newSlideId,
-              mainImg: {
-                src: `${pad(adventure.value.slides.length + 1)}_main${fileTypeMatch.groups.imgFileType === "jpeg" ? "" : `.${fileTypeMatch.groups.imgFileType}`}`,
-                width: img.width,
-                height: img.height
-              },
-              transition: 0
-            });
-          });
-        }
+    res.json().then(newSlideRes => {
+      adventure.value.slides.push({
+        id: newSlideRes.newSlideId,
+        mainImg: {
+          src: `${pad(adventure.value.slides.length + 1)}_main${imgType === "jpeg" ? "" : `.${imgType}`}`,
+          width: imgWidth,
+          height: imgHeight
+        },
+        transition: 0
       });
     });
-
-    img.src = reader.result;
   });
-
-  reader.readAsDataURL(file);
 });
 
 cmsControlsStore.subscribeAddSlideContent(args => {
