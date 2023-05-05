@@ -4,6 +4,7 @@ import { useCmsControlsStore } from '../../stores/cmscontrols';
 import CmsAdventureItemButtonNew from '../CmsAdventureItemButtonNew.vue';
 
 const imgData = ref(""),
+      firstSlideImgInput = ref(null),
       { actionAddSlide } = useCmsControlsStore()
 
 const img = computed(() => `url(${imgData.value})`)
@@ -12,8 +13,8 @@ const img = computed(() => `url(${imgData.value})`)
 <template>
   <section class="cms-new-adventure-slide">
     <div class="new-slide-container">
-      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" />
-      <input type="file" @change="actionAddSlide($event.target.files[0])" accept="image/jpeg,image/png,image/gif">
+      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" @click="firstSlideImgInput.click()" />
+      <input type="file" @change="actionAddSlide($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstSlideImgInput">
     </div>
   </section>
 </template>
@@ -33,19 +34,16 @@ const img = computed(() => `url(${imgData.value})`)
   height: 80vh;
   border: 2px dashed grey;
   border-radius: 5%;
+  transition: background-color 0.1s ease;
 }
 
-.cms-new-adventure-slide .new-slide-container {
-  position: relative;
+.cms-adventure-new-slide-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .cms-new-adventure-slide input[type=file] {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  opacity: 0;
-  cursor: pointer;
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 </style>
