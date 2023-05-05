@@ -12,9 +12,9 @@ function getCollection(type) {
           .collection(type)
 }
 
-export function closeDb() {
+export async function closeDb() {
   if (client != null) {
-    client.close()
+    await client.close()
     console.log("db connection closed")
   }
 }

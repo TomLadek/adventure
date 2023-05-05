@@ -253,9 +253,9 @@ async function startServer() {
 
   console.log(`Server running at http://localhost:${port} (isProduction=${isProduction}; root=${root})`)
 
-  process.on("exit", () => {
+  process.on("exit", async () => {
     console.log("shutting down")
-    closeDb()
+    await closeDb()
   })
 }
 
