@@ -125,10 +125,10 @@ export async function insertOneAdventure(data) {
       slides: [],
       meta: {
         basePath: "/" + (data.urlPath.replace(/^\/+/, "") || "adventure"),
-        title: "meta.title",
+        title: "meta_title",
         author: {
-          madeBy: "meta.author.madeBy",
-          content: "meta.author.content"
+          madeBy: "meta_author_madeBy",
+          content: "meta_author_content"
         }
       },
       messages: langs.reduce((msgs, lang) => {
@@ -138,9 +138,9 @@ export async function insertOneAdventure(data) {
                           : data.multiLangData[lang]
 
         msgs[lang] = {
-          "meta.title": langData.title || "Adventure",
-          "meta.author.madeBy": langData.author || "",
-          "meta.author.content": langData.authorText || ""
+          "meta_title": langData.title || "Adventure",
+          "meta_author_madeBy": langData.author || "",
+          "meta_author_content": langData.authorText || ""
         }
 
         return msgs
@@ -161,14 +161,14 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
 
   if (slideContent) {
     if (slideContent.headline) {
-      updateDocument.$set["slides.$.headline"] = `${slideId}.headline`
-      updateDocument.$set[`messages.${locale}.${slideId}.headline`] = slideContent.headline
+      updateDocument.$set["slides.$.headline"] = `${slideId}_headline`
+      updateDocument.$set[`messages.${locale}.${slideId}_headline`] = slideContent.headline
     }
 
     if (slideContent.content) {
-      updateDocument.$set["slides.$.content.text"] = `${slideId}.content`
+      updateDocument.$set["slides.$.content.text"] = `${slideId}_content`
       updateDocument.$set["slides.$.content.position"] = slideContent.content.position
-      updateDocument.$set[`messages.${locale}.${slideId}.content`] = slideContent.content.text
+      updateDocument.$set[`messages.${locale}.${slideId}_content`] = slideContent.content.text
     }
   }
 

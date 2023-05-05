@@ -197,8 +197,8 @@ cmsControlsStore.subscribeAddSlideContent(args => {
   }).then(res => {
     if (res.status === 201) {
       const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-            headlineTextModule = `${slideToChange.id}.headline`,
-            contentTextModule = `${slideToChange.id}.content`;
+            headlineTextModule = `${slideToChange.id}_headline`,
+            contentTextModule = `${slideToChange.id}_content`;
 
       slideToChange.headline = headlineTextModule;
       slideToChange.content = {
