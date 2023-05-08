@@ -38,13 +38,6 @@ const galleryThumbsClass = computed(() => {
 const cmsControlsStore = useCmsControlsStore(),
       nextGalleryImgInput = ref(null);
 
-const cmsImgBorder = computed(() => {
-  if (cmsControlsStore.editMode)
-    return "1px solid red";
-  else
-    return "none";
-})
-
 function onChooseNextGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
     slideId: props.slideId,
@@ -56,31 +49,43 @@ function onChooseNextGalleryImg(file) {
 
 <template>
 <div class="gallery-thumbs" :class="galleryThumbsClass">
-  <a
-    v-for="image in gallery.images"
-    v-bind:key="image.src"
-    :href="image.src"
-    :title="image.caption && getCaptionText(t(image.caption))"
-    :data-pswp-width="image.width"
-    :data-pswp-height="image.height"
-    data-cropped="true"
-    target="_blank"
-  >
-    <img
-      :src="image.src"
-      :srcset="image.srcset"
-      :width="image.width"
-      :height="image.height"
-      :alt="image.caption && getCaptionText(t(image.caption))"
-      :data-caption="image.caption"
-      loading="lazy"
-    />
-  </a>
+  <div class="gallery-img-container" v-for="image in gallery.images">
+    <a      
+      v-bind:key="image.src"
+      :href="image.src"
+      :title="image.caption && getCaptionText(t(image.caption))"
+      :data-pswp-width="image.width"
+      :data-pswp-height="image.height"
+      data-cropped="true"
+      target="_blank"
+      class="gallery-original-link"
+      >
+      <img
+        :src="image.src"
+        :srcset="image.srcset"
+        :width="image.width"
+        :height="image.height"
+        :alt="image.caption && getCaptionText(t(image.caption))"
+        :data-caption="image.caption"
+        loading="lazy"
+      />
+    </a>
 
+    <!-- CMS -->
+    <div class="gallery-img-controls" v-if="cmsControlsStore.editMode">
+      <button class="button-delete">
+        <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/></svg>
+      </button>
+    </div>
+    <!-- /CMS -->
+  </div>
+
+  <!-- CMS -->
   <div v-if="cmsControlsStore.editMode" class="cms-new-gallery-image-outer">
     <CmsAdventureItemButtonNew class="cms-new-gallery-image-button" @click="nextGalleryImgInput.click()" size="small" />
     <input type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
   </div>
+  <!-- /CMS -->
 </div>
 </template>
 
@@ -178,9 +183,33 @@ function onChooseNextGalleryImg(file) {
 
 
 /* CMS */
-.gallery-thumbs img {
-  box-sizing: border-box;
-  border: v-bind(cmsImgBorder);
+.gallery-thumbs .gallery-img-container {
+  position: relative;
+}
+
+.gallery-thumbs .gallery-img-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.68);
+  color: white;
+  backdrop-filter: blur(3px);
+  padding: 0.2rem;
+  display: flex;
+  gap: 0.2rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.gallery-thumbs .gallery-img-controls button {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+}
+
+.gallery-thumbs .gallery-img-controls button svg {
+  fill: white;
 }
 
 .cms-new-gallery-image-outer {
