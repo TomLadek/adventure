@@ -195,7 +195,7 @@ function onChooseFirstGalleryImg(file) {
           :gallery="slide.gallery" />
 
         <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
-          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" />
+          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" size="small" />
           <input type="file" @change="onChooseFirstGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstGalleryImgInput">
         </div>
       </div>

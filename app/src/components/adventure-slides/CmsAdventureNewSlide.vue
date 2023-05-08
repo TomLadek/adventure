@@ -13,7 +13,7 @@ const img = computed(() => `url(${imgData.value})`)
 <template>
   <section class="cms-new-adventure-slide">
     <div class="new-slide-container">
-      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" @click="firstSlideImgInput.click()" />
+      <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" @click="firstSlideImgInput.click()" size="large" />
       <input type="file" @change="actionAddSlide($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstSlideImgInput">
     </div>
   </section>
