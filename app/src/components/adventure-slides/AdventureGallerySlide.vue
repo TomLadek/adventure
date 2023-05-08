@@ -158,9 +158,8 @@ const firstGalleryImgInput = ref(null);
 function onChooseFirstGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
     slideId: props.slide.id,
-    imgIdx: 1,
     file: file
-  });  
+  });
 }
 /* /CMS */
 </script>
@@ -192,6 +191,7 @@ function onChooseFirstGalleryImg(file) {
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
+          :slideId="slide.id"
           :gallery="slide.gallery" />
 
         <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">

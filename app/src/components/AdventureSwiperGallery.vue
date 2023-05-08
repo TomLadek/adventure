@@ -1,15 +1,20 @@
 <script>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../../src/utils.js";
 
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
+import CmsAdventureItemButtonNew from "./CmsAdventureItemButtonNew.vue";
 /* /CMS */
 </script>
 
 <script setup>
 const props = defineProps({
+  slideId: {
+    type: String,
+    required: true
+  },
   gallery: {
     type: Object,
     required: true
@@ -30,15 +35,22 @@ const galleryThumbsClass = computed(() => {
 });
 
 /* CMS */
-const cmsControlsStore = useCmsControlsStore();
+const cmsControlsStore = useCmsControlsStore(),
+      nextGalleryImgInput = ref(null);
 
 const cmsImgBorder = computed(() => {
-
   if (cmsControlsStore.editMode)
     return "1px solid red";
   else
     return "none";
 })
+
+function onChooseNextGalleryImg(file) {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
+    slideId: props.slideId,
+    file: file
+  });
+}
 /* /CMS */
 </script>
 
@@ -64,6 +76,11 @@ const cmsImgBorder = computed(() => {
       loading="lazy"
     />
   </a>
+
+  <div v-if="cmsControlsStore.editMode" class="cms-new-gallery-image-outer">
+    <CmsAdventureItemButtonNew class="cms-new-gallery-image-button" @click="nextGalleryImgInput.click()" size="small" />
+    <input type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
+  </div>
 </div>
 </template>
 
@@ -164,6 +181,29 @@ const cmsImgBorder = computed(() => {
 .gallery-thumbs img {
   box-sizing: border-box;
   border: v-bind(cmsImgBorder);
+}
+
+.cms-new-gallery-image-outer {
+  position: relative;
+}
+
+.slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+  width: 9rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px dashed black;
+  border-radius: 1rem;
+  padding: 0.5rem 0;
+  transition: background-color 0.1s ease;
+}
+
+.slide .cms-new-gallery-image-outer .cms-new-gallery-image-button:hover {
+  background-color: #57575752;
+}
+
+.slide .cms-new-gallery-image-outer input[type=file] {
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 /* /CMS */
 </style>

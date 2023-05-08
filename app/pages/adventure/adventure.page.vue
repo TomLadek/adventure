@@ -229,12 +229,11 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async args => {
-  const { slideId, imgIdx, file } = args,
+  const { slideId, file } = args,
         { imgFile, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
   formData.append("galleryImg", imgFile);
-  formData.append("imgIdx", imgIdx);
   formData.append("imgWidth", imgWidth);
   formData.append("imgHeight", imgHeight);
   
@@ -257,7 +256,8 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
         slideToChange.gallery.images = [];
 
       slideToChange.gallery.images.push({
-        src: data.src,
+        src: gallerySrc(adventure.value.meta.id, data.src, 0),
+        srcset: gallerySrcSet(adventure.value.meta.id, data.src),
         width: imgWidth,
         height: imgHeight
       });
