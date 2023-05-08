@@ -23,7 +23,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-const imgControlsExpanded = ref({});
+let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}
 
 const galleryThumbsClass = computed(() => {
   const baseClass = {
@@ -38,7 +38,9 @@ const galleryThumbsClass = computed(() => {
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
-      nextGalleryImgInput = ref(null);
+      nextGalleryImgInput = ref(null),
+      imgControlsExpanded = ref({}),
+      timeouts = {};
 
 function onChooseNextGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
@@ -46,12 +48,20 @@ function onChooseNextGalleryImg(file) {
     file: file
   });
 }
+
+onImgMouseEnter = id => {
+  clearTimeout(timeouts[id]);
+};
+
+onImgMouseLeave = id => {
+  timeouts[id] = setTimeout(() => imgControlsExpanded.value[id] = false, 1000);
+};
 /* /CMS */
 </script>
 
 <template>
 <div class="gallery-thumbs" :class="galleryThumbsClass">
-  <div class="gallery-img-container" v-for="image in gallery.images">
+  <div class="gallery-img-container" v-for="image in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)">
     <a      
       v-bind:key="image.src"
       :href="image.src"
