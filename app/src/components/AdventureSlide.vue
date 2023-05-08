@@ -92,7 +92,7 @@ function onNewSlideContentClick() {
   <component class="slide" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
     <!-- CMS -->
     <template #cmsAddSlideContentButton>
-      <div class="cms-new-slide-content-outer">
+      <div v-if="cmsControlsStore.editMode" class="cms-new-slide-content-outer">
         <CmsAdventureItemButtonNew class="cms-new-slide-content-button" @click="onNewSlideContentClick" />
       </div>
     </template>

@@ -322,7 +322,7 @@ onMounted(() => {
       />
 
       <!-- CMS -->
-      <CmsAdventureNewSlide />
+      <CmsAdventureNewSlide v-if="cmsControlsStore.editMode" />
       <!-- /CMS -->
     </main>
   </div>
