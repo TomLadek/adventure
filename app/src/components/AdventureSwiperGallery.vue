@@ -23,6 +23,8 @@ const props = defineProps({
 
 const { t } = useI18n();
 
+const imgControlsExpanded = ref({});
+
 const galleryThumbsClass = computed(() => {
   const baseClass = {
     row: typeof props.gallery.style === "undefined"
@@ -72,10 +74,27 @@ function onChooseNextGalleryImg(file) {
     </a>
 
     <!-- CMS -->
-    <div class="gallery-img-controls" v-if="cmsControlsStore.editMode">
-      <button class="button-delete">
-        <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/></svg>
+    <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
+      <button class="button-more" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <circle cx="6" cy="12" r="2"></circle>
+          <circle cx="12" cy="12" r="2"></circle>
+          <circle cx="18" cy="12" r="2"></circle>
+        </svg>
       </button>
+      <button class="button-delete">
+        <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
+        </svg>
+      </button>
+      <div class="button-close-container">
+        <button class="button-close" @click="imgControlsExpanded[image.src] = false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round">
+            <line x1="7" x2="17" y1="17" y2="7"></line>
+            <line x1="7" x2="17" y1="7" y2="17"></line>
+          </svg>
+        </button>
+      </div>
     </div>
     <!-- /CMS -->
   </div>
@@ -192,13 +211,26 @@ function onChooseNextGalleryImg(file) {
   top: 0;
   left: 0;
   right: 0;
+  width: 24px;
+  overflow-x: hidden;
   background: rgba(0, 0, 0, 0.68);
   color: white;
   backdrop-filter: blur(3px);
   padding: 0.2rem;
   display: flex;
   gap: 0.2rem;
-  border-radius: 8px 8px 0 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 8px;
+  transition-property: width, border-top-right-radius, border-bottom-right-radius;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+}
+
+.gallery-thumbs .gallery-img-controls.expanded {
+  width: calc(100% - 0.2rem * 2);  
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 0;
 }
 
 .gallery-thumbs .gallery-img-controls button {
@@ -206,10 +238,26 @@ function onChooseNextGalleryImg(file) {
   border: none;
   padding: 0;
   display: flex;
+  color: inherit;
 }
 
 .gallery-thumbs .gallery-img-controls button svg {
   fill: white;
+}
+
+.gallery-thumbs .gallery-img-controls .button-more {
+  width: 24px;
+  transition: width, 0.15s ease-out;
+}
+
+.gallery-thumbs .gallery-img-controls.expanded .button-more {
+  width: 0;
+}
+
+.gallery-thumbs .gallery-img-controls .button-close-container {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 .cms-new-gallery-image-outer {
