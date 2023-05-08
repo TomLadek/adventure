@@ -34,14 +34,15 @@ export async function closeDb() {
   }
 }
 
-export async function insertOneSlide(adventureId, mainImg, width, height) {
-  const adventureColl = getCollection("adventures")
+export async function insertOneSlide(adventureId, imgExt, width, height) {
+  const adventuresColl = getCollection("adventures")
   
   const newSlideId = `slide-${Math.floor(Math.random() * 1000)}`,
+        mainImgSrc = `${newSlideId}_main${imgExt}`,
         newSlide = {
           id: newSlideId,
           mainImg: {
-            src: mainImg,
+            src: mainImgSrc,
             width,
             height
           },
@@ -49,14 +50,14 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
         }
 
   try {
-    await adventureColl.updateOne(
+    await adventuresColl.updateOne(
       { _id: new ObjectId(adventureId) },
       { $push: { slides: newSlide } }
     )
 
     console.log(`Inserted slide '${newSlideId}' into adventure ${adventureId}`)
 
-    return newSlideId
+    return { newSlideId, mainImg: mainImgSrc }
   } catch (ex) {
     console.error(ex)
     throw ex
@@ -64,20 +65,20 @@ export async function insertOneSlide(adventureId, mainImg, width, height) {
 }
 
 export async function removeOneSlide(adventureId, slideId) {
-  const adventureColl = getCollection("adventures"),
+  const adventuresColl = getCollection("adventures"),
         adventureIdObj = new ObjectId(adventureId),
         messageUnsetDoc = {},
         orphanedImages = []
   
   try {
     // Find the adventure doc by its ID and return only the slide with the specified ID
-    const foundAdventure = await adventureColl.findOne(
+    const foundAdventure = await adventuresColl.findOne(
       { _id: adventureIdObj, "slides.id": slideId },
       { projection: { "slides.$": 1 } }
     )
 
     // Find all available locales (keys in the 'messages' doc) in the adventure doc
-    const messagesLangKeys = await adventureColl.aggregate([
+    const messagesLangKeys = await adventuresColl.aggregate([
       { $match: { _id: adventureIdObj } },
       { 
         $project: {
@@ -96,7 +97,7 @@ export async function removeOneSlide(adventureId, slideId) {
         return projectDoc
       }, { "_id": 0 })
 
-      const slideTextsAggregate = await adventureColl.aggregate([
+      const slideTextsAggregate = await adventuresColl.aggregate([
         {
           $match: { _id: new ObjectId(adventureId) }
         },
@@ -135,7 +136,7 @@ export async function removeOneSlide(adventureId, slideId) {
     }
 
     // Do the actual doc update
-    await adventureColl.updateOne(
+    await adventuresColl.updateOne(
       { _id: adventureIdObj },
       {
         $pull: { slides: { id: slideId } }, // Remove the slide with the specified ID
@@ -152,7 +153,7 @@ export async function removeOneSlide(adventureId, slideId) {
 }
 
 export async function insertOneAdventure(data) {
-  const adventureColl = getCollection("adventures")
+  const adventuresColl = getCollection("adventures")
 
   try {
     const langs = [data.activeLang || "en"]
@@ -185,7 +186,7 @@ export async function insertOneAdventure(data) {
       }, {})
     }
 
-    const res = await adventureColl.insertOne(adventureDoc)
+    const res = await adventuresColl.insertOne(adventureDoc)
 
     console.log(`An adventure was inserted with the _id: ${res.insertedId}`)
   } catch (ex) {
@@ -228,11 +229,25 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
-export async function updateOneSlideGallery(adventureId, slideId, galleryImgName, imgWidth, imgHeight) {
+export async function updateOneSlideGallery(adventureId, slideId, imgExt, imgWidth, imgHeight) {
   try {
-    const adventuresColl = getCollection("adventures")
+    const adventuresColl = getCollection("adventures"),
+          galleryImgSrc = `${slideId}_gallery-${Math.floor(Math.random() * 1000)}${imgExt}`
 
+    await adventuresColl.updateOne({
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId
+    }, {
+      $push: {
+        "slides.$.gallery.images": {
+          src: galleryImgSrc,
+          width: imgWidth,
+          height: imgHeight
+        }
+      }
+    })
 
+    return galleryImgSrc
   } catch (ex) {
     console.error(ex)
     throw ex

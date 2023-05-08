@@ -18,9 +18,12 @@ function init() {
   fs.chmodSync(path.resolve(root, 'public', 'img'), 0o2755)
 }
 
-function moveFile(srcName, srcPath, targetImgDir, targetName) {
-  const fileExt = srcName.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg"),
-        targetNameWithExt = `${targetName}.${fileExt}`,
+function getFileExt(srcName) {
+  return srcName.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg")
+}
+
+function moveFile(fileExt, srcPath, targetImgDir, targetName) {
+  const targetNameWithExt = `${targetName}.${fileExt}`,
         targetDir = path.resolve(root, 'public', 'img', targetImgDir),
         targetPath = path.resolve(targetDir, targetNameWithExt)
 
@@ -31,8 +34,6 @@ function moveFile(srcName, srcPath, targetImgDir, targetName) {
   // TODO check file for viruses before moving it to the img directory
   fs.renameSync(srcPath, targetPath)
   console.log(`moved new file ${srcPath} to ${targetPath}`)
-
-  return fileExt
 }
 
 async function startServer() {
@@ -161,17 +162,18 @@ async function startServer() {
     }
   })
 
+  // Add slide gallery image
   app.post('/rest/adventure/:adventureId/slide/:slideId/gallery', upload.single('galleryImg'), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
             slideId = req.params.slideId,
-            newName = `${req.params.slideId}_gallery${pad(req.body.imgIdx)}`,
-            fileExt = moveFile(req.file.originalname, req.file.path, adventureId, newName),
-            newNameWithExt = `${newName}.${fileExt}`      
+            fileExt = getFileExt(req.file.originalname)
 
-      await updateOneSlideGallery(adventureId, slideId, fileExt === "jpg" ? newName : newNameWithExt, Number(req.body.imgWidth), Number(req.body.imgHeight))
+      const galleryImg = await updateOneSlideGallery(adventureId, slideId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
-      res.status(200).json({ok: true})
+      moveFile(fileExt, req.file.path, adventureId, galleryImg)
+
+      res.status(200).json({ok: true, src: galleryImg})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
@@ -181,14 +183,14 @@ async function startServer() {
   // Add new slide
   app.put('/rest/adventure/:adventureId/slide/', upload.single('mainImg'), async (req, res) => {
     try {
-      const adventureId = req.params.adventureId,
-            newName = `${pad(req.body.slideIdx)}_main`,
-            fileExt = moveFile(req.file.originalname, req.file.path, adventureId, newName),
-            newNameWithExt = `${newName}.${fileExt}`      
-      
-      const newSlideId = await insertOneSlide(adventureId, fileExt === "jpg" ? newName : newNameWithExt, Number(req.body.imgWidth), Number(req.body.imgHeight))
-      
-      res.status(200).json({ok: true, newSlideId: newSlideId})
+      const adventureId = req.params.adventureId,      
+            fileExt = getFileExt(req.file.originalname)
+
+      const { newSlideId, mainImg } = await insertOneSlide(adventureId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
+
+      moveFile(fileExt, req.file.path, adventureId, mainImg)
+
+      res.status(200).json({ok: true, id: newSlideId, src: mainImg})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})

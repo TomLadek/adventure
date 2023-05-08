@@ -131,7 +131,7 @@ const cmsControlsStore = useCmsControlsStore(),
       { loadImage } = useImageLoader();
 
 cmsControlsStore.subscribeAddSlide(async file => {
-  const { imgFile, imgType, imgWidth, imgHeight } = await loadImage(file),
+  const { imgFile, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
   formData.append("mainImg", imgFile);
@@ -146,11 +146,11 @@ cmsControlsStore.subscribeAddSlide(async file => {
     if (res.status !== 200)
       return
 
-    res.json().then(newSlideRes => {
+    res.json().then(data => {
       adventure.value.slides.push({
-        id: newSlideRes.newSlideId,
+        id: data.id,
         mainImg: {
-          src: `${pad(adventure.value.slides.length + 1)}_main${imgType === "jpeg" ? "" : `.${imgType}`}`,
+          src: data.src,
           width: imgWidth,
           height: imgHeight
         },
@@ -230,7 +230,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async args => {
   const { slideId, imgIdx, file } = args,
-        { imgFile, imgType, imgWidth, imgHeight } = await loadImage(file),
+        { imgFile, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
   formData.append("galleryImg", imgFile);
@@ -242,11 +242,26 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
     method: "POST",
     body: formData
   }).then(res => {
-    if (res.status === 200) {
-      console.log("all good")
-    } else {
-      res.json().then(error => console.error(error))
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
     }
+
+    res.json().then(data => {
+      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+      if (!slideToChange.gallery)
+        slideToChange.gallery = {};
+
+      if (!Array.isArray(slideToChange.gallery.images))
+        slideToChange.gallery.images = [];
+
+      slideToChange.gallery.images.push({
+        src: data.src,
+        width: imgWidth,
+        height: imgHeight
+      });
+    });
   })
 });
 /* /CMS */
