@@ -5,6 +5,7 @@ import { getCaptionText } from "../../src/utils.js";
 
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
+import { useConfirmationStore } from "../stores/confirmation.js";
 import CmsAdventureItemButtonNew from "./CmsAdventureItemButtonNew.vue";
 /* /CMS */
 </script>
@@ -38,6 +39,7 @@ const galleryThumbsClass = computed(() => {
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
+      confirmationStore = useConfirmationStore(),
       nextGalleryImgInput = ref(null),
       imgControlsExpanded = ref({}),
       timeouts = {};
@@ -49,6 +51,17 @@ function onChooseNextGalleryImg(file) {
   });
 }
 
+function onImgDeleteClick(src) {
+  const pathSplit = src.split("/"),
+        imgName = pathSplit[pathSplit.length - 1];
+
+  confirmationStore.getConfirmation(
+    `Remove image`,
+    `Are you sure you want to remove image <b>${imgName}</b>? This will also delete its caption in all languages.`,
+    () => cmsControlsStore.action(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, { slideId: props.slideId, src: imgName })
+  )
+}
+
 onImgMouseEnter = id => {
   clearTimeout(timeouts[id]);
 };
@@ -56,58 +69,65 @@ onImgMouseEnter = id => {
 onImgMouseLeave = id => {
   timeouts[id] = setTimeout(() => imgControlsExpanded.value[id] = false, 1000);
 };
+
+function onBeforeLeave(element) {
+  element.style.left = `${element.offsetLeft}px`;
+  element.style.top = `${element.offsetTop}px`;
+}
 /* /CMS */
 </script>
 
 <template>
 <div class="gallery-thumbs" :class="galleryThumbsClass">
-  <div class="gallery-img-container" v-for="image in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)">
-    <a      
-      v-bind:key="image.src"
-      :href="image.src"
-      :title="image.caption && getCaptionText(t(image.caption))"
-      :data-pswp-width="image.width"
-      :data-pswp-height="image.height"
-      data-cropped="true"
-      target="_blank"
-      class="gallery-original-link"
-      >
-      <img
-        :src="image.src"
-        :srcset="image.srcset"
-        :width="image.width"
-        :height="image.height"
-        :alt="image.caption && getCaptionText(t(image.caption))"
-        :data-caption="image.caption"
-        loading="lazy"
-      />
-    </a>
+  <TransitionGroup name="image-list" @before-leave="onBeforeLeave">
+    <div class="gallery-img-container" v-for="image in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.src">
+      <a      
+        v-bind:key="image.src"
+        :href="image.src"
+        :title="image.caption && getCaptionText(t(image.caption))"
+        :data-pswp-width="image.width"
+        :data-pswp-height="image.height"
+        data-cropped="true"
+        target="_blank"
+        class="gallery-original-link"
+        >
+        <img
+          :src="image.src"
+          :srcset="image.srcset"
+          :width="image.width"
+          :height="image.height"
+          :alt="image.caption && getCaptionText(t(image.caption))"
+          :data-caption="image.caption"
+          loading="lazy"
+        />
+      </a>
 
-    <!-- CMS -->
-    <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
-      <button class="button-more" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-          <circle cx="6" cy="12" r="2"></circle>
-          <circle cx="12" cy="12" r="2"></circle>
-          <circle cx="18" cy="12" r="2"></circle>
-        </svg>
-      </button>
-      <button class="button-delete">
-        <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24">
-          <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
-        </svg>
-      </button>
-      <div class="button-close-container">
-        <button class="button-close" @click="imgControlsExpanded[image.src] = false">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round">
-            <line x1="7" x2="17" y1="17" y2="7"></line>
-            <line x1="7" x2="17" y1="7" y2="17"></line>
+      <!-- CMS -->
+      <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
+        <button class="button-more" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <circle cx="6" cy="12" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="18" cy="12" r="2"></circle>
           </svg>
         </button>
+        <button class="button-delete" @click="onImgDeleteClick(image.src)">
+          <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24">
+            <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
+          </svg>
+        </button>
+        <div class="button-close-container">
+          <button class="button-close" @click="imgControlsExpanded[image.src] = false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round">
+              <line x1="7" x2="17" y1="17" y2="7"></line>
+              <line x1="7" x2="17" y1="7" y2="17"></line>
+            </svg>
+          </button>
+        </div>
       </div>
+      <!-- /CMS -->
     </div>
-    <!-- /CMS -->
-  </div>
+  </TransitionGroup>
 
   <!-- CMS -->
   <div v-if="cmsControlsStore.editMode" class="cms-new-gallery-image-outer">
@@ -126,6 +146,7 @@ onImgMouseLeave = id => {
   max-width: 100%;
   min-height: calc(4rem + 10px);
   overflow-x: scroll;
+  position: relative;
 }
 
 @media (min-width: 768px) {
@@ -287,10 +308,29 @@ onImgMouseLeave = id => {
   background-color: #57575752;
 }
 
+.slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+  width: 6rem;
+  height: 6rem;
+}
+
 .slide .cms-new-gallery-image-outer input[type=file] {
   visibility: hidden;
   width: 0;
   height: 0;
+}
+
+.image-list-move,
+.image-list-enter-active,
+.image-list-leave-active {
+  transition: all 0.25s ease-out;
+}
+.image-list-enter-from,
+.image-list-leave-to {
+  opacity: 0;
+  transform: scale(0.5);
+}
+.gallery-thumbs .gallery-img-container.image-list-leave-active {
+  position: absolute;
 }
 /* /CMS */
 </style>

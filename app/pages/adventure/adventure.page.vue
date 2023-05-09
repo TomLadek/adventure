@@ -16,7 +16,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { pad } from "../../src/utils.js";
+import { escapeRegExp } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -262,6 +262,28 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
         height: imgHeight
       });
     });
+  })
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, args => {
+  const { slideId, src } = args,
+        formData = new FormData();
+
+  formData.append("galleryImg", src);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
+    method: "DELETE",
+    body: formData
+  }).then(res => {
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
+    }
+
+    const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+          imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(src)).test(galleryImg.src));
+
+    slideToChange.gallery.images.splice(imgIndex, 1);
   })
 });
 /* /CMS */

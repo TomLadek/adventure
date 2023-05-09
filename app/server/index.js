@@ -23,7 +23,7 @@ function getFileExt(srcName) {
 }
 
 function moveFile(fileExt, srcPath, targetImgDir, targetName) {
-  const targetNameWithExt = `${targetName}.${fileExt}`,
+  const targetNameWithExt = /\.[a-zA-Z0-9]+$/.test(targetName) ? targetName : `${targetName}.${fileExt}`,
         targetDir = path.resolve(root, 'public', 'img', targetImgDir),
         targetPath = path.resolve(targetDir, targetNameWithExt)
 
@@ -36,6 +36,26 @@ function moveFile(fileExt, srcPath, targetImgDir, targetName) {
   console.log(`moved new file ${srcPath} to ${targetPath}`)
 }
 
+function deleteAdventureImages(adventureId, images) {
+  if (!images.length)
+    return
+
+  const adventureImgDir = path.resolve(root, 'public', 'img', adventureId)
+
+  try {
+    execSync(`rm -f ${
+      images
+        .map(img => path.resolve(adventureImgDir, `${img.replace(/\.[a-zA-Z0-9]+$/, "")}*`))
+        .join(" ")
+    }`)
+
+    console.log("removed image files:", images.join(", "))
+  } catch (ex) {
+    console.error(ex)
+    console.log("image files removed with errors, see above")
+  }
+}
+
 async function startServer() {
   const app = express()
   const {
@@ -45,7 +65,8 @@ async function startServer() {
     removeOneSlide,
     findImgReference,
     updateOneSlideContent,
-    updateOneSlideGallery,
+    updateOneSlideGalleryAddImg,
+    updateOneSlideGalleryRemoveImg,
     updateOneText,
     closeDb
   } = await import('../database/db.js')
@@ -118,21 +139,7 @@ async function startServer() {
     
       const orphanedImages = await removeOneSlide(adventureId, slideId)
 
-      if (orphanedImages.length > 0) {
-        const adventureImgDir = path.resolve(root, 'public', 'img', adventureId)
-
-        try {
-          execSync(`rm -f ${
-            orphanedImages
-              .map(img => path.resolve(adventureImgDir, `${img}*`))
-              .join(" ")
-          }`)
-          console.log("removed orphaned images")
-        } catch (ex) {
-          console.error(ex)
-          console.log("orphaned images removed with errors, see above")
-        }
-      }
+      deleteAdventureImages(adventureId, orphanedImages)
 
       res.status(200).json({ok: true})
     } catch (ex) {
@@ -169,11 +176,28 @@ async function startServer() {
             slideId = req.params.slideId,
             fileExt = getFileExt(req.file.originalname)
 
-      const galleryImg = await updateOneSlideGallery(adventureId, slideId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
+      const galleryImg = await updateOneSlideGalleryAddImg(adventureId, slideId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
       moveFile(fileExt, req.file.path, adventureId, galleryImg)
 
       res.status(200).json({ok: true, src: galleryImg})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  app.delete('/rest/adventure/:adventureId/slide/:slideId/gallery', upload.fields(["galleryImg"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            galleryImgSrc = req.body.galleryImg.replace(".jpg", "");
+
+      await updateOneSlideGalleryRemoveImg(adventureId, slideId, galleryImgSrc)
+
+      deleteAdventureImages(adventureId, [galleryImgSrc])
+
+      res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})

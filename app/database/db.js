@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId } from "mongodb"
-import { escapeRegExp, getPrimitiveValues } from "../utils-node/utils.js"
+import { escapeRegExp, getPrimitiveValues, getRandomId } from "../utils-node/utils.js"
 
 const slideTextModuleFields = [
   "slides.headline",
@@ -27,6 +27,35 @@ function getCollection(type) {
           .collection(type)
 }
 
+async function removeTexts(collection, adventureId, texts) {
+  if (!texts.length)
+    return
+
+  const messageUnsetDoc = {},
+        adventureIdObj = new ObjectId(adventureId),
+        messagesLangKeys = await collection.aggregate([
+          { $match: { _id: adventureIdObj } },
+          { $project: { "arrayofkeyvalue": { $objectToArray: "$$ROOT.messages" } } },
+          { $project: { keys: "$arrayofkeyvalue.k" } }
+        ]).next()
+
+  // Construct an $unset doc to remove all messages referenced in that slide
+  if (messagesLangKeys && messagesLangKeys.keys) {
+    for (let lang of messagesLangKeys.keys) {
+      for (let usedText of texts) {
+        messageUnsetDoc[`messages.${lang}.${usedText}`] = ""
+      }
+    }
+
+    console.log(`removing texts: ${Object.keys(messageUnsetDoc).join(', ')}`)
+  }
+
+  await collection.updateOne(
+    { _id: adventureIdObj },
+    { $unset: messageUnsetDoc }
+  )
+}
+
 export async function closeDb() {
   if (client != null) {
     await client.close()
@@ -37,7 +66,7 @@ export async function closeDb() {
 export async function insertOneSlide(adventureId, imgExt, width, height) {
   const adventuresColl = getCollection("adventures")
   
-  const newSlideId = `slide-${Math.floor(Math.random() * 1000)}`,
+  const newSlideId = `slide-${getRandomId()}`,
         mainImgSrc = `${newSlideId}_main${imgExt}`,
         newSlide = {
           id: newSlideId,
@@ -67,7 +96,6 @@ export async function insertOneSlide(adventureId, imgExt, width, height) {
 export async function removeOneSlide(adventureId, slideId) {
   const adventuresColl = getCollection("adventures"),
         adventureIdObj = new ObjectId(adventureId),
-        messageUnsetDoc = {},
         orphanedImages = []
   
   try {
@@ -77,48 +105,20 @@ export async function removeOneSlide(adventureId, slideId) {
       { projection: { "slides.$": 1 } }
     )
 
-    // Find all available locales (keys in the 'messages' doc) in the adventure doc
-    const messagesLangKeys = await adventuresColl.aggregate([
-      { $match: { _id: adventureIdObj } },
+    const slideTextsAggregate = await adventuresColl.aggregate([
+      { $match: { _id: new ObjectId(adventureId) } },
+      { $unwind: "$slides" },
+      { $match: { "slides.id": slideId } },
       { 
-        $project: {
-          "arrayofkeyvalue": {
-            $objectToArray: "$$ROOT.messages"
-          }
-        }
-      },
-      { $project: { keys: "$arrayofkeyvalue.k" } }
+        $project: slideTextModuleFields.reduce((projectDoc, textModuleField) => {
+          projectDoc[textModuleField] = 1
+          return projectDoc
+        }, { "_id": 0 })
+      }
     ]).next()
 
-    // Construct an $unset doc to remove all messages referenced in that slide
-    if (messagesLangKeys && messagesLangKeys.keys) {
-      const projectDoc = slideTextModuleFields.reduce((projectDoc, textModuleField) => {
-        projectDoc[textModuleField] = 1
-        return projectDoc
-      }, { "_id": 0 })
-
-      const slideTextsAggregate = await adventuresColl.aggregate([
-        {
-          $match: { _id: new ObjectId(adventureId) }
-        },
-        {
-          $unwind: "$slides"
-        },
-        {
-          $match: { "slides.id": slideId }
-        },
-        {
-          $project: projectDoc
-        }
-      ]).next()
-
-      for (let lang of messagesLangKeys.keys) {
-        for (let usedText of getPrimitiveValues(slideTextsAggregate))
-          messageUnsetDoc[`messages.${lang}.${usedText}`] = ""
-      }
-
-      console.log(`removing texts: ${Object.keys(messageUnsetDoc).join(', ')}`)
-    }
+    if (slideTextsAggregate)
+      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideTextsAggregate))
 
     // Collect all images that are referenced in the slide to be removed
     if (foundAdventure.slides && foundAdventure.slides.length > 0) {
@@ -139,8 +139,7 @@ export async function removeOneSlide(adventureId, slideId) {
     await adventuresColl.updateOne(
       { _id: adventureIdObj },
       {
-        $pull: { slides: { id: slideId } }, // Remove the slide with the specified ID
-        $unset: messageUnsetDoc // Remove all messages referenced in the slide with the specified ID
+        $pull: { slides: { id: slideId } } // Remove the slide with the specified ID
       }
     )
 
@@ -229,10 +228,10 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
-export async function updateOneSlideGallery(adventureId, slideId, imgExt, imgWidth, imgHeight) {
+export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, imgWidth, imgHeight) {
   try {
     const adventuresColl = getCollection("adventures"),
-          galleryImgSrc = `${slideId}_gallery-${Math.floor(Math.random() * 1000)}${imgExt}`
+          galleryImgSrc = `${slideId}_gallery-${getRandomId()}${imgExt}`
 
     await adventuresColl.updateOne({
       _id: new ObjectId(adventureId),
@@ -248,6 +247,40 @@ export async function updateOneSlideGallery(adventureId, slideId, imgExt, imgWid
     })
 
     return galleryImgSrc
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
+export async function updateOneSlideGalleryRemoveImg(adventureId, slideId, img) {
+  try {
+    const adventuresColl = getCollection("adventures"),
+          imgRegex = new RegExp(escapeRegExp(img)),
+          captionTextsAggregate = await adventuresColl.aggregate([
+            { $match: { _id: new ObjectId(adventureId) } },
+            { $unwind: "$slides" },
+            { $match: { "slides.id": slideId }},
+            { $unwind: "$slides.gallery.images" },
+            { $match: { "slides.gallery.images.src": { $regex: imgRegex } } },
+            { $project: { _id: 0, "slides.gallery.images.caption": 1 } }
+          ]).next()
+
+    if (captionTextsAggregate)
+      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(captionTextsAggregate))
+
+    await adventuresColl.updateOne({
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId
+    }, {
+      $pull: {
+        "slides.$.gallery.images": {
+          src: {
+            $regex: imgRegex
+          }
+        }
+      }
+    })
   } catch (ex) {
     console.error(ex)
     throw ex

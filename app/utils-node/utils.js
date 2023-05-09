@@ -6,11 +6,17 @@ export function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
-export function pad(str) {
-  while (String(str).length < 2)
-    str = "0" + str;
+export function pad(str, length = 2) {
+  let finalStr = String(str)
 
-  return str;
+  while (finalStr.length < length)
+  finalStr = "0" + finalStr;
+
+  return finalStr;
+}
+
+export function getRandomId(length = 3) {
+  return pad(Math.floor(Math.random() * Math.pow(10, length)), length)
 }
 
 export async function generateScaledImage(originalDir, originalName, targetSize) {
