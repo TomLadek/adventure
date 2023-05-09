@@ -314,7 +314,9 @@ onMounted(() => {
       activateOnInit: false,
       onStartAnimate: (fromSlide, toSlide) => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
-        theme.value = slides.value[toSlide].theme;
+
+        if (toSlide >= 0 && toSlide < slides.value.length)
+          theme.value = slides.value[toSlide].theme;
       }
     });
   });
