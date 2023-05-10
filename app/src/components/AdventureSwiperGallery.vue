@@ -44,6 +44,16 @@ const cmsControlsStore = useCmsControlsStore(),
       imgControlsExpanded = ref({}),
       timeouts = {};
 
+const showNewGalleryImgButton = computed(() => {
+  if (!cmsControlsStore.editMode)
+    return false;
+
+  if (props.gallery.style === "grid" && props.gallery.images && props.gallery.images.length >= 4)
+    return false;
+
+  return true;
+});
+
 function onChooseNextGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
     slideId: props.slideId,
@@ -131,7 +141,7 @@ function onBeforeLeave(element) {
   </TransitionGroup>
 
   <!-- CMS -->
-  <div v-if="cmsControlsStore.editMode" class="cms-new-gallery-image-outer">
+  <div v-if="showNewGalleryImgButton" class="cms-new-gallery-image-outer">
     <CmsAdventureItemButtonNew class="cms-new-gallery-image-button" @click="nextGalleryImgInput.click()" size="small" />
     <input type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
   </div>
@@ -175,14 +185,27 @@ function onBeforeLeave(element) {
 @media (orientation: landscape) {
   .gallery-thumbs.grid {
     display: grid;
+    overflow: visible;
     grid-template-columns: repeat(2, 4rem);
     grid-template-rows: repeat(2, 4rem);
     row-gap: 0.5rem;
     column-gap: 0.5rem;
-    align-self: center;
+    align-self: start;
+    margin-top: 5px;
+    overflow: visible;
+  }
+
+  @media (min-height: 501px) {
+    .gallery-thumbs.grid {
+      margin-top: 0;
+    }
   }
   
   @media (min-height: 600px) {
+    .gallery-thumbs.row {
+      min-height: calc(6rem + 10px);
+    }
+
     .gallery-thumbs.grid {
       grid-template-columns: repeat(2, 6rem);
       grid-template-rows: repeat(2, 6rem);
@@ -210,6 +233,7 @@ function onBeforeLeave(element) {
   @media (min-height: 768px) {
     .gallery-thumbs.grid {
       display: grid;
+      overflow: visible;
       grid-template-columns: repeat(2, 6rem);
       grid-template-rows: repeat(2, 6rem);
       row-gap: 0.5rem;
@@ -297,7 +321,8 @@ function onBeforeLeave(element) {
 }
 
 .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
-  width: 9rem;
+  width: 6rem;
+  height: 4rem;
   background: rgba(0, 0, 0, 0.2);
   border: 2px dashed black;
   border-radius: 1rem;
@@ -305,16 +330,47 @@ function onBeforeLeave(element) {
   transition: background-color 0.1s ease;
 }
 
+.slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+  width: 4rem;
+  height: 4rem;
+}
+
+@media (orientation: landscape) {
+  @media (min-height: 600px) {
+    .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+      width: 9rem;
+      height: 6rem;
+    }
+  }
+}
+
+@media (orientation: portrait) {
+  @media (min-height: 525px) {
+    .slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+      width: 6rem;
+      height: 4rem;
+    }
+  }
+
+  @media (min-height: 768px) {
+    .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+      width: 9rem;
+      height: 6rem;
+    }
+
+    .slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+      width: 6rem;
+      height: 6rem;
+    }
+  }
+}
+
 .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button:hover {
   background-color: #57575752;
 }
 
-.slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
-  width: 6rem;
-  height: 6rem;
-}
-
 .slide .cms-new-gallery-image-outer input[type=file] {
+  position: absolute;
   visibility: hidden;
   width: 0;
   height: 0;

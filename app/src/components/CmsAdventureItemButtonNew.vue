@@ -29,6 +29,9 @@ const transform = computed(() => {
 
 <style>
 .cms-adventure-item-button-new {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
   background: none;

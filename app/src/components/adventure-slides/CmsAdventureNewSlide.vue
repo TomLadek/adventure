@@ -42,6 +42,7 @@ const img = computed(() => `url(${imgData.value})`)
 }
 
 .cms-new-adventure-slide input[type=file] {
+  position: absolute;
   visibility: hidden;
   width: 0;
   height: 0;

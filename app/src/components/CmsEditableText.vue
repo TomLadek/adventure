@@ -235,7 +235,7 @@ if (props.focusAction)
 .cms-text-editor .ProseMirror {
   white-space: pre-wrap;
   outline: transparent solid 1px;
-  outline-offset: -1px;
+  outline-offset: 2px;
   transition: outline-color .15s ease-out;
 }
 
@@ -256,7 +256,7 @@ if (props.focusAction)
   background: rgba(0, 0, 0, 0.68);
   color: white;
   border-radius: 0.4rem;
-  transform: translate(-2px, calc(-100% - 0.25rem));
+  transform: translate(-4px, calc(-100% - 0.25rem));
   backdrop-filter: blur(3px);
 }
 

@@ -233,6 +233,7 @@ function onChooseFirstGalleryImg(file) {
 .slide-gallery .content-outer {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 
   margin: 3rem 0;
   max-width: calc(100vw - 6rem);
@@ -306,10 +307,6 @@ function onChooseFirstGalleryImg(file) {
     max-width: 50vw;
   }
 
-  .slide-gallery .content-outer.narrow h2 {
-    margin-bottom: 1rem;
-  }
-
   .slide-gallery .content-outer.narrow p {
     margin: 0;
   }
@@ -360,6 +357,10 @@ function onChooseFirstGalleryImg(file) {
   hyphens: auto;
 }
 
+.slide-gallery .content-outer .content-inner p:first-child {
+  margin-top: 3px;
+}
+
 .slide-gallery .content-outer .content-inner p:not(:first-child) {
   margin-top: 0.5em;
 }
@@ -395,6 +396,7 @@ div.pswp__bg {
 }
 
 .slide .cms-new-gallery-outer input[type=file] {
+  position: absolute;
   visibility: hidden;
   width: 0;
   height: 0;
