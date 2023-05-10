@@ -55,8 +55,9 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           ADD_SLIDE: "addSlide",
           REMOVE_SLIDE: "removeSlide",
           ADD_SLIDE_CONTENT: "addSlideContent",
-          ADD_SLIDE_GALLERY_IMG: "addSlideGallery",
+          ADD_SLIDE_GALLERY_IMG: "addSlideGalleryImg",
           DEL_SLIDE_GALLERY_IMG: "removeGalleryImg",
+          ADD_SLIDE_GALLERY_IMG_CAPTION: "addSlideGalleryImgCaption",
           EDIT_TEXT: "editText"
         },
         actionArgs = {},

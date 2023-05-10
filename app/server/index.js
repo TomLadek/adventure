@@ -67,6 +67,7 @@ async function startServer() {
     updateOneSlideContent,
     updateOneSlideGalleryAddImg,
     updateOneSlideGalleryRemoveImg,
+    updateOneSlideGalleryAddImgCaption,
     updateOneText,
     closeDb
   } = await import('../database/db.js')
@@ -187,6 +188,7 @@ async function startServer() {
     }
   })
 
+  // Delete slide gallery image
   app.delete('/rest/adventure/:adventureId/slide/:slideId/gallery', upload.fields(["galleryImg"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
@@ -196,6 +198,22 @@ async function startServer() {
       await updateOneSlideGalleryRemoveImg(adventureId, slideId, galleryImgSrc)
 
       deleteAdventureImages(adventureId, [galleryImgSrc])
+
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  // Add gallery image caption text module
+  app.put('/rest/adventure/:adventureId/slide/:slideId/gallery/:imageId/caption', upload.fields(["captionTextModule"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            imageId = req.params.imageId
+
+      await updateOneSlideGalleryAddImgCaption(adventureId, slideId, imageId, req.body.captionTextModule)
 
       res.status(200).json({ok: true})
     } catch (ex) {

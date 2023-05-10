@@ -81,12 +81,12 @@ onMounted(() => {
 
     <div v-if="slide.headline || slide.content" class="content-outer">
       <h1 class="headline">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.headline" />
-        <CmsEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" />
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Empty headline" />
+        <CmsEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Empty subheadline" />
       </h1>
 
       <div class="content-inner">
-        <CmsEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" />
+        <CmsEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty intro text" />
       </div>
     </div>
 

@@ -198,7 +198,7 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   const updateDocument = { $set: {} }
 
   if (slideContent) {
-    if (slideContent.headline) {
+    if (typeof slideContent.headline !== "undefined") {
       updateDocument.$set["slides.$.headline"] = `${slideId}_headline`
       updateDocument.$set[`messages.${locale}.${slideId}_headline`] = slideContent.headline
     }
@@ -247,6 +247,31 @@ export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, 
     })
 
     return galleryImgSrc
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
+export async function updateOneSlideGalleryAddImgCaption(adventureId, slideId, imgId, captionTextModule) {
+  try {
+    const adventuresColl = getCollection("adventures"),
+          imgIdRegex = { $regex: new RegExp(escapeRegExp(imgId)) }
+
+    await adventuresColl.updateOne({ 
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId,
+      "slides.gallery.images.src": imgIdRegex
+    }, {
+      $set: {
+        "slides.$[slideElem].gallery.images.$[imageElem].caption": captionTextModule
+      }
+    }, {
+      arrayFilters: [
+        { "slideElem.id": slideId},
+        { "imageElem.src": imgIdRegex }
+      ]
+    })
   } catch (ex) {
     console.error(ex)
     throw ex

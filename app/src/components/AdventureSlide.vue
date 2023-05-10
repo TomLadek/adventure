@@ -78,9 +78,9 @@ function onRemoveSlideClick() {
 function onNewSlideContentClick() {
   actionAddSlideContent({
     slideId: props.slide.id,
-    headline: "Headline",
+    headline: "",
     content: {
-      text: "Content",
+      text: "",
       position: "bottom end"
     }
   });

@@ -105,11 +105,21 @@ function initGallery() {
   });
 
   /* CMS */
-  pswpInstance.on("dynamicCaptionUpdateHTML", ({ captionElement }) => {
-    const captionTextModule = captionElement.innerHTML,
-          cmsEditableTextFocusAction = ref();
+  pswpInstance.on("dynamicCaptionUpdateHTML", ({ captionElement, slide /* PSWP 'slide'! */ }) => {
+    let captionTextModule = captionElement.innerHTML,
+        captionExists = captionTextModule !== "none";
+
+    const cmsEditableTextFocusAction = ref(),
+          imgId = slide.data.element.dataset.id;
 
     captionElement.innerHTML = "";
+
+    if (!captionExists) {
+      if (cmsControlsStore.editMode)
+        captionTextModule = `${imgId}_caption`;
+      else
+        captionTextModule = "";
+    }
 
     render(
       h(
@@ -120,7 +130,18 @@ function initGallery() {
           onBlur: () => {
             pswpInstance.dispatch("bindEvents");
           },
-          focusAction: cmsEditableTextFocusAction
+          onSave: () => {
+            if (captionExists)
+              return;
+
+            cmsControlsStore.actionWithResult(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, {
+              slideId: props.slide.id,
+              captionTextModule: captionTextModule,
+              imageId: imgId
+            }).then(() => captionExists = true);
+          },
+          focusAction: cmsEditableTextFocusAction,
+          emptyPlaceholder: "Empty caption"
         }
       ),
       captionElement
@@ -174,20 +195,21 @@ function onChooseFirstGalleryImg(file) {
       :href="slide.mainImg.src.original"
       :data-pswp-width="slide.mainImg.width"
       :data-pswp-height="slide.mainImg.height"
+      :data-id="slide.mainImg.id"
       data-cropped="true"
       :title="slide.mainImg.caption && getCaptionText(t(slide.mainImg.caption))"
-      :data-caption="slide.mainImg.caption"
+      :data-caption="slide.mainImg.caption || 'none'"
       target="_blank"
       class="main-picture"
     ></a>
 
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">
-        <CmsEditableText :i18n="i18nBundle" :text-module="slide.headline" />
+        <CmsEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" />
       </h2>
 
       <div class="content-inner">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" editorControlsPosition="fixed" />
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" editorControlsPosition="fixed" emptyPlaceholder="Empty content" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"

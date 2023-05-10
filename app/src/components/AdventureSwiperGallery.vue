@@ -87,6 +87,7 @@ function onBeforeLeave(element) {
         :title="image.caption && getCaptionText(t(image.caption))"
         :data-pswp-width="image.width"
         :data-pswp-height="image.height"
+        :data-id="image.id"
         data-cropped="true"
         target="_blank"
         class="gallery-original-link"
@@ -97,7 +98,7 @@ function onBeforeLeave(element) {
           :width="image.width"
           :height="image.height"
           :alt="image.caption && getCaptionText(t(image.caption))"
-          :data-caption="image.caption"
+          :data-caption="image.caption || 'none'"
           loading="lazy"
         />
       </a>

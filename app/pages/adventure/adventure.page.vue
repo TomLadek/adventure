@@ -95,6 +95,10 @@ function updatePageTheme(theme) {
   document.documentElement.classList.remove("light", "dark");
   document.documentElement.classList.add(theme || "light");
 }
+
+function getIdFromSrc(src) {
+  return src.replace(/\..+?$/, "");
+}
 </script>
 
 <script setup>
@@ -105,12 +109,15 @@ const pageContext = usePageContext(),
 const { t, locale, messages } = useI18n();
 
 const slides = computed(() => (adventure.value.slides || []).map((slide) => {
-  if (slide.mainImg && typeof slide.mainImg.src !== "object")
+  if (slide.mainImg && typeof slide.mainImg.src !== "object") {
+    slide.mainImg.id = getIdFromSrc(slide.mainImg.src);
     slide.mainImg.src = srcToUrls(adventure.value.meta.id, slide.mainImg.src);
+  }
 
   if (slide.gallery) {
     slide.gallery.images = slide.gallery.images.map((galleryImg) => {
       if (!/^\/img\//.test(galleryImg.src)) {
+        galleryImg.id = getIdFromSrc(galleryImg.src);
         galleryImg.srcset = gallerySrcSet(adventure.value.meta.id, galleryImg.src);
         galleryImg.src = gallerySrc(adventure.value.meta.id, galleryImg.src, 0);
       }
@@ -256,6 +263,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
         slideToChange.gallery.images = [];
 
       slideToChange.gallery.images.push({
+        id: getIdFromSrc(data.src),
         src: gallerySrc(adventure.value.meta.id, data.src, 0),
         srcset: gallerySrcSet(adventure.value.meta.id, data.src),
         width: imgWidth,
@@ -284,6 +292,30 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
           imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(src)).test(galleryImg.src));
 
     slideToChange.gallery.images.splice(imgIndex, 1);
+  })
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, (args, resolve) => {
+  const { slideId, imageId, captionTextModule } = args,
+        formData = new FormData();
+
+  formData.append("captionTextModule", captionTextModule);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/${imageId}/caption`, {
+    method: "PUT",
+    body: formData
+  }).then(res => {
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
+    }
+
+    const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+          imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src));
+
+    slideToChange.gallery.images[imgIndex].caption = captionTextModule;
+
+    resolve();
   })
 });
 /* /CMS */

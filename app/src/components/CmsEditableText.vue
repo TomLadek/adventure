@@ -5,6 +5,7 @@ import { ref, computed } from 'vue';
 import { watch } from 'vue'; 
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 
 import { useCmsControlsStore } from '../stores/cmscontrols.js';
 /* /CMS */
@@ -35,12 +36,26 @@ const props = defineProps({
   editorControlsPosition: {
     type: String,
     required: false
+  },
+  emptyPlaceholder: {
+    type: String,
+    required: false
   }
 });
 
 let realTextDisplay = true;
 
-const translatedText = computed(() => props.textModule ? props.i18n.t(props.textModule) : "");
+const translatedText = computed(() => {
+  if (!props.textModule)
+    return "";
+
+  const translation = props.i18n.t(props.textModule);
+
+  if (translation === props.textModule)
+    return "";
+
+  return translation;
+});
 
 const cssPositions = computed(() => {
   if (props.editorControlsPosition === "fixed") {
@@ -70,7 +85,7 @@ const sanitizedTranslatedText = computed(() => {
 
 
 /* CMS */
-const emit = defineEmits(["blur"]);
+const emit = defineEmits(["blur", "save"]);
 
 const cmsControlsStore = useCmsControlsStore(),
       cmsEditorControlsShown = ref(false),
@@ -84,7 +99,12 @@ realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.valu
 let cmsTextSyncTimeout = 0;
 
 const editor = useEditor({
-  extensions: [ StarterKit ],
+  extensions: [
+    StarterKit,
+    Placeholder.configure({
+      placeholder: props.emptyPlaceholder || "Empty",
+    })
+  ],
   content: translatedText.value,
   onBeforeCreate() {
     editorReady.value = true;
@@ -104,12 +124,14 @@ const editor = useEditor({
     clearTimeout(cmsTextSyncTimeout);
 
     cmsTextSyncTimeout = setTimeout(() => {
+      emit("save");
+
       cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCING;
 
       cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
         textModule: props.textModule,
         locale: props.i18n.locale,
-        newText: editor.getHTML().replace(String.fromCodePoint(0x00AD), "&shy;")
+        newText: processContent(editor.getHTML())
       }).then(() => {
         cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
       }).catch(reason => {
@@ -160,6 +182,20 @@ function editorAction(type) {
   }
 
   editor.value.commands.focus();
+}
+
+function processContent(htmlContent) {
+  let newContent = htmlContent;
+
+  // Filter out <p> tag if there's only one
+  const paragraphsMatch = htmlContent.match(/<\/p>/g);
+  if (paragraphsMatch && paragraphsMatch.length < 2)
+    newContent = newContent.replace(/<\/?p>/g, "");
+  
+  // Replace '­' with '&shy;'
+  newContent = newContent.replace(String.fromCodePoint(0x00AD), "&shy;");
+
+  return newContent;
 }
 
 watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
@@ -220,7 +256,7 @@ if (props.focusAction)
   background: rgba(0, 0, 0, 0.68);
   color: white;
   border-radius: 0.4rem;
-  transform: translateY(-100%);
+  transform: translate(-2px, calc(-100% - 0.25rem));
   backdrop-filter: blur(3px);
 }
 
@@ -250,6 +286,15 @@ if (props.focusAction)
 .editor-controls-fade-enter-from,
 .editor-controls-fade-leave-to {
   opacity: 0;
+}
+
+.ProseMirror p.is-editor-empty:first-child:before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgb(255 255 255 / 50%);
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
 }
 /* /CMS */
 </style>
