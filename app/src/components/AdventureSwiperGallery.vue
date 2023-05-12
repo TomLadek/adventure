@@ -6,7 +6,10 @@ import { getCaptionText } from "../../src/utils.js";
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import { useConfirmationStore } from "../stores/confirmation.js";
-import CmsAdventureItemButtonNew from "./CmsAdventureItemButtonNew.vue";
+import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
+import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
+import CmsButtonClose from "./buttons/CmsButtonClose.vue";
+import CmsButtonDelete from "./buttons/CmsButtonDelete.vue";
 /* /CMS */
 </script>
 
@@ -115,25 +118,12 @@ function onBeforeLeave(element) {
 
       <!-- CMS -->
       <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
-        <button class="button-more" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-            <circle cx="6" cy="12" r="2"></circle>
-            <circle cx="12" cy="12" r="2"></circle>
-            <circle cx="18" cy="12" r="2"></circle>
-          </svg>
-        </button>
-        <button class="button-delete" @click="onImgDeleteClick(image.src)">
-          <svg xmlns="http://www.w3.org/2000/svg" transform="scale(0.75)" viewBox="0 0 24 24" width="24" height="24">
-            <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
-          </svg>
-        </button>
+        <CmsOptionsButton @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]" />
+
+        <CmsButtonDelete @click="onImgDeleteClick(image.src)" deleteWhatText="image" />
+
         <div class="button-close-container">
-          <button class="button-close" @click="imgControlsExpanded[image.src] = false">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round">
-              <line x1="7" x2="17" y1="17" y2="7"></line>
-              <line x1="7" x2="17" y1="7" y2="17"></line>
-            </svg>
-          </button>
+          <CmsButtonClose @click="imgControlsExpanded[image.src] = false"/>
         </div>
       </div>
       <!-- /CMS -->
@@ -301,12 +291,12 @@ function onBeforeLeave(element) {
   fill: white;
 }
 
-.gallery-thumbs .gallery-img-controls .button-more {
+.gallery-thumbs .gallery-img-controls .button-options {
   width: 24px;
   transition: width, 0.15s ease-out;
 }
 
-.gallery-thumbs .gallery-img-controls.expanded .button-more {
+.gallery-thumbs .gallery-img-controls.expanded .button-options {
   width: 0;
 }
 

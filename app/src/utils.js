@@ -48,3 +48,13 @@ export function pad(str) {
 export function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
+
+export function closest(elem, className) {
+  if (elem.classList && elem.classList.contains(className))
+    return elem;
+
+  if (elem.parentElement === null)
+    return null;
+
+  return closest(elem.parentElement, className);
+}

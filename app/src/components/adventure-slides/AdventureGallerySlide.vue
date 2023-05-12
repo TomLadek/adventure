@@ -13,9 +13,12 @@ import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css"
 import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 /* CMS */
-import CmsAdventureItemButtonNew from "../CmsAdventureItemButtonNew.vue";
-import CmsEditableText from "../CmsEditableText.vue";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
+import CmsAdventureItemButtonNew from "../buttons/CmsAdventureItemButtonNew.vue";
+import CmsEditableText from "../CmsEditableText.vue";
+import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
+import CmsButtonClose from "../buttons/CmsButtonClose.vue";
+import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
 /* /CMS */
 </script>
 
@@ -28,6 +31,10 @@ const props = defineProps({
     required: true
   }
 });
+
+const slideClass = computed(() => {
+  return props.slide.content && props.slide.content.position.split(" ").map(pos => `content-pos-${pos}`)
+})
 
 const slideContentClass = computed(() => {
   const baseClass = {
@@ -104,7 +111,41 @@ function initGallery() {
     }
   });
 
-  /* CMS */
+  window.photoSwipes[props.slide.id] = pswpInstance;
+
+  window.addEventListener("hashchange", closeAllPhotoSwipes);
+}
+
+watch(locale, initGallery);
+
+onMounted(initGallery);
+
+/* CMS */
+const slideControlsExpanded = ref(false),
+      firstGalleryImgInput = ref(null);
+
+let slideControlsExpandedTimeout = 0;
+
+function onChooseFirstGalleryImg(file) {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
+    slideId: props.slide.id,
+    file: file
+  });
+}
+
+function onSlideControlsMouseEnter() {
+  clearTimeout(slideControlsExpandedTimeout)
+}
+
+function onSlideControlsMouseLeave() {
+  slideControlsExpandedTimeout = setTimeout(() => slideControlsExpanded.value = false, 1000);
+}
+
+function onSlideContentDeleteClick() {
+  console.log("confirm delete ...")
+}
+
+onMounted(() => {
   pswpInstance.on("dynamicCaptionUpdateHTML", ({ captionElement, slide /* PSWP 'slide'! */ }) => {
     let captionTextModule = captionElement.innerHTML,
         captionExists = captionTextModule !== "none";
@@ -161,27 +202,8 @@ function initGallery() {
 
       cmsEditableTextFocusAction.value = Math.random();
     })
-  });
-  /* /CMS */
-
-  window.photoSwipes[props.slide.id] = pswpInstance;
-
-  window.addEventListener("hashchange", closeAllPhotoSwipes);
-}
-
-watch(locale, initGallery);
-
-onMounted(initGallery);
-
-/* CMS */
-const firstGalleryImgInput = ref(null);
-
-function onChooseFirstGalleryImg(file) {
-  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
-    slideId: props.slide.id,
-    file: file
-  });
-}
+  });  
+});
 /* /CMS */
 </script>
 
@@ -189,6 +211,7 @@ function onChooseFirstGalleryImg(file) {
   <section
     :id="`slide_${slide.id}`"
     class="slide-gallery"
+    :class="slideClass"
   >
     <a
       v-if="slide.mainImg.src"
@@ -220,6 +243,17 @@ function onChooseFirstGalleryImg(file) {
           <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" size="small" />
           <input type="file" @change="onChooseFirstGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstGalleryImgInput">
         </div>
+      </div>
+
+      <div v-if="cmsControlsStore.editMode" class="slide-content-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
+        <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
+        <CmsButtonClose v-else @click="slideControlsExpanded = false"/>
+
+        <template v-if="slideControlsExpanded">
+          <CmsButtonDelete @click="onSlideContentDeleteClick" deleteWhatText="slide content" />
+          <button class="button-position" style="font-size: 120%;">P</button>
+          <button class="button-style" style="font-size: 120%;">S</button>
+        </template>
       </div>
     </div>
 
@@ -400,6 +434,87 @@ div.pswp__bg {
   visibility: hidden;
   width: 0;
   height: 0;
+}
+
+.slide .content-outer .slide-content-controls {
+  display: grid;
+  grid: repeat(2, 1fr) / repeat(3, 1fr);
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1.5rem;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(3px);
+  overflow: hidden;
+  transition-property: width, height, top, bottom, left, right;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+}
+
+.slide .content-outer .slide-content-controls.expanded {
+  width: 9rem;
+  height: 6rem;
+}
+
+.slide .content-outer .slide-content-controls .button-options {
+  width: 3rem;
+  height: 3rem;
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.slide .content-outer .slide-content-controls .button-close {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.slide .content-outer .slide-content-controls .button-delete {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.slide .content-outer .slide-content-controls .button-position {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+.slide .content-outer .slide-content-controls .button-style {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+.slide.content-pos-top .content-outer .slide-content-controls { bottom: -1rem; }
+.slide.content-pos-top .content-outer .slide-content-controls.expanded { bottom: -4rem; }
+.slide.content-pos-top .content-outer .slide-content-controls .button-close { grid-row: 1; }
+.slide.content-pos-top .content-outer .slide-content-controls .button-delete { grid-row: 2; }
+.slide.content-pos-top .content-outer .slide-content-controls .button-position { grid-row: 1; }
+.slide.content-pos-top .content-outer .slide-content-controls .button-style { grid-row: 1; }
+.slide.content-pos-bottom .content-outer .slide-content-controls { top: -1rem; }
+.slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -4rem; }
+.slide.content-pos-start .content-outer .slide-content-controls { right: -1rem; }
+.slide.content-pos-start .content-outer .slide-content-controls.expanded { right: -4rem; }
+.slide.content-pos-end .content-outer .slide-content-controls { left: -1rem; }
+.slide.content-pos-end .content-outer .slide-content-controls.expanded { left: -4rem; }
+
+.slide .content-outer .slide-content-controls button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: white;
+}
+
+.slide .content-outer .slide-content-controls button svg {
+  fill: white;
+  transform: scale(1.4);
+}
+
+.slide .content-outer .slide-content-controls.expanded button svg {
+  transform: scale(1.2);
 }
 /* /CMS */
 </style>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useCmsControlsStore } from '../../stores/cmscontrols';
-import CmsAdventureItemButtonNew from '../CmsAdventureItemButtonNew.vue';
+import CmsAdventureItemButtonNew from '../buttons/CmsAdventureItemButtonNew.vue';
 
 const imgData = ref(""),
       firstSlideImgInput = ref(null),

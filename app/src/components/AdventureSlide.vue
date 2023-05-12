@@ -7,7 +7,7 @@ import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 /* CMS */
 import { useConfirmationStore } from "../stores/confirmation.js";
 import { useCmsControlsStore } from "../stores/cmscontrols";
-import CmsAdventureItemButtonNew from "./CmsAdventureItemButtonNew.vue";
+import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
 /* /CMS */
 
 function getCssUrlString(url) {
