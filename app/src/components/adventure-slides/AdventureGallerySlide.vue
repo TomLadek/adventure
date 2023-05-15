@@ -146,6 +146,13 @@ function onSlideContentDeleteClick() {
 }
 
 onMounted(() => {
+  pswpInstance.on("dynamicCaptionMeasureSize", ({ captionEl, captionSize }) => {
+    const captionText = captionEl.querySelector(".text-wrapper");
+
+    // In edit mode, set minimum width for caption so that text can be input easier
+    if (cmsControlsStore.editMode && captionText && captionText.textContent === "")
+      captionSize.x = 300;
+  });
   pswpInstance.on("dynamicCaptionUpdateHTML", ({ captionElement, slide /* PSWP 'slide'! */ }) => {
     let captionTextModule = captionElement.innerHTML,
         captionExists = captionTextModule !== "none";
