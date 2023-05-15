@@ -167,9 +167,8 @@ cmsControlsStore.subscribeAddSlide(async file => {
   });
 });
 
-cmsControlsStore.subscribeAddSlideContent(args => {
-  const { slideId, headline, content } = args,
-        formData = new FormData(),
+cmsControlsStore.subscribeAddSlideContent(({ slideId, headline, content }) => {
+  const formData = new FormData(),
         currentLocale = locale.value;
 
   formData.append("headline", headline);
@@ -213,9 +212,8 @@ cmsControlsStore.subscribeRemoveSlide(slideId => {
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, resolve, reject) => {
-  const { textModule, locale, newText } = args,
-        formData = new FormData();
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, ({ textModule, locale, newText }, resolve, reject) => {
+  const formData = new FormData();
 
   formData.append("textModule", textModule);
   formData.append("locale", locale);
@@ -235,9 +233,8 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, (args, re
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async args => {
-  const { slideId, file } = args,
-        { imgFile, imgWidth, imgHeight } = await loadImage(file),
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async ({ slideId, file }) => {
+  const { imgFile, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
   formData.append("galleryImg", imgFile);
@@ -273,9 +270,8 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
   })
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, args => {
-  const { slideId, src } = args,
-        formData = new FormData();
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, ({ slideId, src }) => {
+  const formData = new FormData();
 
   formData.append("galleryImg", src);
 
@@ -295,9 +291,8 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
   })
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, (args, resolve) => {
-  const { slideId, imageId, captionTextModule } = args,
-        formData = new FormData();
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, ({ slideId, imageId, captionTextModule }, resolve) => {
+  const formData = new FormData();
 
   formData.append("captionTextModule", captionTextModule);
 
