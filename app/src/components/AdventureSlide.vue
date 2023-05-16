@@ -60,8 +60,7 @@ const slideType = computed(() => {
 
 /* CMS */
 const confirmationStore = useConfirmationStore(),
-      cmsControlsStore = useCmsControlsStore(),
-      { actionAddSlideContent, actionRemoveSlide } = cmsControlsStore;
+      cmsControlsStore = useCmsControlsStore();
 
 function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
@@ -71,12 +70,12 @@ function onRemoveSlideClick() {
       <p>This will also remove any contents of that slide including all gallery images, text, etc.</p>
       <p style="color:red">THIS CANNOT BE UNDONE!</p>
     `,
-    () => actionRemoveSlide(props.slide.id)
+    () => cmsControlsStore.action(cmsControlsStore.actions.REMOVE_SLIDE, props.slide.id)
   );
 }
 
 function onNewSlideContentClick() {
-  actionAddSlideContent({
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_CONTENT, {
     slideId: props.slide.id,
     headline: "",
     content: {

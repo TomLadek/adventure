@@ -137,7 +137,7 @@ const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
       { loadImage } = useImageLoader();
 
-cmsControlsStore.subscribeAddSlide(async file => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE, async file => {
   const { imgFile, imgWidth, imgHeight } = await loadImage(file),
         formData = new FormData();
 
@@ -167,7 +167,7 @@ cmsControlsStore.subscribeAddSlide(async file => {
   });
 });
 
-cmsControlsStore.subscribeAddSlideContent(({ slideId, headline, content }) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_CONTENT, ({ slideId, headline, content }) => {
   const formData = new FormData(),
         currentLocale = locale.value;
 
@@ -197,7 +197,7 @@ cmsControlsStore.subscribeAddSlideContent(({ slideId, headline, content }) => {
   })
 });
 
-cmsControlsStore.subscribeRemoveSlide(slideId => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.REMOVE_SLIDE, slideId => {
   const formData = new FormData();
 
   fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}`, {

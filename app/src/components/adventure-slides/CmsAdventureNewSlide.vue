@@ -5,7 +5,7 @@ import CmsAdventureItemButtonNew from '../buttons/CmsAdventureItemButtonNew.vue'
 
 const imgData = ref(""),
       firstSlideImgInput = ref(null),
-      { actionAddSlide } = useCmsControlsStore()
+      cmsControlsStore = useCmsControlsStore()
 
 const img = computed(() => `url(${imgData.value})`)
 </script>
@@ -14,7 +14,7 @@ const img = computed(() => `url(${imgData.value})`)
   <section class="cms-new-adventure-slide">
     <div class="new-slide-container">
       <CmsAdventureItemButtonNew class="cms-adventure-new-slide-button" @click="firstSlideImgInput.click()" size="large" />
-      <input type="file" @change="actionAddSlide($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstSlideImgInput">
+      <input type="file" @change="cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE, $event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstSlideImgInput">
     </div>
   </section>
 </template>

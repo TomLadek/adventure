@@ -10,47 +10,6 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
       editMode.value = !editMode.value;
   }
 
-  /* AddSlide */
-  const addSlideArgs = ref(null);
-
-  function actionAddSlide(args) {
-    addSlideArgs.value = args;
-  }
-
-  function subscribeAddSlide(callback) {
-    watch(addSlideArgs, () => {
-      callback(addSlideArgs.value);
-    })
-  }
-  /* --- */
-
-  /* AddSlideContent*/
-  const addSlideContentArgs = ref(null);
-
-  function actionAddSlideContent(args) {
-    addSlideContentArgs.value = args;
-  }
-
-  function subscribeAddSlideContent(callback) {
-    watch(addSlideContentArgs, () => {
-      callback(addSlideContentArgs.value);
-    });
-  }
-  /* --- */
-
-  /* RemoveSlide */
-  const removeSlideArgs = ref(null);
-
-  function actionRemoveSlide(args) {
-    removeSlideArgs.value = args;
-  }
-
-  function subscribeRemoveSlide(callback) {
-    watch(removeSlideArgs, () => {
-      callback(removeSlideArgs.value);
-    })
-  }
-
   const actions = {
           ADD_SLIDE: "addSlide",
           REMOVE_SLIDE: "removeSlide",
@@ -60,12 +19,11 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           ADD_SLIDE_GALLERY_IMG_CAPTION: "addSlideGalleryImgCaption",
           EDIT_TEXT: "editText"
         },
-        actionArgs = {},
+        actionArgs = Object.values(actions).reduce((actArgs, act) => {
+          actArgs[act] = ref(null);
+          return actArgs;
+        }, {}),
         actionExecutors = {};
-
-  for (let action of Object.values(actions)) {
-    actionArgs[action] = ref(null);
-  }
 
   function validateActionName(name) {
     if (Object.values(actions).indexOf(name) >= 0)
@@ -114,19 +72,12 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
       });
     }
   }
-  /* --- */
 
   return {
     isCmsView,
     editMode,
     actions,
     toggleEditMode,
-    actionAddSlide,
-    subscribeAddSlide,
-    actionAddSlideContent,
-    subscribeAddSlideContent,
-    actionRemoveSlide,
-    subscribeRemoveSlide,
     action,
     actionWithResult,
     subscribeToAction
