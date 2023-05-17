@@ -96,9 +96,7 @@ function updatePageTheme(theme) {
   document.documentElement.classList.add(theme || "light");
 }
 
-function getIdFromSrc(src) {
-  return src.replace(/\..+?$/, "");
-}
+const getIdFromSrc = src => src.replace(/\..+?$/, "");
 </script>
 
 <script setup>
@@ -108,6 +106,7 @@ const pageContext = usePageContext(),
 
 const { t, locale, messages } = useI18n();
 
+// TODO remove this computed. This is only here to reuse functions that generate image URLs -> these should be util functions or inside a composable.
 const slides = computed(() => (adventure.value.slides || []).map((slide) => {
   if (slide.mainImg && typeof slide.mainImg.src !== "object") {
     slide.mainImg.id = getIdFromSrc(slide.mainImg.src);

@@ -1,5 +1,6 @@
 <script>
 import { ref, computed } from 'vue';
+import tippy from 'tippy.js';
 
 /* CMS */
 import { watch } from 'vue'; 
@@ -33,10 +34,6 @@ const props = defineProps({
     type: String,
     required: false
   },
-  editorControlsPosition: {
-    type: String,
-    required: false
-  },
   emptyPlaceholder: {
     type: String,
     required: false
@@ -57,20 +54,6 @@ const translatedText = computed(() => {
   return translation;
 });
 
-const cssPositions = computed(() => {
-  if (props.editorControlsPosition === "fixed") {
-    return {
-      container: "initial",
-      editorControls: "fixed"
-    }
-  } else {
-    return {
-      container: "relative",
-      editorControls: "absolute"
-    }
-  }
-})
-
 const sanitizedTranslatedText = computed(() => {
   const textTmp = translatedText.value;
 
@@ -88,15 +71,17 @@ const sanitizedTranslatedText = computed(() => {
 const emit = defineEmits(["blur", "save"]);
 
 const cmsControlsStore = useCmsControlsStore(),
+      cmsTextEditor = ref(null),
+      cmsTextEditorControls = ref(null),
       cmsEditorControlsShown = ref(false),
-      cmsControlsPosition = ref({ top: 0, left: 0 }),
       cmsTextSyncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
       cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED),
       editorReady = ref(false);
 
 realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value)
 
-let cmsTextSyncTimeout = 0;
+let cmsTextSyncTimeout = 0,
+    tippyInstance;
 
 const editor = useEditor({
   extensions: [
@@ -109,14 +94,18 @@ const editor = useEditor({
   onBeforeCreate() {
     editorReady.value = true;
   },
-  onCreate({ editor }) {
-    if (props.editorControlsPosition === "fixed") {
-      cmsControlsPosition.value.top = `${editor.view.dom.offsetTop}px`;
-      cmsControlsPosition.value.left = `${editor.view.dom.offsetLeft}px`;
-    } else {
-      cmsControlsPosition.value.top = 0;
-      cmsControlsPosition.value.left = 0;
-    }
+  onCreate() {
+    tippyInstance = tippy(cmsTextEditor.value.rootEl, {
+      // appendTo: document.body, // no wrapping, nicer background blur - but bad accessibility
+      arrow: false,
+      content: cmsTextEditorControls.value,
+      interactive: true,
+      hideOnClick: false,
+      placement: "top-start",
+      trigger: "manual",
+      offset: [-4, 4],
+      onCreate: () => cmsTextEditorControls.value.style.display = ""
+    });
   },
   onUpdate({ editor }) {
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
@@ -138,11 +127,7 @@ const editor = useEditor({
         console.error(reason)
         cmsTextSyncStatus.value = cmsTextSyncStatusValue.ERROR;  
       }).finally(() => {
-        setTimeout(() => {
-          if (!editor.isFocused)
-            cmsEditorControlsShown.value = false;
-        }, 3000);
-
+        checkShouldHideControls();
         cmsTextSyncTimeout = 0;        
       });
     }, 1000);
@@ -150,17 +135,27 @@ const editor = useEditor({
   onFocus() {
     cmsEditorControlsShown.value = true;
   },
-  onBlur({ editor }) {
+  onBlur() {
     emit("blur");
-
-    if ([cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus.value) < 0) {
-      setTimeout(() => {
-        if (!editor.isFocused)
-          cmsEditorControlsShown.value = false;
-      }, 100);
-    }
+    checkShouldHideControls();
   }
 });
+
+function checkShouldHideControls() {
+  if ([cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus.value) >= 0)
+    return;
+
+  setTimeout(() => {
+    let someHaveFocus = editor.value.isFocused;
+
+    cmsTextEditorControls.value
+      .querySelectorAll("[data-editor-action]")
+      .forEach(editorAction => someHaveFocus |= document.activeElement === editorAction);
+
+    if (!someHaveFocus)
+      cmsEditorControlsShown.value = false;
+  }, 100);
+}
 
 function editorAction(type) {
   switch (type) {
@@ -202,6 +197,16 @@ watch(() => props.i18n.locale, () => editor.value.commands.setContent(translated
 
 if (props.focusAction)
   watch(props.focusAction, () => editor.value.commands.focus());
+
+watch(cmsEditorControlsShown, (shown) => {
+  if (!tippyInstance)
+    return;
+
+  if (shown)
+    tippyInstance.show();
+  else
+    tippyInstance.hide();
+})
 /* /CMS */
 </script>
 
@@ -210,28 +215,22 @@ if (props.focusAction)
 
   <!-- CMS -->
   <div v-else class="cms-text-editor-container" :class="class">
-    <EditorContent class="text-wrapper cms-text-editor" :editor="editor" />
-    
-    <Transition name="editor-controls-fade">
-      <div v-show="cmsEditorControlsShown" class="cms-text-editor-controls">
-        <button class="editor-action editor-action-bold" @click="editorAction('bold')">B</button>
-        <button class="editor-action editor-action-italics" @click="editorAction('italics')">I</button>
-        <button class="editor-action editor-action-shy" @click="editorAction('shy')">&amp;shy;</button>
-        <button class="editor-action" @click="editorAction('undo')">Undo</button>
-        <button class="editor-action" @click="editorAction('redo')">Redo</button>
-        <span aria-hidden="true" class="spinner-sm" :style="{opacity: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 1 : 0}"></span>
-      </div>
-    </Transition>
+    <EditorContent class="text-wrapper cms-text-editor" :editor="editor" ref="cmsTextEditor" />
+
+    <div class="cms-text-editor-controls" ref="cmsTextEditorControls" style="display: none;">
+      <button class="editor-action editor-action-bold" data-editor-action @click="editorAction('bold')" @blur="checkShouldHideControls">B</button>
+      <button class="editor-action editor-action-italics" data-editor-action @click="editorAction('italics')" @blur="checkShouldHideControls">I</button>
+      <button class="editor-action editor-action-shy" data-editor-action @click="editorAction('shy')" @blur="checkShouldHideControls">&amp;shy;</button>
+      <button class="editor-action" data-editor-action @click="editorAction('undo')" @blur="checkShouldHideControls">Undo</button>
+      <button class="editor-action" data-editor-action @click="editorAction('redo')" @blur="checkShouldHideControls">Redo</button>
+      <span aria-hidden="true" class="spinner-sm" :style="{opacity: [cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus) >= 0 ? 1 : 0}"></span>
+    </div>
   </div>
   <!-- /CMS -->
 </template>
 
 <style>
 /* CMS */
-.cms-text-editor-container {
-  position: v-bind("cssPositions.container");
-}
-
 .cms-text-editor .ProseMirror {
   white-space: pre-wrap;
   outline: transparent solid 1px;
@@ -243,10 +242,16 @@ if (props.focusAction)
   outline-color: black;
 }
 
-.cms-text-editor-container .cms-text-editor-controls {
-  position: v-bind("cssPositions.editorControls");
-  top: v-bind("cmsControlsPosition.top");
-  left: v-bind("cmsControlsPosition.left");
+.cms-text-editor .ProseMirror p.is-editor-empty:first-child:before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgb(255 255 255 / 50%);
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+.cms-text-editor-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -256,45 +261,35 @@ if (props.focusAction)
   background: rgba(0, 0, 0, 0.68);
   color: white;
   border-radius: 0.4rem;
-  transform: translate(-4px, calc(-100% - 0.25rem));
   backdrop-filter: blur(3px);
 }
 
-.cms-text-editor-container .cms-text-editor-controls button.editor-action {
+.cms-text-editor-controls button.editor-action {
   color: inherit;
   border: none;
   background: none;
 }
 
-.cms-text-editor-container .cms-text-editor-controls .editor-action-bold {
+.cms-text-editor-controls .editor-action-bold {
   font-weight: bold;
 }
 
-.cms-text-editor-container .cms-text-editor-controls .editor-action-italics {
+.cms-text-editor-controls .editor-action-italics {
   font-family: monospace;
   font-style: italic;
 }
 
-.cms-text-editor-container .cms-text-editor-controls .editor-action-shy {
+.cms-text-editor-controls .editor-action-shy {
   font-family: monospace;
 }
 
-.editor-controls-fade-enter-active, .editor-controls-fade-leave-active {
-  transition: opacity 0.15s ease-out;
+.tippy-box {
+  transition-duration: 0.15s !important;
+  transition-timing-function: ease-out;
 }
 
-.editor-controls-fade-enter-from,
-.editor-controls-fade-leave-to {
-  opacity: 0;
-}
-
-.ProseMirror p.is-editor-empty:first-child:before {
-  content: attr(data-placeholder);
-  float: left;
-  color: rgb(255 255 255 / 50%);
-  pointer-events: none;
-  height: 0;
-  font-style: italic;
+[data-tippy-root] {
+  visibility: visible !important;
 }
 /* /CMS */
 </style>

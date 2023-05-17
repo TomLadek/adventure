@@ -239,7 +239,7 @@ onMounted(() => {
       </h2>
 
       <div class="content-inner">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" editorControlsPosition="fixed" emptyPlaceholder="Empty content" />
+        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty content" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
