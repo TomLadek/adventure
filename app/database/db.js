@@ -204,9 +204,13 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
     }
 
     if (slideContent.content) {
-      updateDocument.$set["slides.$.content.text"] = `${slideId}_content`
-      updateDocument.$set["slides.$.content.position"] = slideContent.content.position
-      updateDocument.$set[`messages.${locale}.${slideId}_content`] = slideContent.content.text
+      if (typeof slideContent.content.position !== "undefined")
+        updateDocument.$set["slides.$.content.position"] = slideContent.content.position
+
+      if (typeof slideContent.content.text !== "undefined") {
+        updateDocument.$set["slides.$.content.text"] = `${slideId}_content`
+        updateDocument.$set[`messages.${locale}.${slideId}_content`] = slideContent.content.text
+      }
     }
   }
 

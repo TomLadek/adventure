@@ -19,6 +19,7 @@ import CmsEditableText from "../CmsEditableText.vue";
 import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "../buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
+import CmsButtonPosition from "../buttons/CmsButtonPosition.vue";
 /* /CMS */
 </script>
 
@@ -122,9 +123,24 @@ onMounted(initGallery);
 
 /* CMS */
 const slideControlsExpanded = ref(false),
-      firstGalleryImgInput = ref(null);
+      firstGalleryImgInput = ref(null),
+      submenuExpanded = ref({
+        position: false
+      });
 
 let slideControlsExpandedTimeout = 0;
+
+const positionButtonSelection = computed(() => {
+  const pos = (props.slide.content && props.slide.content.position) || "center";
+
+  return {
+    topLeft: pos === "top start" || pos === "start top",
+    topRight: pos === "top end" || pos === "end top",
+    bottomLeft: pos === "bottom start" || pos === "start bottom",
+    bottomRight: pos === "bottom end" || pos === "end bottom",
+    center: pos === "center"
+  }
+});
 
 function onChooseFirstGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
@@ -144,6 +160,27 @@ function onSlideControlsMouseLeave() {
 function onSlideContentDeleteClick() {
   console.log("confirm delete ...")
 }
+
+function onChangePosition(newPos) {
+  if (props.slide.content && props.slide.content.position === newPos) {
+    submenuExpanded.value.position = false;
+    return;
+  }
+
+  cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_CONTENT_POSITION, { 
+    slideId: props.slide.id,
+    position: newPos
+  }).then(() => {
+    submenuExpanded.value.position = false;
+  })
+}
+
+watch(slideControlsExpanded, value => {
+  if (value === false) {
+    for (let submenuType in submenuExpanded.value)
+      submenuExpanded.value[submenuType] = false;
+  }
+});
 
 onMounted(() => {
   pswpInstance.on("dynamicCaptionMeasureSize", ({ captionEl, captionSize }) => {
@@ -258,7 +295,18 @@ onMounted(() => {
 
         <template v-if="slideControlsExpanded">
           <CmsButtonDelete @click="onSlideContentDeleteClick" deleteWhatText="slide content" />
-          <button class="button-position" style="font-size: 120%;">P</button>
+          <Transition name="submenu-toggle-transition">
+            <CmsButtonPosition v-if="!submenuExpanded.position" class="button-position" :alignPos="(slide.content && slide.content.position) || 'center'" :selected="true" @click="submenuExpanded.position = true" />
+          </Transition>
+          <Transition name="submenu-transition">
+            <div v-if="submenuExpanded.position" class="slide-content-controls-submenu">
+              <CmsButtonPosition class="submenu-item" alignPos="top start" :selected="positionButtonSelection.topLeft" @click="onChangePosition('top start')" />
+              <CmsButtonPosition class="submenu-item" alignPos="top end" :selected="positionButtonSelection.topRight" @click="onChangePosition('top end')" />
+              <CmsButtonPosition class="submenu-item" alignPos="bottom start" :selected="positionButtonSelection.bottomLeft" @click="onChangePosition('bottom start')" />
+              <CmsButtonPosition class="submenu-item" alignPos="bottom end" :selected="positionButtonSelection.bottomRight" @click="onChangePosition('bottom end')" />
+              <CmsButtonPosition class="submenu-item centered-in-grid" alignPos="center" :selected="positionButtonSelection.center" @click="onChangePosition('center')" />
+            </div>
+          </Transition>
           <button class="button-style" style="font-size: 120%;">S</button>
         </template>
       </div>
@@ -460,6 +508,12 @@ div.pswp__bg {
   transition-timing-function: ease-out;
 }
 
+.slide .content-outer .slide-content-controls .button-options:focus-visible {
+  outline-offset: -3px;
+  outline: 2px solid white;
+  border-radius: 1.5rem;
+}
+
 .slide .content-outer .slide-content-controls.expanded {
   width: 9rem;
   height: 6rem;
@@ -485,6 +539,17 @@ div.pswp__bg {
 .slide .content-outer .slide-content-controls .button-position {
   grid-row: 2;
   grid-column: 1;
+  opacity: 1;
+}
+
+.submenu-toggle-transition-leave-active,
+.submenu-toggle-transition-enter-active {
+  transition: opacity 0.15s ease-out;
+}
+
+.slide .content-outer .slide-content-controls .button-position.submenu-toggle-transition-enter-from,
+.slide .content-outer .slide-content-controls .button-position.submenu-toggle-transition-leave-to {
+  opacity: 0;
 }
 
 .slide .content-outer .slide-content-controls .button-style {
@@ -492,18 +557,29 @@ div.pswp__bg {
   grid-column: 3;
 }
 
-.slide.content-pos-top .content-outer .slide-content-controls { bottom: -1rem; }
-.slide.content-pos-top .content-outer .slide-content-controls.expanded { bottom: -4rem; }
+.slide.content-pos-top .content-outer .slide-content-controls { bottom: -2rem; }
+.slide.content-pos-top .content-outer .slide-content-controls.expanded { bottom: -5rem; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-close { grid-row: 1; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-delete { grid-row: 2; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-position { grid-row: 1; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-style { grid-row: 1; }
-.slide.content-pos-bottom .content-outer .slide-content-controls { top: -1rem; }
-.slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -4rem; }
-.slide.content-pos-start .content-outer .slide-content-controls { right: -1rem; }
-.slide.content-pos-start .content-outer .slide-content-controls.expanded { right: -4rem; }
-.slide.content-pos-end .content-outer .slide-content-controls { left: -1rem; }
-.slide.content-pos-end .content-outer .slide-content-controls.expanded { left: -4rem; }
+.slide.content-pos-bottom .content-outer .slide-content-controls { top: -2rem; }
+.slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -5rem; }
+.slide.content-pos-start .content-outer .slide-content-controls,
+.slide.content-pos-end .content-outer .slide-content-controls { left: calc(50% - 1.5rem); }
+.slide.content-pos-start .content-outer .slide-content-controls.expanded,
+.slide.content-pos-end .content-outer .slide-content-controls.expanded { left: calc(50% - 4.5rem); }
+
+@media (min-width: 768px) { 
+  .slide.content-pos-top .content-outer .slide-content-controls { bottom: -1rem; }
+  .slide.content-pos-top .content-outer .slide-content-controls.expanded { bottom: -4rem; }
+  .slide.content-pos-start .content-outer .slide-content-controls { right: -1rem; left: unset; }
+  .slide.content-pos-start .content-outer .slide-content-controls.expanded { right: -4rem; left: unset; }
+  .slide.content-pos-end .content-outer .slide-content-controls { left: -1rem; }
+  .slide.content-pos-end .content-outer .slide-content-controls.expanded { left: -4rem; }
+  .slide.content-pos-bottom .content-outer .slide-content-controls { top: -1rem; }
+  .slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -4rem; }
+}
 
 .slide .content-outer .slide-content-controls button {
   display: flex;
@@ -522,6 +598,62 @@ div.pswp__bg {
 
 .slide .content-outer .slide-content-controls.expanded button svg {
   transform: scale(1.2);
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  grid: 1fr 1fr / 1fr 1fr;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 1.5rem;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-leave-to {
+  width: 0;
+  height: 0;
+}
+
+.slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu { 
+  top: 0;
+  bottom: unset;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu .submenu-item {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  opacity: 1;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu .submenu-item.centered-in-grid {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.25rem;
+  height: 2rem;
+  transform: translate(-50%, -50%);
+}
+
+.submenu-transition-leave-active, 
+.submenu-transition-enter-active {
+  transition-property: width, height, opacity;
+  transition-timing-function: ease-out;
+  transition-duration: 0.15s;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from .submenu-item,
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-leave-to .submenu-item {
+  width: 0;
+  height: 0;
+  opacity: 0;
 }
 /* /CMS */
 </style>

@@ -261,6 +261,25 @@ async function startServer() {
     }
   })
 
+  app.post('/rest/adventure/:adventureId/slide/:slideId/content', upload.fields(["contentPosition"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            slideContent = {
+              content: {
+                position: req.body.contentPosition
+              }
+            }
+
+      await updateOneSlideContent(adventureId, slideId, slideContent)
+      
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
   // Request non-existent image in the adventure directory, possibly creating a scaled version of an existing original image
   app.get('/img/:adventureId/:filename', async (req, res) => {
     try {

@@ -193,7 +193,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_CONTENT, (
       messages.value[currentLocale][headlineTextModule] = headline;
       messages.value[currentLocale][contentTextModule] = content.text;
     }
-  })
+  });
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.REMOVE_SLIDE, slideId => {
@@ -266,7 +266,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
         height: imgHeight
       });
     });
-  })
+  });
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, ({ slideId, src }) => {
@@ -287,7 +287,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
           imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(src)).test(galleryImg.src));
 
     slideToChange.gallery.images.splice(imgIndex, 1);
-  })
+  });
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, ({ slideId, imageId, captionTextModule }, resolve) => {
@@ -310,7 +310,29 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
     slideToChange.gallery.images[imgIndex].caption = captionTextModule;
 
     resolve();
-  })
+  });
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_CONTENT_POSITION, ({ slideId, position }, resolve) => {
+  const formData = new FormData();
+
+  formData.append("contentPosition", position);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/content`, {
+    method: "POST",
+    body: formData
+  }).then(res => {
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
+    }
+
+    const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+    slideToChange.content.position = position;
+
+    resolve();
+  });
 });
 /* /CMS */
 
