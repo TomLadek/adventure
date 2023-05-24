@@ -618,14 +618,27 @@ div.pswp__bg {
   height: 100%;
   bottom: 0;
   left: 0;
+  opacity: 1;
   background: rgba(0, 0, 0, 0.85);
   border-radius: 1.5rem;
 }
 
 .slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
 .slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-leave-to {
+  opacity: 0;
   width: 0;
   height: 0;
+  left: 1rem;
+  bottom: 1.5rem;
+}
+
+.slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
+.slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-leave-to {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  top: 1.5rem;
+  bottom: unset;
 }
 
 .slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu { 
@@ -639,6 +652,9 @@ div.pswp__bg {
   min-width: 0;
   min-height: 0;
   opacity: 1;
+  transition-property: width, height, opacity;
+  transition-timing-function: ease-out;
+  transition-duration: .15s;
 }
 
 .slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu .submenu-item.centered-in-grid {
@@ -652,9 +668,9 @@ div.pswp__bg {
 
 .submenu-transition-leave-active, 
 .submenu-transition-enter-active {
-  transition-property: width, height, opacity;
+  transition-property: width, height, top, bottom, left, right, opacity;
   transition-timing-function: ease-out;
-  transition-duration: 0.15s;
+  transition-duration: .15s;
 }
 
 .slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from .submenu-item,
