@@ -563,10 +563,14 @@ div.pswp__bg {
 .slide.content-pos-top .content-outer .slide-content-controls .button-delete { grid-row: 2; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-position { grid-row: 1; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-style { grid-row: 1; }
+.slide.content-pos-center .content-outer .slide-content-controls,
 .slide.content-pos-bottom .content-outer .slide-content-controls { top: -2rem; }
+.slide.content-pos-center .content-outer .slide-content-controls.expanded,
 .slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -5rem; }
+.slide.content-pos-center .content-outer .slide-content-controls,
 .slide.content-pos-start .content-outer .slide-content-controls,
 .slide.content-pos-end .content-outer .slide-content-controls { left: calc(50% - 1.5rem); }
+.slide.content-pos-center .content-outer .slide-content-controls.expanded,
 .slide.content-pos-start .content-outer .slide-content-controls.expanded,
 .slide.content-pos-end .content-outer .slide-content-controls.expanded { left: calc(50% - 4.5rem); }
 
@@ -575,9 +579,13 @@ div.pswp__bg {
   .slide.content-pos-top .content-outer .slide-content-controls.expanded { bottom: -4rem; }
   .slide.content-pos-start .content-outer .slide-content-controls { right: -1rem; left: unset; }
   .slide.content-pos-start .content-outer .slide-content-controls.expanded { right: -4rem; left: unset; }
+  .slide.content-pos-center .content-outer .slide-content-controls,
   .slide.content-pos-end .content-outer .slide-content-controls { left: -1rem; }
+  .slide.content-pos-center .content-outer .slide-content-controls.expanded,
   .slide.content-pos-end .content-outer .slide-content-controls.expanded { left: -4rem; }
+  .slide.content-pos-center .content-outer .slide-content-controls,
   .slide.content-pos-bottom .content-outer .slide-content-controls { top: -1rem; }
+  .slide.content-pos-center .content-outer .slide-content-controls.expanded,
   .slide.content-pos-bottom .content-outer .slide-content-controls.expanded { top: -4rem; }
 }
 
