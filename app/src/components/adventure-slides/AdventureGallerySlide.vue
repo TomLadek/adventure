@@ -634,9 +634,6 @@ div.pswp__bg {
 
 .slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
 .slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-leave-to {
-  opacity: 0;
-  width: 0;
-  height: 0;
   top: 1.5rem;
   bottom: unset;
 }
