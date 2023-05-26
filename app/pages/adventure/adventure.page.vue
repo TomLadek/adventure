@@ -114,7 +114,7 @@ const slides = computed(() => (adventure.value.slides || []).map((slide) => {
   }
 
   if (slide.gallery) {
-    slide.gallery.images = slide.gallery.images.map((galleryImg) => {
+    slide.gallery.images = (slide.gallery.images || []).map((galleryImg) => {
       if (!/^\/img\//.test(galleryImg.src)) {
         galleryImg.id = getIdFromSrc(galleryImg.src);
         galleryImg.srcset = gallerySrcSet(adventure.value.meta.id, galleryImg.src);
@@ -352,8 +352,10 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY
 
     const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
 
-    if (slideToChange.gallery)
-      slideToChange.gallery.style = style;
+    if (!slideToChange.gallery)
+      slideToChange.gallery = {};
+
+    slideToChange.gallery.style = style;
 
     resolve();
   });
