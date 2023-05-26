@@ -1,13 +1,16 @@
 import { MongoClient, ObjectId } from "mongodb"
 import { escapeRegExp, getPrimitiveValues, getRandomId } from "../utils-node/utils.js"
 
-const slideTextModuleFields = [
+const slideContentTextModuleFields = [
   "slides.headline",
   "slides.subheadline",
   "slides.content.text",
-  "slides.mainImg.caption",
   "slides.gallery.images.caption"
 ]
+
+const slideTextModuleFields = [
+  "slides.mainImg.caption"
+].concat(slideContentTextModuleFields)
 
 const textModuleFields = [
   "meta.title",
@@ -220,12 +223,74 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   try {
     const adventuresColl = getCollection("adventures"),
           res = await adventuresColl.updateOne({
-      _id: new ObjectId(adventureId),
-      "slides.id": slideId
-    }, updateDocument)
+            _id: new ObjectId(adventureId),
+            "slides.id": slideId
+          }, updateDocument)
 
     if (res.matchedCount !== 1)
       throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
+export async function updateOneRemoveSlideContent(adventureId, slideId) {
+  const adventuresColl = getCollection("adventures"),
+        adventureIdObj = new ObjectId(adventureId),
+        orphanedImages = []
+  
+  try {
+    // Find the adventure doc by its ID and return only the slide with the specified ID
+    const foundAdventure = await adventuresColl.findOne(
+      { _id: adventureIdObj, "slides.id": slideId },
+      { projection: { "slides.$": 1 } }
+    )
+
+    const slideContentTextsAggregate = await adventuresColl.aggregate([
+      { $match: { _id: new ObjectId(adventureId) } },
+      { $unwind: "$slides" },
+      { $match: { "slides.id": slideId } },
+      { 
+        $project: slideContentTextModuleFields.reduce((projectDoc, textModuleField) => {
+          projectDoc[textModuleField] = 1
+          return projectDoc
+        }, { "_id": 0 })
+      }
+    ]).next()
+
+    if (slideContentTextsAggregate)
+      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideContentTextsAggregate))
+
+    // Collect all gallery images that are referenced in the slide
+    if (foundAdventure.slides && foundAdventure.slides.length > 0) {
+      const oldSlide = foundAdventure.slides[0]
+
+      if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
+        for (let galleryImg of oldSlide.gallery.images) {
+          if (galleryImg.src)
+            orphanedImages.push(galleryImg.src)
+        }
+      }
+    }
+
+    // Do the actual doc update
+    await adventuresColl.updateOne(
+      {
+        _id: adventureIdObj,
+        "slides.id": slideId
+      },
+      {
+        $unset: {
+          "slides.$.headline": "",
+          "slides.$.content": "",
+          "slides.$.gallery": ""
+        }
+      }
+    )
+
+    console.log(`Removed content of slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
+    return orphanedImages
   } catch (ex) {
     console.error(ex)
     throw ex

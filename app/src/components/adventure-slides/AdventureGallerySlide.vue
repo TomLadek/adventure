@@ -14,6 +14,7 @@ import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 /* CMS */
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
+import { useConfirmationStore } from "../../stores/confirmation";
 import CmsAdventureItemButtonNew from "../buttons/CmsAdventureItemButtonNew.vue";
 import CmsEditableText from "../CmsEditableText.vue";
 import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
@@ -34,9 +35,7 @@ const props = defineProps({
   }
 });
 
-const slideClass = computed(() => {
-  return props.slide.content && props.slide.content.position.split(" ").map(pos => `content-pos-${pos}`)
-})
+const slideClass = computed(() => props.slide.content && props.slide.content.position && props.slide.content.position.split(" ").map(pos => `content-pos-${pos}`)) || null
 
 const slideContentClass = computed(() => {
   const baseClass = {
@@ -123,7 +122,8 @@ watch(locale, initGallery);
 onMounted(initGallery);
 
 /* CMS */
-const slideControlsExpanded = ref(false),
+const confirmationStore = useConfirmationStore(),
+      slideControlsExpanded = ref(false),
       firstGalleryImgInput = ref(null),
       submenuExpanded = ref({
         position: false,
@@ -169,7 +169,15 @@ function onSlideControlsMouseLeave() {
 }
 
 function onSlideContentDeleteClick() {
-  console.log("confirm delete ...")
+  confirmationStore.getConfirmation(
+    "Remove slide content",
+    `
+      <p>Are you sure you want to remove content of slide <b style="white-space: nowrap;">${props.slide.id}</b>?</p>
+      <p>This will also remove all gallery images and their captions.</p>
+      <p style="color:red">THIS CANNOT BE UNDONE!</p>
+    `,
+    () => cmsControlsStore.action(cmsControlsStore.actions.DEL_SLIDE_CONTENT, { slideId : props.slide.id })
+  )
 }
 
 function onChangePosition(newPos) {

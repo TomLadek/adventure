@@ -194,6 +194,7 @@ function processContent(htmlContent) {
 }
 
 watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
+watch(() => props.textModule, () => editor.value.commands.setContent(translatedText.value));
 
 if (props.focusAction)
   watch(props.focusAction, () => editor.value.commands.focus());

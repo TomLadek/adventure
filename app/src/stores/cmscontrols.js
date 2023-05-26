@@ -19,7 +19,8 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           ADD_SLIDE_GALLERY_IMG_CAPTION: "addSlideGalleryImgCaption",
           EDIT_TEXT: "editText",
           CHANGE_SLIDE_CONTENT_POSITION: "changeSlideContentPosition",
-          CHANGE_SLIDE_GALLERY_STYLE: "changeSlideGalleryStyle"
+          CHANGE_SLIDE_GALLERY_STYLE: "changeSlideGalleryStyle",
+          DEL_SLIDE_CONTENT: "removeSlideContent"
         },
         actionArgs = Object.values(actions).reduce((actArgs, act) => {
           actArgs[act] = ref(null);

@@ -358,6 +358,21 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY
     resolve();
   });
 });
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_CONTENT, ({ slideId }) => {
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/content`, {
+    method: "DELETE"
+  }).then(res => {
+    if (res.status === 200) {
+      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+      slideToChange.headline = "";
+      delete slideToChange.content;
+      delete slideToChange.gallery;
+    }
+  });
+});
+
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));

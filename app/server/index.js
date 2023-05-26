@@ -69,6 +69,7 @@ async function startServer() {
     updateOneSlideGalleryAddImg,
     updateOneSlideGalleryRemoveImg,
     updateOneSlideGalleryAddImgCaption,
+    updateOneRemoveSlideContent,
     updateOneText,
     closeDb
   } = await import('../database/db.js')
@@ -165,6 +166,23 @@ async function startServer() {
       await updateOneSlideContent(adventureId, req.params.slideId, slideContent, req.body.locale)
 
       res.status(201).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  // Remove slide content
+  app.delete('/rest/adventure/:adventureId/slide/:slideId/content', async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId
+
+      const orphanedImages = await updateOneRemoveSlideContent(adventureId, slideId)
+
+      deleteAdventureImages(adventureId, orphanedImages)
+
+      res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
