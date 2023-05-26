@@ -329,7 +329,31 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_CONTENT
 
     const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
 
-    slideToChange.content.position = position;
+    if (slideToChange.content)
+      slideToChange.content.position = position;
+
+    resolve();
+  });
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_STYLE, ({ slideId, style }, resolve) => {
+  const formData = new FormData();
+
+  formData.append("style", style);
+
+  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/props`, {
+    method: "POST",
+    body: formData
+  }).then(res => {
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
+    }
+
+    const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+    if (slideToChange.gallery)
+      slideToChange.gallery.style = style;
 
     resolve();
   });

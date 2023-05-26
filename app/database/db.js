@@ -232,6 +232,32 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   }
 }
 
+export async function updateOneSlideGallery(adventureId, slideId, galleryProps) {
+  const updateDocument = { $set: {} }
+
+  if (galleryProps) {
+    if (galleryProps.style)
+      updateDocument.$set["slides.$.gallery.style"] = galleryProps.style
+  }
+
+  if (Object.keys(updateDocument.$set).length < 1)
+    return
+
+  try {
+    const adventuresColl = getCollection("adventures"),
+          res = await adventuresColl.updateOne({
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId
+    }, updateDocument)
+
+    if (res.matchedCount !== 1)
+      throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, imgWidth, imgHeight) {
   try {
     const adventuresColl = getCollection("adventures"),

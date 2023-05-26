@@ -65,6 +65,7 @@ async function startServer() {
     removeOneSlide,
     findImgReference,
     updateOneSlideContent,
+    updateOneSlideGallery,
     updateOneSlideGalleryAddImg,
     updateOneSlideGalleryRemoveImg,
     updateOneSlideGalleryAddImgCaption,
@@ -182,6 +183,22 @@ async function startServer() {
       moveFile(fileExt, req.file.path, adventureId, galleryImg)
 
       res.status(200).json({ok: true, src: galleryImg})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  // Change slide gallery properties
+  app.post('/rest/adventure/:adventureId/slide/:slideId/gallery/props', upload.fields(["style"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            style = req.body.style
+
+      await updateOneSlideGallery(adventureId, slideId, { style })
+
+      res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})

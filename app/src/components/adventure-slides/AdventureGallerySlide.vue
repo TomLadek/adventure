@@ -20,6 +20,7 @@ import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "../buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
 import CmsButtonPosition from "../buttons/CmsButtonPosition.vue";
+import CmsButtonGalleryStyle from "../buttons/CmsButtonGalleryStyle.vue";
 /* /CMS */
 </script>
 
@@ -125,7 +126,8 @@ onMounted(initGallery);
 const slideControlsExpanded = ref(false),
       firstGalleryImgInput = ref(null),
       submenuExpanded = ref({
-        position: false
+        position: false,
+        galleryStyle: false
       });
 
 let slideControlsExpandedTimeout = 0;
@@ -139,6 +141,15 @@ const positionButtonSelection = computed(() => {
     bottomLeft: pos === "bottom start" || pos === "start bottom",
     bottomRight: pos === "bottom end" || pos === "end bottom",
     center: pos === "center"
+  }
+});
+
+const galleryStyleButtonSelection = computed(() => {
+  const style = (props.slide.gallery && props.slide.gallery.style) || "row";
+
+  return {
+    grid: style === "grid",
+    row: style === "row"
   }
 });
 
@@ -172,7 +183,21 @@ function onChangePosition(newPos) {
     position: newPos
   }).then(() => {
     submenuExpanded.value.position = false;
-  })
+  });
+}
+
+function onChangeGalleryStyle(newStyle) {
+  if (props.slide.gallery && props.slide.gallery.style === newStyle) {
+    submenuExpanded.value.galleryStyle = false;
+    return;
+  }
+  
+  cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_STYLE, {
+    slideId: props.slide.id,
+    style: newStyle
+  }).then(() => {
+    submenuExpanded.value.galleryStyle = false;
+  });
 }
 
 watch(slideControlsExpanded, value => {
@@ -296,18 +321,26 @@ onMounted(() => {
         <template v-if="slideControlsExpanded">
           <CmsButtonDelete @click="onSlideContentDeleteClick" deleteWhatText="slide content" />
           <Transition name="submenu-toggle-transition">
-            <CmsButtonPosition v-if="!submenuExpanded.position" class="button-position" :alignPos="(slide.content && slide.content.position) || 'center'" :selected="true" @click="submenuExpanded.position = true" />
+            <CmsButtonPosition v-if="!submenuExpanded.position" class="button-position" title="Change slide content position" :alignPos="(slide.content && slide.content.position) || 'center'" :selected="true" @click="submenuExpanded.position = true" />
           </Transition>
           <Transition name="submenu-transition">
-            <div v-if="submenuExpanded.position" class="slide-content-controls-submenu">
-              <CmsButtonPosition class="submenu-item" alignPos="top start" :selected="positionButtonSelection.topLeft" @click="onChangePosition('top start')" />
-              <CmsButtonPosition class="submenu-item" alignPos="top end" :selected="positionButtonSelection.topRight" @click="onChangePosition('top end')" />
-              <CmsButtonPosition class="submenu-item" alignPos="bottom start" :selected="positionButtonSelection.bottomLeft" @click="onChangePosition('bottom start')" />
-              <CmsButtonPosition class="submenu-item" alignPos="bottom end" :selected="positionButtonSelection.bottomRight" @click="onChangePosition('bottom end')" />
-              <CmsButtonPosition class="submenu-item centered-in-grid" alignPos="center" :selected="positionButtonSelection.center" @click="onChangePosition('center')" />
+            <div v-if="submenuExpanded.position" class="slide-content-controls-submenu submenu-start">
+              <CmsButtonPosition class="submenu-item" title='Content position "top start"' alignPos="top start" :selected="positionButtonSelection.topLeft" @click="onChangePosition('top start')" />
+              <CmsButtonPosition class="submenu-item" title='Content position "top end"' alignPos="top end" :selected="positionButtonSelection.topRight" @click="onChangePosition('top end')" />
+              <CmsButtonPosition class="submenu-item" title='Content position "bottom start"' alignPos="bottom start" :selected="positionButtonSelection.bottomLeft" @click="onChangePosition('bottom start')" />
+              <CmsButtonPosition class="submenu-item" title='Content position "bottom end"' alignPos="bottom end" :selected="positionButtonSelection.bottomRight" @click="onChangePosition('bottom end')" />
+              <CmsButtonPosition class="submenu-item centered-in-grid" title='Content position "center"' alignPos="center" :selected="positionButtonSelection.center" @click="onChangePosition('center')" />
             </div>
           </Transition>
-          <button class="button-style" style="font-size: 120%;">S</button>
+          <Transition name="submenu-toggle-transition">
+            <CmsButtonGalleryStyle v-if="!submenuExpanded.galleryStyle" class="button-gallery-style" title="Change slide gallery type" :variant="(slide.gallery && slide.gallery.style) || 'row'" :selected="true" @click="submenuExpanded.galleryStyle = true" />
+          </Transition>
+          <Transition name="submenu-transition">
+            <div v-if="submenuExpanded.galleryStyle" class="slide-content-controls-submenu submenu-end">
+              <CmsButtonGalleryStyle class="submenu-item" title='Gallery style "row"' variant="row" :selected="galleryStyleButtonSelection.row" @click="onChangeGalleryStyle('row')" />
+              <CmsButtonGalleryStyle class="submenu-item" title='Gallery style "grid"' variant="grid" :selected="galleryStyleButtonSelection.grid" @click="onChangeGalleryStyle('grid')" />
+            </div>
+          </Transition>
         </template>
       </div>
     </div>
@@ -552,7 +585,7 @@ div.pswp__bg {
   opacity: 0;
 }
 
-.slide .content-outer .slide-content-controls .button-style {
+.slide .content-outer .slide-content-controls .button-gallery-style {
   grid-row: 2;
   grid-column: 3;
 }
@@ -562,7 +595,7 @@ div.pswp__bg {
 .slide.content-pos-top .content-outer .slide-content-controls .button-close { grid-row: 1; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-delete { grid-row: 2; }
 .slide.content-pos-top .content-outer .slide-content-controls .button-position { grid-row: 1; }
-.slide.content-pos-top .content-outer .slide-content-controls .button-style { grid-row: 1; }
+.slide.content-pos-top .content-outer .slide-content-controls .button-gallery-style { grid-row: 1; }
 .slide.content-pos-center .content-outer .slide-content-controls,
 .slide.content-pos-bottom .content-outer .slide-content-controls { top: -2rem; }
 .slide.content-pos-center .content-outer .slide-content-controls.expanded,
@@ -612,15 +645,23 @@ div.pswp__bg {
   display: grid;
   align-items: center;
   justify-items: center;
-  grid: 1fr 1fr / 1fr 1fr;
+  grid: 'grid-auto-rows' / 1fr 1fr;
   position: absolute;
   width: 100%;
   height: 100%;
   bottom: 0;
-  left: 0;
   opacity: 1;
   background: rgba(0, 0, 0, 0.85);
   border-radius: 1.5rem;
+  z-index: 1;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-start {
+  left: 0;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-end {
+  right: 0;
 }
 
 .slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
@@ -628,8 +669,17 @@ div.pswp__bg {
   opacity: 0;
   width: 0;
   height: 0;
-  left: 1rem;
   bottom: 1.5rem;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-start.submenu-transition-enter-from,
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-start.submenu-transition-leave-to {
+  left: 1rem;
+}
+
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-end.submenu-transition-enter-from,
+.slide .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-end.submenu-transition-leave-to {
+  right: 1rem;
 }
 
 .slide.content-pos-top .content-outer .slide-content-controls.expanded .slide-content-controls-submenu.submenu-transition-enter-from,
