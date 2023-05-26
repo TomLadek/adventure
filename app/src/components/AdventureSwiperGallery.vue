@@ -70,7 +70,7 @@ function onImgDeleteClick(src) {
 
   confirmationStore.getConfirmation(
     `Remove image`,
-    `Are you sure you want to remove image <b>${imgName}</b>? This will also delete its caption in all languages.`,
+    `<p>Are you sure you want to remove image <b style="white-space: nowrap;">${imgName}</b>? This will also delete its caption in all languages.</p>`,
     () => cmsControlsStore.action(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, { slideId: props.slideId, src: imgName })
   )
 }

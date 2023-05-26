@@ -66,7 +66,7 @@ function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
     `Remove slide`,
     `
-      <p>Are you sure you want to remove slide <b>${props.slide.id}</b>?</p>
+      <p>Are you sure you want to remove slide <b style="white-space: nowrap;">${props.slide.id}</b>?</p>
       <p>This will also remove any contents of that slide including all gallery images, text, etc.</p>
       <p style="color:red">THIS CANNOT BE UNDONE!</p>
     `,
