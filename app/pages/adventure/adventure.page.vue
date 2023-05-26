@@ -305,9 +305,12 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
     }
 
     const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-          imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src));
+          galleryImgIndex = slideToChange.gallery && slideToChange.gallery.images && slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src));
 
-    slideToChange.gallery.images[imgIndex].caption = captionTextModule;
+    if (galleryImgIndex >= 0)
+      slideToChange.gallery.images[galleryImgIndex].caption = captionTextModule;
+    else
+      slideToChange.mainImg.caption = captionTextModule;
 
     resolve();
   });
