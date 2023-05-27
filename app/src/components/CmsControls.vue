@@ -1,5 +1,4 @@
 <script>
-import { defineProps } from "vue";
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
 </script>
 
@@ -15,25 +14,75 @@ const cmsControlsStore = useCmsControlsStore();
 </script>
 
 <template>
-<div class="cms-controls" data-id-cmspanel>
-  <p data-id-cmsheadline>CMS controls</p>
-  <p>
-    <label>Edit mode:
-      <input type="checkbox" v-model="cmsControlsStore.editMode" data-id-cmscheckbox>
-    </label>
-  </p>
+<div class="cms-controls">
+  <p class="cms-controls-title">CMS controls</p>
+  <div class="cms-controls-input">
+    <label for="input-edit-mode">Edit mode:</label>
+    <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
+  </div>
 </div>
 </template>
 
 <style>
-.cms-controls[data-id-cmspanel] {
+.cms-controls {
   z-index: 100;
   position: fixed;
   left: 1rem;
   top: 1rem;
-  padding: 1rem;
-  border: 1px solid black;
-  color: initial;
-  background: #fff;
+  padding: 1.5rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.68);
+  border-radius: 1.5rem;
+}
+
+.cms-controls-title {
+  font-size: 120%;
+}
+
+.cms-controls-toggle {
+  position: relative;
+  margin: 0;
+  width: 2.5rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.cms-controls-toggle:before {
+  content: "";
+  display: inline-block;
+  width: 2.5rem;
+  height: 1.25rem;
+  border-radius: 0.5rem;
+  background-color: rgb(102, 102, 102);
+  transition: background-color 0.15s ease-out;
+}
+
+.cms-controls-toggle.toggle-on:before {
+  background-color: rgb(0, 130, 216);
+}
+
+.cms-controls-toggle:after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.1rem;
+  background: white;
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  transition-property: left;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+}
+
+.cms-controls-toggle.toggle-on:after {
+  left: calc(1.5rem - 2px);
+}
+
+.cms-controls-input {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 </style>
