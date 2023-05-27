@@ -1,5 +1,5 @@
 <script>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 
 import AdventureGallerySlide from "./adventure-slides/AdventureGallerySlide.vue";
 import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
@@ -8,6 +8,9 @@ import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 import { useConfirmationStore } from "../stores/confirmation.js";
 import { useCmsControlsStore } from "../stores/cmscontrols";
 import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
+import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
+import CmsButtonClose from "./buttons/CmsButtonClose.vue";
+import CmsButtonDelete from "./buttons/CmsButtonDelete.vue";
 /* /CMS */
 
 function getCssUrlString(url) {
@@ -60,7 +63,8 @@ const slideType = computed(() => {
 
 /* CMS */
 const confirmationStore = useConfirmationStore(),
-      cmsControlsStore = useCmsControlsStore();
+      cmsControlsStore = useCmsControlsStore(),
+      slideControlsExpanded = ref(false);
 
 function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
@@ -97,7 +101,15 @@ function onNewSlideContentClick() {
     </template>
 
     <template #cmsRemoveSlideButton>
-      <button v-if="cmsControlsStore.editMode" class="cms-remove-slide-button" @click="onRemoveSlideClick">Remove</button>
+      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="false && onSlideControlsMouseLeave">
+        <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
+
+        <template v-if="slideControlsExpanded">
+          <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
+        </template>
+        
+        <CmsButtonClose v-if="slideControlsExpanded" @click="slideControlsExpanded = false"/>
+      </div>
     </template>
     <!-- /CMS -->
   </component>
@@ -213,12 +225,6 @@ function onNewSlideContentClick() {
 }
 
 /* CMS */
-.slide .cms-remove-slide-button {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-}
-
 .slide .cms-new-slide-content-outer {
   position: absolute;
   bottom: 3rem;
@@ -241,6 +247,49 @@ function onNewSlideContentClick() {
 
 .slide .cms-new-slide-content-outer .cms-new-slide-content-button:hover {
   background-color: #a8a8a899;
+}
+
+.slide .slide-controls {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 0;
+  width: 3rem;
+  height: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-evenly;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(3px);
+  transition: height 0.15s ease-out;
+}
+
+@media (min-width: 768px) {
+  .slide .slide-controls {
+    bottom: 0;
+    border-bottom-left-radius: initial;
+  }  
+}
+
+.slide .slide-controls.expanded {
+  height: 8rem;
+}
+
+.slide .slide-controls button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: white;
+}
+
+.slide .slide-controls button svg {
+  fill: white;
+  transform: scale(1.4);
 }
 /* /CMS */
 </style>

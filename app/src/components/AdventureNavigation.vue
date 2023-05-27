@@ -50,9 +50,9 @@ const props = defineProps({
   .dots {
     flex-direction: column;
     gap: 0.5rem;
-    height: 100%;
     right: 0.8rem;
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 
