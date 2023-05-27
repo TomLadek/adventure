@@ -31,8 +31,9 @@ const cmsControlsStore = useCmsControlsStore();
   top: 1rem;
   padding: 1.5rem;
   color: #fff;
-  background: rgba(0, 0, 0, 0.68);
   border-radius: 1.5rem;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(4px);
 }
 
 .cms-controls-title {
