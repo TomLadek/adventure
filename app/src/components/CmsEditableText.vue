@@ -94,19 +94,6 @@ const editor = useEditor({
   onBeforeCreate() {
     editorReady.value = true;
   },
-  onCreate() {
-    tippyInstance = tippy(cmsTextEditor.value.rootEl, {
-      // appendTo: document.body, // no wrapping, nicer background blur - but bad accessibility
-      arrow: false,
-      content: cmsTextEditorControls.value,
-      interactive: true,
-      hideOnClick: false,
-      placement: "top-start",
-      trigger: "manual",
-      offset: [-4, 4],
-      onCreate: () => cmsTextEditorControls.value.style.display = ""
-    });
-  },
   onUpdate({ editor }) {
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
 
@@ -148,10 +135,12 @@ function checkShouldHideControls() {
   setTimeout(() => {
     let someHaveFocus = editor.value.isFocused;
 
-    cmsTextEditorControls.value
-      .querySelectorAll("[data-editor-action]")
-      .forEach(editorAction => someHaveFocus |= document.activeElement === editorAction);
-
+    if (cmsTextEditorControls.value) {
+      cmsTextEditorControls.value
+        .querySelectorAll("[data-editor-action]")
+        .forEach(editorAction => someHaveFocus |= document.activeElement === editorAction);
+    }
+      
     if (!someHaveFocus)
       cmsEditorControlsShown.value = false;
   }, 100);
@@ -200,14 +189,32 @@ if (props.focusAction)
   watch(props.focusAction, () => editor.value.commands.focus());
 
 watch(cmsEditorControlsShown, (shown) => {
-  if (!tippyInstance)
-    return;
+  if (!tippyInstance) {
+    tippyInstance = tippy(cmsTextEditor.value.rootEl, {
+        // appendTo: document.body, // no wrapping, nicer background blur - but bad accessibility
+        arrow: false,
+        content: cmsTextEditorControls.value,
+        interactive: true,
+        hideOnClick: false,
+        placement: "top-start",
+        trigger: "manual",
+        offset: [-4, 4],
+        onCreate: () => cmsTextEditorControls.value.style.display = ""
+      });
+  }
 
   if (shown)
     tippyInstance.show();
   else
     tippyInstance.hide();
-})
+});
+
+watch(realTextDisplay, (showRealText) => {
+  if (showRealText && tippyInstance) {
+    tippyInstance.destroy();
+    tippyInstance = null;
+  }
+});
 /* /CMS */
 </script>
 
