@@ -95,7 +95,8 @@ function initGallery() {
 
   pswpInstance.on("destroy", () => {
     // Re-enable full page scroll events
-    window.fs.addEvents();
+    if (window.fs.defaults.active)
+      window.fs.addEvents();
   });
 
   pswpInstance.init();
