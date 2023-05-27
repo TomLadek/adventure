@@ -66,6 +66,16 @@ const confirmationStore = useConfirmationStore(),
       cmsControlsStore = useCmsControlsStore(),
       slideControlsExpanded = ref(false);
 
+let slideControlsExpandedTimeout = 0;
+
+function onSlideControlsMouseEnter() {
+  clearTimeout(slideControlsExpandedTimeout)
+}
+
+function onSlideControlsMouseLeave() {
+  slideControlsExpandedTimeout = setTimeout(() => slideControlsExpanded.value = false, 1000);
+}
+
 function onRemoveSlideClick() {
   confirmationStore.getConfirmation(
     `Remove slide`,
@@ -101,7 +111,7 @@ function onNewSlideContentClick() {
     </template>
 
     <template #cmsRemoveSlideButton>
-      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="false && onSlideControlsMouseLeave">
+      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
         <template v-if="slideControlsExpanded">
