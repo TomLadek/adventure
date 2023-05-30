@@ -119,14 +119,15 @@ function onBeforeLeave(element) {
 
       <!-- CMS -->
       <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
-        <CmsOptionsButton @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]" />
+        <CmsOptionsButton v-if="!imgControlsExpanded[image.src]" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]" />
 
-        <CmsButtonDelete @click="onImgDeleteClick(image.src)" deleteWhatText="image" />
-
-        <div class="button-close-container">
-          <CmsButtonClose @click="imgControlsExpanded[image.src] = false"/>
+        <Transition name="expand-width">
+          <div class="gallery-img-controls-actions" v-if="imgControlsExpanded[image.src]">
+            <CmsButtonClose @click="imgControlsExpanded[image.src] = false"/>
+            <CmsButtonDelete @click="onImgDeleteClick(image.src)" deleteWhatText="image" />
+          </div>
+        </Transition>
         </div>
-      </div>
       <!-- /CMS -->
     </div>
   </TransitionGroup>
@@ -134,7 +135,7 @@ function onBeforeLeave(element) {
   <!-- CMS -->
   <div v-if="showNewGalleryImgButton" class="cms-new-gallery-image-outer">
     <CmsAdventureItemButtonNew class="cms-new-gallery-image-button" @click="nextGalleryImgInput.click()" size="small" />
-    <input type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
+    <input class="cms-new-gallery-image-input" type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
   </div>
   <!-- /CMS -->
 </div>
@@ -149,12 +150,6 @@ function onBeforeLeave(element) {
   min-height: calc(4rem + 10px);
   overflow-x: scroll;
   position: relative;
-}
-
-@media (min-width: 768px) {
-  .gallery-thumbs {
-    max-width: 30rem;
-  }
 }
 
 .gallery-thumbs .gallery-original-link:hover .gallery-img, .gallery-thumbs .gallery-original-link:focus-visible .gallery-img {
@@ -177,13 +172,13 @@ function onBeforeLeave(element) {
 }
 
 .gallery-thumbs.row .gallery-img {
-  height: 4rem;
   width: auto;
+  height: 4rem;
 }
 
 .gallery-thumbs.grid .gallery-img {
-  height: 4rem;
   width: 4rem;
+  height: 4rem;
 }
 
 @media (orientation: landscape) {
@@ -216,8 +211,8 @@ function onBeforeLeave(element) {
     }
   
     .gallery-thumbs.grid .gallery-img {
-      height: 6rem;
       width: 6rem;
+      height: 6rem;
     }    
 
     .gallery-thumbs.row .gallery-img {
@@ -227,11 +222,9 @@ function onBeforeLeave(element) {
 }
 
 @media (orientation: portrait) {
-  @media (min-height: 525px) {
-    .gallery-thumbs.grid .gallery-img {
-      height: 4rem;
-      width: auto;
-    }
+  .gallery-thumbs.grid .gallery-img {
+    width: auto;
+    height: 4rem;
   }
   
   @media (min-height: 768px) {
@@ -250,8 +243,8 @@ function onBeforeLeave(element) {
     }
 
     .gallery-thumbs.grid .gallery-img {
-      height: 6rem;
       width: 6rem;
+      height: 6rem;
     }
 
     .gallery-thumbs.row .gallery-img {
@@ -270,7 +263,6 @@ function onBeforeLeave(element) {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
   width: 24px;
   overflow-x: hidden;
   background: rgba(0, 0, 0, 0.68);
@@ -278,7 +270,6 @@ function onBeforeLeave(element) {
   backdrop-filter: blur(3px);
   padding: 0.2rem;
   display: flex;
-  gap: 0.2rem;
   border-top-left-radius: 8px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 8px;
@@ -288,9 +279,27 @@ function onBeforeLeave(element) {
 }
 
 .gallery-thumbs .gallery-img-controls.expanded {
-  width: calc(100% - 0.2rem * 2);  
+  width: calc(100% - 0.2rem * 2); /**/
   border-top-right-radius: 8px;
   border-bottom-right-radius: 0;
+}
+
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions {
+  width: calc(48px + 0.2rem);
+  display: flex;
+  gap: 0.2rem;
+  overflow-x: auto;
+}
+
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions.expand-width-enter-active,
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions.expand-width-leave-active {
+  transition: width 0.15s ease-out;
+  overflow-x: hidden;
+}
+
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions.expand-width-enter-from,
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions.expand-width-leave-to {
+  width: 0;
 }
 
 .gallery-thumbs .gallery-img-controls button {
@@ -310,10 +319,6 @@ function onBeforeLeave(element) {
   transition: width, 0.15s ease-out;
 }
 
-.gallery-thumbs .gallery-img-controls.expanded .button-options {
-  width: 0;
-}
-
 .gallery-thumbs .gallery-img-controls .button-close-container {
   display: flex;
   width: 100%;
@@ -324,9 +329,14 @@ function onBeforeLeave(element) {
   position: relative;
 }
 
-.slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
-  width: 6rem;
-  height: 4rem;
+.cms-new-gallery-image-input {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+.cms-new-gallery-image-button {
   background: rgba(0, 0, 0, 0.2);
   border: 2px dashed black;
   border-radius: 1rem;
@@ -334,50 +344,51 @@ function onBeforeLeave(element) {
   transition: background-color 0.1s ease;
 }
 
-.slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+.gallery-thumbs.row .cms-new-gallery-image-button {
+  width: 6rem;
+  height: 4rem;
+}
+
+.gallery-thumbs.grid .cms-new-gallery-image-button {
   width: 4rem;
   height: 4rem;
 }
 
-@media (orientation: landscape) {
-  @media (min-height: 600px) {
-    .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+@media (orientation: landscape) {  
+  @media (min-height: 600px) {  
+    .gallery-thumbs.grid .cms-new-gallery-image-button {
+      width: 6rem;
+      height: 6rem;
+    }    
+
+    .gallery-thumbs.row .cms-new-gallery-image-button {
       width: 9rem;
       height: 6rem;
-    }
+    }  
   }
 }
 
 @media (orientation: portrait) {
-  @media (min-height: 525px) {
-    .slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
-      width: 6rem;
-      height: 4rem;
-    }
+  .gallery-thumbs.grid .cms-new-gallery-image-button {
+    width: 6rem;
+    height: 4rem;
   }
-
+  
   @media (min-height: 768px) {
-    .slide .cms-new-gallery-image-outer .cms-new-gallery-image-button {
+    .gallery-thumbs.grid .cms-new-gallery-image-button {
+      width: 6rem;
+      height: 6rem;
+    }    
+
+    .gallery-thumbs.row .cms-new-gallery-image-button {
       width: 9rem;
       height: 6rem;
     }
-
-    .slide .gallery-thumbs.grid .cms-new-gallery-image-outer .cms-new-gallery-image-button {
-      width: 6rem;
-      height: 6rem;
-    }
   }
 }
 
-.slide .cms-new-gallery-image-outer .cms-new-gallery-image-button:hover {
+.cms-new-gallery-image-outer .cms-new-gallery-image-button:hover {
   background-color: #57575752;
-}
-
-.slide .cms-new-gallery-image-outer input[type=file] {
-  position: absolute;
-  visibility: hidden;
-  width: 0;
-  height: 0;
 }
 
 .image-list-move,
