@@ -58,8 +58,16 @@ const cmsControlsStore = useCmsControlsStore();
   transition: background-color 0.15s ease-out;
 }
 
+.cms-controls-toggle:hover::before {
+    background: rgb(137 137 137);
+}
+
 .cms-controls-toggle.toggle-on:before {
   background-color: rgb(0, 130, 216);
+}
+
+.cms-controls-toggle.toggle-on:hover::before {
+    background: rgb(33 156 238);
 }
 
 .cms-controls-toggle:after {

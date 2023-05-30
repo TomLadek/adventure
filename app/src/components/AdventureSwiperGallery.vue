@@ -112,6 +112,7 @@ function onBeforeLeave(element) {
           :height="image.height"
           :alt="image.caption && getCaptionText(t(image.caption))"
           :data-caption="image.caption || 'none'"
+          class="gallery-img"
           loading="lazy"
         />
       </a>
@@ -140,7 +141,7 @@ function onBeforeLeave(element) {
 </template>
 
 <style>
-.gallery-thumbs.row, .gallery-thumbs.grid {
+.gallery-thumbs {
   display: flex;
   gap: 0.5rem;
   margin: 0 auto;
@@ -156,18 +157,31 @@ function onBeforeLeave(element) {
   }
 }
 
+.gallery-thumbs .gallery-original-link:hover .gallery-img, .gallery-thumbs .gallery-original-link:focus-visible .gallery-img {
+    transform: scale(1.04);
+}
+
+.gallery-thumbs .gallery-img {
+    transition: transform 0.3s ease-out;
+}
+
+.gallery-thumbs .gallery-original-link {
+    overflow: hidden;
+    display: inline-block;
+    border-radius: 8px;
+}
+
 .gallery-thumbs img {
   display: block;
   object-fit: cover;
-  border-radius: 8px;
 }
 
-.gallery-thumbs.row img {
+.gallery-thumbs.row .gallery-img {
   height: 4rem;
   width: auto;
 }
 
-.gallery-thumbs.grid img {
+.gallery-thumbs.grid .gallery-img {
   height: 4rem;
   width: 4rem;
 }
@@ -201,12 +215,12 @@ function onBeforeLeave(element) {
       grid-template-rows: repeat(2, 6rem);
     }
   
-    .gallery-thumbs.grid img {
+    .gallery-thumbs.grid .gallery-img {
       height: 6rem;
       width: 6rem;
     }    
 
-    .gallery-thumbs.row img {
+    .gallery-thumbs.row .gallery-img {
       height: 6rem;
     }  
   }
@@ -214,7 +228,7 @@ function onBeforeLeave(element) {
 
 @media (orientation: portrait) {
   @media (min-height: 525px) {
-    .gallery-thumbs.grid img {
+    .gallery-thumbs.grid .gallery-img {
       height: 4rem;
       width: auto;
     }
@@ -235,12 +249,12 @@ function onBeforeLeave(element) {
       min-height: calc(6rem + 10px);
     }
 
-    .gallery-thumbs.grid img {
+    .gallery-thumbs.grid .gallery-img {
       height: 6rem;
       width: 6rem;
     }
 
-    .gallery-thumbs.row img {
+    .gallery-thumbs.row .gallery-img {
       height: 6rem;
     }    
   }

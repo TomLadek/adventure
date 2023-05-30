@@ -114,11 +114,10 @@ function onNewSlideContentClick() {
       <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
-        <template v-if="slideControlsExpanded">
+        <template v-else>
           <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
-        </template>
-        
-        <CmsButtonClose v-if="slideControlsExpanded" @click="slideControlsExpanded = false"/>
+          <CmsButtonClose @click="slideControlsExpanded = false"/>
+        </template>        
       </div>
     </template>
     <!-- /CMS -->
