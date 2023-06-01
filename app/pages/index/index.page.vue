@@ -1,7 +1,7 @@
 <script>
 import { ref } from "vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
-import CmsAdventureItemButtonNew from "../../src/components/CmsAdventureItemButtonNew.vue";
+import CmsAdventureItemButtonNew from "../../src/components/buttons/CmsAdventureItemButtonNew.vue";
 
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
