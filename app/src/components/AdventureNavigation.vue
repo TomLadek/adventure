@@ -81,7 +81,7 @@ ol.dots {
 
 @media (min-width: 768px) {
   .dots li {
-    widows: 1rem;
+    width: 1rem;
     height: 1rem;
     border-radius: 50%;
   }
