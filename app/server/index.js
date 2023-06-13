@@ -374,10 +374,11 @@ async function startServer() {
       if (!httpResponse)
         return next()
 
-      const { body, statusCode, contentType, earlyHints } = httpResponse
+      const { body, statusCode, contentType } = httpResponse
 
-      if (res.writeEarlyHints)
-        res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+      // nginx doesn't support this:
+      // if (res.writeEarlyHints)
+      //   res.writeEarlyHints({ link: httpResponse.earlyHints.map((e) => e.earlyHintLink) })
 
       res.status(statusCode).type(contentType).send(body)    
     } catch (ex) {
