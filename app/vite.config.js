@@ -33,5 +33,7 @@ export default defineConfig((configEnv) => {
     // conf.base = "/adventure/2023-myadventure"
   }
 
+  conf.base = "/adventure/staging"
+
   return conf;
 });
