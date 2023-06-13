@@ -376,7 +376,7 @@ async function startServer() {
 
       const { body, statusCode, contentType } = httpResponse
 
-      // nginx doesn't support this:
+      // Comment this in to speed up the requests a little. Warning: may break an nginx reverse proxy as of 2023-06!
       // if (res.writeEarlyHints)
       //   res.writeEarlyHints({ link: httpResponse.earlyHints.map((e) => e.earlyHintLink) })
 
