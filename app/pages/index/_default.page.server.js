@@ -5,7 +5,14 @@ export { onBeforeRender }
 async function onBeforeRender(pageContext) {
   console.log(`onBeforeRender (index) -- ${pageContext.urlPathname} -- ${pageContext.Page ? pageContext.Page.__name : ""}`)
 
-  const adventureList = await findAdventures()
+  let adventureList
+
+  try {
+    adventureList = await findAdventures()
+  } catch (ex) {
+    console.error(ex)
+    adventureList = []
+  }
 
   return {
     pageContext: {

@@ -363,22 +363,27 @@ async function startServer() {
   // IMPORTANT: Catch-all-route needs to be after /rest routes otherwise
   // vite-plugin-ssr tries to handle those as well.
   app.get('*', async (req, res, next) => {
-    const result = await renderPage({
-            urlOriginal: req.originalUrl
-          }),
-          { httpResponse } = result
+    try {
+      const result = await renderPage({
+              urlOriginal: req.originalUrl
+            }),
+            { httpResponse } = result
 
-    // console.log(`serving response for ${req.originalUrl}:`, result)
+      // console.log(`serving response for ${req.originalUrl}:`, result)
 
-    if (!httpResponse)
-      return next()
+      if (!httpResponse)
+        return next()
 
-    const { body, statusCode, contentType, earlyHints } = httpResponse
+      const { body, statusCode, contentType, earlyHints } = httpResponse
 
-    if (res.writeEarlyHints)
-      res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+      if (res.writeEarlyHints)
+        res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 
-    res.status(statusCode).type(contentType).send(body)
+      res.status(statusCode).type(contentType).send(body)    
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
   })
   /* ------ */
 
