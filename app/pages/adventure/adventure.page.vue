@@ -46,7 +46,7 @@ function imageUrl(adventureId, image, width = 0, height = 0) {
   }
 
   // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
-  return `${resourcePath}img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
+  return `${import.meta.env.BASE_ASSETS}${resourcePath}img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
 }
 
 function srcToUrls(adventureId, image) {
