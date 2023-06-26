@@ -2,6 +2,8 @@ import path from "path";
 import fs from "fs";
 import gm from "gm";
 
+export const resourcePath = process.env.RESOURCE_PATH || "/";
+
 export function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
@@ -56,7 +58,7 @@ export async function generateScaledImage(originalDir, originalName, targetSize)
     return { width, height };
   }
 
-  const imagesDir = "/adventure/public/img",
+  const imagesDir = `/adventure/public${resourcePath}img`,
         srcImgExtension = getSrcImageExtension(imagesDir, originalDir),
         srcImgName = originalName,
         srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,

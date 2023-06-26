@@ -16,7 +16,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { escapeRegExp } from "../../src/utils.js";
+import { escapeRegExp, resourcePath } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -46,7 +46,7 @@ function imageUrl(adventureId, image, width = 0, height = 0) {
   }
 
   // Doesn't work with SSR: new URL(`../../src/assets/data/img/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`, import.meta.url).href;
-  return `/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
+  return `${resourcePath}img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
 }
 
 function srcToUrls(adventureId, image) {

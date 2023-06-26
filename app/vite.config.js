@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
+import { resourcePath } from "./utils-node/utils.js";
 
 import dotenv from 'dotenv';
 import vue from "@vitejs/plugin-vue";
@@ -26,6 +27,7 @@ export default defineConfig((configEnv) => {
       resolve: {
         alias: {
           "@": fileURLToPath(new URL("./src", import.meta.url)),
+          "$R": fileURLToPath(new URL(resourcePath, import.meta.url))
         },
       }
     };

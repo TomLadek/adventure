@@ -28,9 +28,9 @@ function getFileExt(srcName) {
   return srcName.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg")
 }
 
-function moveFile(fileExt, srcPath, targetImgDir, targetName) {
+function moveImgFile(fileExt, srcPath, targetImgDir, resourcePath, targetName) {
   const targetNameWithExt = /\.[a-zA-Z0-9]+$/.test(targetName) ? targetName : `${targetName}.${fileExt}`,
-        targetDir = path.resolve(root, 'public', 'img', targetImgDir),
+        targetDir = path.resolve(root, 'public', resourcePath.replace(/^\//, ''), 'img', targetImgDir),
         targetPath = path.resolve(targetDir, targetNameWithExt)
 
   // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
@@ -79,7 +79,7 @@ async function startServer() {
     updateOneText,
     closeDb
   } = await import('../database/db.js')
-  const { pad, generateScaledImage } = await import("../utils-node/utils.js")
+  const { pad, generateScaledImage, resourcePath } = await import("../utils-node/utils.js")
 
 
   /* Middlewares */
@@ -213,7 +213,7 @@ async function startServer() {
 
       const galleryImg = await updateOneSlideGalleryAddImg(adventureId, slideId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
-      moveFile(fileExt, req.file.path, adventureId, galleryImg)
+      moveImgFile(fileExt, req.file.path, adventureId, resourcePath, galleryImg)
 
       res.status(200).json({ok: true, src: galleryImg})
     } catch (ex) {
@@ -280,7 +280,7 @@ async function startServer() {
 
       const { newSlideId, mainImg } = await insertOneSlide(adventureId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
-      moveFile(fileExt, req.file.path, adventureId, mainImg)
+      moveImgFile(fileExt, req.file.path, adventureId, resourcePath, mainImg)
 
       res.status(200).json({ok: true, id: newSlideId, src: mainImg})
     } catch (ex) {
@@ -331,7 +331,7 @@ async function startServer() {
   })
 
   // Request non-existent image in the adventure directory, possibly creating a scaled version of an existing original image
-  app.get('/img/:adventureId/:filename', async (req, res) => {
+  app.get(`${resourcePath}img/:adventureId/:filename`, async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
             match = req.params.filename.match(/(?<name>.*?)_(?<sizeStr>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/i)
