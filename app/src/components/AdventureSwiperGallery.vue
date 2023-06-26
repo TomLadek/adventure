@@ -162,7 +162,7 @@ function onBeforeLeave(element) {
 
 .gallery-thumbs .gallery-original-link {
     overflow: hidden;
-    display: inline-block;
+    display: block;
     border-radius: 8px;
 }
 
