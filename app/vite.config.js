@@ -1,10 +1,13 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 
+import dotenv from 'dotenv';
 import vue from "@vitejs/plugin-vue";
 import ssr from 'vite-plugin-ssr/plugin'
 import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer.js";
 import imageGenerator from "./src/rollup-plugin-image-generator.js";
+
+dotenv.config();
 
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => {
