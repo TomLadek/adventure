@@ -16,7 +16,7 @@ services:
         serve dist/client"
 
   mongodb:
-    image: mongo:5
+    image: mongo:4.4.22
     restart: unless-stopped
     environment:
       # TODO get these from environment variable
