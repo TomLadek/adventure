@@ -1,7 +1,7 @@
 <script>
 import { ref, computed, onMounted, watch, h, render } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText } from "../../../src/utils.js";
+import { getCaptionText, isCmsView } from "../../../src/utils.js";
 import { useI18nBundle } from "../../composables/i18nBundle";
 
 import AdventureEditableText from "../AdventureEditableText.vue";
@@ -103,12 +103,20 @@ function initGallery() {
   new PhotoSwipeDynamicCaption(pswpInstance, {
     type: "auto",
     captionContent: (pswpSlide) => {
-      const img = pswpSlide.data.element.querySelector("img");
+      const slideElement = pswpSlide.data.element,
+            img = pswpSlide.data.element.querySelector("img");
 
-      if (img)
-        return img.dataset.caption;
-
-      return pswpSlide.data.element.dataset.caption;
+      if (img) {
+        if (isCmsView)
+          return img.dataset.caption;
+        else
+          return img.alt;
+      } else {
+        if (isCmsView)
+          return slideElement.dataset.caption;
+        else
+          return slideElement.title;
+      }
     }
   });
 
@@ -299,7 +307,7 @@ onMounted(() => {
       :data-id="slide.mainImg.id"
       data-cropped="true"
       :title="slide.mainImg.caption && getCaptionText(t(slide.mainImg.caption))"
-      :data-caption="slide.mainImg.caption || 'none'"
+      :data-caption="isCmsView ? (slide.mainImg.caption || 'none') : null"
       target="_blank"
       class="main-picture"
     ></a>

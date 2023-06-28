@@ -1,7 +1,7 @@
 <script>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText } from "../../src/utils.js";
+import { getCaptionText, isCmsView } from "../../src/utils.js";
 
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
@@ -111,7 +111,7 @@ function onBeforeLeave(element) {
           :width="image.width"
           :height="image.height"
           :alt="image.caption && getCaptionText(t(image.caption))"
-          :data-caption="image.caption || 'none'"
+          :data-caption="isCmsView ? (image.caption || 'none') : null"
           class="gallery-img"
           loading="lazy"
         />
