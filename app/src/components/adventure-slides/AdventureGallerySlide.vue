@@ -46,8 +46,7 @@ const slideContentClass = computed(() => {
 });
 
 const { t, locale } = useI18n(),
-      { i18nBundle } = useI18nBundle(),
-      cmsControlsStore = useCmsControlsStore();
+      { i18nBundle } = useI18nBundle();
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -123,7 +122,8 @@ watch(locale, initGallery);
 onMounted(initGallery);
 
 /* CMS */
-const confirmationStore = useConfirmationStore(),
+const cmsControlsStore = useCmsControlsStore(),
+      confirmationStore = useConfirmationStore(),
       slideControlsExpanded = ref(false),
       firstGalleryImgInput = ref(null),
       submenuExpanded = ref({
@@ -317,12 +317,15 @@ onMounted(() => {
           :slideId="slide.id"
           :gallery="slide.gallery" />
 
+        <!-- CMS -->
         <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
           <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" size="small" />
           <input type="file" @change="onChooseFirstGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstGalleryImgInput">
         </div>
+        <!-- /CMS -->
       </div>
 
+      <!-- CMS -->
       <div v-if="cmsControlsStore.editMode" class="slide-content-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
         <CmsButtonClose v-else @click="slideControlsExpanded = false"/>
@@ -352,6 +355,7 @@ onMounted(() => {
           </Transition>
         </template>
       </div>
+      <!-- /CMS -->
     </div>
 
     <slot v-else name="cmsAddSlideContentButton"></slot>
