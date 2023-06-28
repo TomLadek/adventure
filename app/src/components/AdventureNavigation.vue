@@ -1,7 +1,3 @@
-<script>
-import { defineProps } from "vue";
-</script>
-
 <script setup>
 const props = defineProps({
   slideCount: {

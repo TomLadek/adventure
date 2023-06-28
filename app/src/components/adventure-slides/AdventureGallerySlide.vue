@@ -1,5 +1,5 @@
 <script>
-import { ref, computed, onMounted, watch, h, render } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCaptionText, isCmsView } from "../../../src/utils.js";
 import { useI18nBundle } from "../../composables/i18nBundle";
@@ -14,6 +14,7 @@ import "photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css"
 import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 
 /* CMS */
+import { ref, h, render } from "vue";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 import { useConfirmationStore } from "../../stores/confirmation";
 import CmsAdventureItemButtonNew from "../buttons/CmsAdventureItemButtonNew.vue";
