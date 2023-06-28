@@ -1,10 +1,10 @@
 <script>
 import { ref, computed } from 'vue';
-import tippy from 'tippy.js';
 
 /* CMS */
 import { watch } from 'vue'; 
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import tippy from 'tippy.js';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 
