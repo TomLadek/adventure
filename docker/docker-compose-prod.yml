@@ -10,11 +10,12 @@ services:
       - '3000:3000'
     depends_on:
       - mongodb
+    environment:
+      - DEPLOYMENT_PATH
     command: bash -c "
         npm install --global serve &&
-        export DEPLOYMENT_PATH=${DEPLOYMENT_PATH} &&
-        npm run build &&
-        ./deployment.sh"
+        ./deployment.sh &&
+        serve dist/client"
 
   mongodb:
     image: mongo:5

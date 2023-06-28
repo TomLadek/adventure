@@ -1,5 +1,7 @@
 #!/bin/bash
 
+npm run build
+
 DEPLOYMENT_PATH_ROOT=$(echo "$DEPLOYMENT_PATH" | cut -f 2 -d "/")
 
 cd dist/client
@@ -14,4 +16,4 @@ else
   ls -A | grep -v $DEPLOYMENT_PATH_ROOT | xargs mv -t .$DEPLOYMENT_PATH
 fi
 
-serve .
+cd ../..
