@@ -16,7 +16,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { escapeRegExp, resourcePath } from "../../src/utils.js";
+import { escapeRegExp, isCmsView, resourcePath } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -403,7 +403,7 @@ onMounted(() => {
       mainElement: "adventure",
       sections: document.querySelectorAll("section"),
       sectionTransitions: slides.value.map((slide) => slide.transition || 0),
-      activateOnInit: false,
+      activateOnInit: !isCmsView ? true : false,
       onStartAnimate: (fromSlide, toSlide) => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
 
