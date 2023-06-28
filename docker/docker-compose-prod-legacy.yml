@@ -28,3 +28,5 @@ services:
 
 volumes:
   adventure-cms-data:
+    external: true
+    name: adventure-cms_adventure-cms-data
