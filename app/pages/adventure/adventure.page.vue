@@ -445,6 +445,10 @@ onMounted(() => {
 </template>
 
 <style>
+body {
+  overflow: hidden;
+}
+
 .adventure-container {
   color: var(--color-white);
   transition: color var(--default-anim-time) ease;
@@ -453,4 +457,10 @@ onMounted(() => {
 .dark .adventure-container {
   color: var(--color-black);
 }
+
+/* CMS */
+body {
+  overflow: initial;
+}
+/* /CMS */
 </style>
