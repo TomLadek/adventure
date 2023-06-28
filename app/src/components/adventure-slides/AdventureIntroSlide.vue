@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 import { ref, onMounted, watch } from "vue";
 import { gsap } from "gsap";
 import { useI18nBundle } from "../../composables/i18nBundle";
-import CmsEditableText from "../CmsEditableText.vue";
+import AdventureEditableText from "../AdventureEditableText.vue";
 </script>
 
 <script setup>
@@ -81,12 +81,12 @@ onMounted(() => {
 
     <div v-if="slide.headline || slide.content" class="content-outer">
       <h1 class="headline">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Empty headline" />
-        <CmsEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Empty subheadline" />
+        <AdventureEditableText :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Empty headline" />
+        <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Empty subheadline" />
       </h1>
 
       <div class="content-inner">
-        <CmsEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty intro text" />
+        <AdventureEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty intro text" />
       </div>
     </div>
 

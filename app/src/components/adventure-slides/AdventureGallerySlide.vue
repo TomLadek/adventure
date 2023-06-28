@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { getCaptionText } from "../../../src/utils.js";
 import { useI18nBundle } from "../../composables/i18nBundle";
 
+import AdventureEditableText from "../AdventureEditableText.vue";
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
@@ -16,7 +17,6 @@ import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 import { useConfirmationStore } from "../../stores/confirmation";
 import CmsAdventureItemButtonNew from "../buttons/CmsAdventureItemButtonNew.vue";
-import CmsEditableText from "../CmsEditableText.vue";
 import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "../buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
@@ -228,7 +228,7 @@ onMounted(() => {
     let captionTextModule = captionElement.innerHTML,
         captionExists = captionTextModule !== "none";
 
-    const cmsEditableTextFocusAction = ref(),
+    const editableTextFocusAction = ref(),
           imgId = slide.data.element.dataset.id;
 
     captionElement.innerHTML = "";
@@ -242,7 +242,7 @@ onMounted(() => {
 
     render(
       h(
-        CmsEditableText,
+        AdventureEditableText,
         {
           i18n: i18nBundle.value,
           textModule: captionTextModule,
@@ -259,7 +259,7 @@ onMounted(() => {
               imageId: imgId
             }).then(() => captionExists = true);
           },
-          focusAction: cmsEditableTextFocusAction,
+          focusAction: editableTextFocusAction,
           emptyPlaceholder: "Empty caption"
         }
       ),
@@ -278,7 +278,7 @@ onMounted(() => {
       document.removeEventListeners("focusin keydown");
       window.removeEventListeners("pointermove pointerup");
 
-      cmsEditableTextFocusAction.value = Math.random();
+      editableTextFocusAction.value = Math.random();
     })
   });  
 });
@@ -306,11 +306,11 @@ onMounted(() => {
 
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">
-        <CmsEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" />
+        <AdventureEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" />
       </h2>
 
       <div class="content-inner">
-        <CmsEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty content" />
+        <AdventureEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty content" />
   
         <AdventureSwiperGallery
           v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
