@@ -12,8 +12,9 @@ services:
       - mongodb
     command: bash -c "
         npm install --global serve &&
+        export DEPLOYMENT_PATH=${DEPLOYMENT_PATH} &&
         npm run build &&
-        serve dist/client"
+        ./deployment.sh"
 
   mongodb:
     image: mongo:5
