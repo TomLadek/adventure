@@ -513,7 +513,7 @@ onMounted(() => {
   }
 }
 
-div.pswp__bg {
+div.pswp__bg:empty {
   display: initial; /* Override div:empty{display:none} */
 }
 
