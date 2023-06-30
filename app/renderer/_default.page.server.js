@@ -1,6 +1,7 @@
 import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
 import { createApp } from './app.js'
+import { resourcePath } from '../src/utils.js'
 import logoUrl from '$R/favicon.ico'
 import utilsSynchUrl from '../src/utils-synch.js?url'
 
@@ -16,11 +17,15 @@ async function render(pageContext) {
   const title = (documentProps && documentProps.title) || 'Adventure CMS'
   const isPrivatePage = true // TODO get the value for this from a setting somewhere
   const robotsIndex = isPrivatePage ? "noindex" : ""
+  const assetsResourcePath = `${process.env.BASE_ASSETS}${resourcePath}`
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
+        <link rel="preload" href="${assetsResourcePath}fonts/ubuntu-v20-latin-regular.woff2" as="font" crossorigin />
+        <link rel="preload" href="${assetsResourcePath}fonts/ubuntu-v20-latin-italic.woff2" as="font" crossorigin />
+        <link rel="preload" href="${assetsResourcePath}fonts/ubuntu-v20-latin-700.woff2" as="font" crossorigin />
         <link rel="icon" href="${logoUrl}" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" />
