@@ -79,7 +79,7 @@ async function startServer() {
     updateOneText,
     closeDb
   } = await import('../database/db.js')
-  const { pad, generateScaledImage, resourcePath } = await import("../utils-node/utils.js")
+  const { generateScaledImage, resourcePath } = await import("../utils-node/utils.js")
 
 
   /* Middlewares */
