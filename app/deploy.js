@@ -4,10 +4,10 @@ const { exec } = require("node:child_process")
 
 const deployPath = (process.env.DEPLOYMENT_PATH || "/").replace(/^\//, ""),
       resourcePath = (process.env.RESOURCE_PATH || "/resources"),
-      directoryPath = '/adventure/dist/client'
+      directoryPath = "/adventure/dist/client"
 
 async function moveToDeployDir(directoryPath, deployPath, resourcePath) {
-  console.log(`moving output to deployment path dir '${deployPath}'`)
+  console.log(`deploying to '${deployPath}'...`)
 
   const deployPathDir = deployPath.split("/")[0],
         resourcePathDir = resourcePath.split("/")[1],
@@ -16,23 +16,26 @@ async function moveToDeployDir(directoryPath, deployPath, resourcePath) {
 
   await mkdir(fullDeploymentPath, { recursive: true })
 
-  console.log(`running command: ${command}`)
+  // console.log(`running command: ${command}`)
 
   exec(command, (err, stdOut, stdErr) => {
-    if (err)
+    if (err) {
       console.error(err)
-    else {
+      console.error("✗ Deployment failed.")
+    } else {
       if (stdOut !== "")
         console.log(stdOut)
 
       if (stdErr !== "")
         console.error(stdErr)
+
+      console.error("✓ Deployment successful.")
     }
   })
 }
 
-if (deployPath === "")
-  console.log("deployment path is the root directory - moving output not necessary")
-else {
+if (deployPath === "") {
+  // console.log("deployment path is the root directory - moving output not necessary")
+} else {
   moveToDeployDir(directoryPath, deployPath, resourcePath)
 }
