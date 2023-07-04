@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
-    "build": "vite build",
+    "build": "vite build && npm run deploy",
+    "deploy": "node ./deploy.js",
     "server": "node ./server",
     "server:prod": "cross-env NODE_ENV=production node ./server",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"

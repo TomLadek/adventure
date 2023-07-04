@@ -12,9 +12,10 @@ services:
       - mongodb
     environment:
       - DEPLOYMENT_PATH
+      - RESOURCE_PATH
     command: bash -c "
         npm install --global serve &&
-        ./deployment.sh &&
+        npm run build &&
         serve dist/client"
 
   mongodb:
