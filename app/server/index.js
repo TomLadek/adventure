@@ -19,21 +19,26 @@ const isProduction = process.env.NODE_ENV === 'production',
       port = process.env.PORT || 3000,
       root = path.resolve(__dirname, '..')
 
-function init() {
-  // Set the SetGID flag on the public/img/ directory so that child directories inherit the group (usually 'node')
-  fs.chmodSync(path.resolve(root, 'public', 'img'), 0o2755)
+function init(resourcePath) {
+  // Set the SetGID flag on the img directory so that child directories inherit the group (usually 'node')
+  const imgPath = path.resolve(root, resourcePath.replace(/^\//, ''), 'img')
+
+  if (fs.existsSync(imgPath))
+    fs.chmodSync(imgPath, 0o2755)
+
+  return { imgPath }
 }
 
 function getFileExt(srcName) {
   return srcName.split(".").pop().toLowerCase().replace(/jpeg|jfif|pjpeg|pjp/, "jpg")
 }
 
-function moveImgFile(fileExt, srcPath, targetImgDir, resourcePath, targetName) {
+function moveImgFile(fileExt, srcPath, imgPath, targetImgDir, targetName) {
   const targetNameWithExt = /\.[a-zA-Z0-9]+$/.test(targetName) ? targetName : `${targetName}.${fileExt}`,
-        targetDir = path.resolve(root, 'public', resourcePath.replace(/^\//, ''), 'img', targetImgDir),
+        targetDir = path.resolve(imgPath, targetImgDir),
         targetPath = path.resolve(targetDir, targetNameWithExt)
 
-  // Create a new directory in public/img/ for this adventure and set its owner to the parent's owner (usually 'node')
+  // Create a new img directory for this adventure and set its owner to the parent's owner (usually 'node')
   // TODO get the parent owner dynamically instead of setting this hardcoded
   execSync(`install -d -o node -m 00755 ${targetDir}`)
   
@@ -42,11 +47,11 @@ function moveImgFile(fileExt, srcPath, targetImgDir, resourcePath, targetName) {
   console.log(`moved new file ${srcPath} to ${targetPath}`)
 }
 
-function deleteAdventureImages(adventureId, images) {
+function deleteAdventureImages(imgPath, adventureId, images) {
   if (!images.length)
     return
 
-  const adventureImgDir = path.resolve(root, 'public', 'img', adventureId)
+  const adventureImgDir = path.resolve(imgPath, adventureId)
 
   try {
     execSync(`rm -f ${
@@ -80,6 +85,7 @@ async function startServer() {
     closeDb
   } = await import('../database/db.js')
   const { generateScaledImage, resourcePath } = await import("../utils-node/utils.js")
+  const { imgPath } = init(resourcePath)
 
 
   /* Middlewares */
@@ -157,7 +163,7 @@ async function startServer() {
     
       const orphanedImages = await removeOneSlide(adventureId, slideId)
 
-      deleteAdventureImages(adventureId, orphanedImages)
+      deleteAdventureImages(imgPath, adventureId, orphanedImages)
 
       res.status(200).json({ok: true})
     } catch (ex) {
@@ -195,7 +201,7 @@ async function startServer() {
 
       const orphanedImages = await updateOneRemoveSlideContent(adventureId, slideId)
 
-      deleteAdventureImages(adventureId, orphanedImages)
+      deleteAdventureImages(imgPath, adventureId, orphanedImages)
 
       res.status(200).json({ok: true})
     } catch (ex) {
@@ -213,7 +219,7 @@ async function startServer() {
 
       const galleryImg = await updateOneSlideGalleryAddImg(adventureId, slideId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
-      moveImgFile(fileExt, req.file.path, adventureId, resourcePath, galleryImg)
+      moveImgFile(fileExt, req.file.path, imgPath, adventureId, galleryImg)
 
       res.status(200).json({ok: true, src: galleryImg})
     } catch (ex) {
@@ -247,7 +253,7 @@ async function startServer() {
 
       await updateOneSlideGalleryRemoveImg(adventureId, slideId, galleryImgSrc)
 
-      deleteAdventureImages(adventureId, [galleryImgSrc])
+      deleteAdventureImages(imgPath, adventureId, [galleryImgSrc])
 
       res.status(200).json({ok: true})
     } catch (ex) {
@@ -280,7 +286,7 @@ async function startServer() {
 
       const { newSlideId, mainImg } = await insertOneSlide(adventureId, fileExt === "jpg" ? "" : `.${fileExt}`, Number(req.body.imgWidth), Number(req.body.imgHeight))
 
-      moveImgFile(fileExt, req.file.path, adventureId, resourcePath, mainImg)
+      moveImgFile(fileExt, req.file.path, imgPath, adventureId, mainImg)
 
       res.status(200).json({ok: true, id: newSlideId, src: mainImg})
     } catch (ex) {
@@ -331,7 +337,7 @@ async function startServer() {
   })
 
   // Request non-existent image in the adventure directory, possibly creating a scaled version of an existing original image
-  app.get(`${resourcePath}img/:adventureId/:filename`, async (req, res) => {
+  app.get(`${resourcePath}/img/:adventureId/:filename`, async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
             match = req.params.filename.match(/(?<name>.*?)_(?<sizeStr>[\dx]+)\.(?<ext>webp|jpe?g|png|gif)/i)
@@ -340,7 +346,7 @@ async function startServer() {
         if (await findImgReference(adventureId, match.groups.name)) {
           console.log(`${match.groups.name} referenced in ${adventureId} - generating ...`)
           
-          const scaledImagePath = await generateScaledImage(adventureId, match.groups.name, match.groups.sizeStr)
+          const scaledImagePath = await generateScaledImage(imgPath, adventureId, match.groups.name, match.groups.sizeStr)
           console.log(`generated image: ${scaledImagePath}`)
           res.status(200).sendFile(scaledImagePath)
           return
@@ -403,5 +409,4 @@ async function startServer() {
   })
 }
 
-init()
 startServer()

@@ -1,13 +1,13 @@
 import { findAdventure } from "../../database/db.js"
+import { isCmsView } from "../../src/utils.js"
 
 export { onBeforeRender }
 
 async function onBeforeRender(pageContext) {
   console.log(`onBeforeRender (adventure) -- ${pageContext.urlPathname} -- ${pageContext.Page ? pageContext.Page.__name : ""}`)
-  
-  //TODO for prod: get adventure id/path from somwhere else (argument / environment variable)
 
-  let adventure = await findAdventure(pageContext.urlPathname) || {}
+  const adventureUrlPath = isCmsView ? (pageContext.urlPathname.replace(/^\//, "")) : process.env.DEPLOYMENT_PATH
+  let adventure = await findAdventure(adventureUrlPath) || {}
 
   return {
     pageContext: {

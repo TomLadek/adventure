@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import gm from "gm";
 
-export const resourcePath = process.env.RESOURCE_PATH || "/";
+export const resourcePath = process.env.RESOURCE_PATH;
 
 export function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -21,11 +21,11 @@ export function getRandomId(length = 3) {
   return pad(Math.floor(Math.random() * Math.pow(10, length)), length)
 }
 
-export async function generateScaledImage(originalDir, originalName, targetSize) {
-  function getSrcImageExtension(imagesDir, originalDir) {
-    // TODO save directory contents and only generate scaled images if they don't already exist
+export async function generateScaledImage(imgPath, originalDir, originalName, targetSize) {
+  // TODO save directory contents and only generate scaled images if they don't already exist
+  function getSrcImageExtension(originalDir) {
     return fs
-            .readdirSync(path.resolve(imagesDir, originalDir))
+            .readdirSync(path.resolve(imgPath, originalDir))
             .reduce((ext, imgFile) => {
               const match = imgFile.match(new RegExp(`${escapeRegExp(originalName)}\\.(?<imgExt>[a-zA-Z0-9]+)`));
 
@@ -58,16 +58,15 @@ export async function generateScaledImage(originalDir, originalName, targetSize)
     return { width, height };
   }
 
-  const imagesDir = `/adventure/public${resourcePath}img`,
-        srcImgExtension = getSrcImageExtension(imagesDir, originalDir),
+  const srcImgExtension = getSrcImageExtension(imgPath, originalDir),
         srcImgName = originalName,
         srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,
-        srcImgPath = path.resolve(imagesDir, originalDir, srcImgNameWithExtension),
+        srcImgPath = path.resolve(imgPath, originalDir, srcImgNameWithExtension),
         { width, height } = parseSize(targetSize),
         sizeSuffix = targetSize,
         scaledImgExtension = /gif|png/.test(srcImgExtension) ? srcImgExtension : "webp",
         scaledImgNameWithExtension = `${srcImgName}_${sizeSuffix}.${scaledImgExtension}`,
-        scaledImgDestPath = path.resolve(imagesDir, originalDir, scaledImgNameWithExtension),
+        scaledImgDestPath = path.resolve(imgPath, originalDir, scaledImgNameWithExtension),
         magick = gm(srcImgPath);
 
   return await new Promise((resolve, reject) => {

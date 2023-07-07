@@ -10,13 +10,10 @@ services:
       - '3000:3000'
     depends_on:
       - mongodb
-    environment:
-      - DEPLOYMENT_PATH
-      - RESOURCE_PATH
     command: bash -c "
         npm install --global serve &&
         npm run build &&
-        serve dist/client"
+        serve -n -S dist/client"
 
   mongodb:
     image: mongo:4.4.22

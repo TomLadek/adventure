@@ -2,10 +2,10 @@
   "scripts": {
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
-    "build": "vite build && npm run deploy",
-    "deploy": "node ./deploy.js",
-    "server": "node ./server",
-    "server:prod": "cross-env NODE_ENV=production node ./server",
+    "build": "node -r dotenv/config node_modules/vite/bin/vite build && npm run deploy",
+    "deploy": "node -r dotenv/config ./deploy.js",
+    "server": "node -r dotenv/config ./server",
+    "server:prod": "cross-env NODE_ENV=production node -r dotenv/config ./server",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {

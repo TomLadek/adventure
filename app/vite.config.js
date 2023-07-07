@@ -2,12 +2,9 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import { resourcePath } from "./utils-node/utils.js";
 
-import dotenv from 'dotenv';
 import vue from "@vitejs/plugin-vue";
 import ssr from 'vite-plugin-ssr/plugin'
 import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer.js";
-
-dotenv.config();
 
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => {
@@ -22,22 +19,30 @@ export default defineConfig((configEnv) => {
         prerender: {
           partial: true
         }
-      }), cmsBuildTransformer(isCmsView)],
+      }), cmsBuildTransformer(isCmsView, resourcePath)],
       resolve: {
         alias: {
           "@": fileURLToPath(new URL("./src", import.meta.url)),
-          "$R": fileURLToPath(new URL(resourcePath, import.meta.url))
+          "$R": resourcePath
         },
+      },
+      build: {
+        reportCompressedSize: false
+      },
+      experimental: { // TODO pin Vite version to minor according to https://vitejs.dev/guide/build.html#advanced-base-options
+        renderBuiltUrl(filename, { hostType }) {
+          if (hostType === "css") {
+            return `/${filename}`
+          }
+        }
       }
     };
 
   if (isCmsView) {
-    // conf.server = {}
+    conf.base = process.env.URL_BASE_CMS;
   } else {
-    // conf.base = "/adventure/2023-myadventure"
+    conf.base = `${process.env.URL_BASE}/${process.env.DEPLOYMENT_PATH}`;
   }
-
-  conf.base = "/adventure/staging"
 
   return conf;
 });

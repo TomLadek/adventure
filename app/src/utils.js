@@ -1,6 +1,6 @@
 export const isCmsView = process.env.NODE_ENV === 'development';
 
-export const resourcePath = import.meta.env.VITE_RESOURCE_PATH || "/";
+export const resourcePath = import.meta.env.VITE_RESOURCE_PATH || "";
 
 export function getCaptionText(captionHtml) {
   if (!captionHtml)
