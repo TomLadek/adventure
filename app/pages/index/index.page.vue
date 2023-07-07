@@ -25,6 +25,10 @@ function newAdventurePopupClosing() {
   newAdventurePopupShowing.value = false;  
   updateAdventuresList();
 }
+
+function getAdventureLink(adventureUrlPath) {
+  return `${import.meta.env.VITE_URL_BASE_CMS || ""}/${adventureUrlPath}`
+}
 </script>
 
 <template>
@@ -32,7 +36,7 @@ function newAdventurePopupClosing() {
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
       <li class="cms-adventure-list-item" v-for="adventure in adventures" :key="adventure.id">
-        <a :href="adventure.meta.basePath" class="cms-adventure-link" :data-adventure-id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
+        <a :href="getAdventureLink(adventure.meta.urlPath)" class="cms-adventure-link" :data-adventure-id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
       </li>
       <li class="cms-adventure-list-item new-item">
         <CmsAdventureItemButtonNew @click="newAdventurePopupShowing = true" />

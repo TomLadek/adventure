@@ -165,7 +165,7 @@ export async function insertOneAdventure(data) {
     const adventureDoc = {
       slides: [],
       meta: {
-        basePath: "/" + (data.urlPath.replace(/^\/+/, "") || "adventure"),
+        urlPath: data.urlPath || "my-adventure",
         title: "meta_title",
         author: {
           madeBy: "meta_author_madeBy",
@@ -447,7 +447,7 @@ export async function findAdventure(urlPath) {
   const adventuresColl = getCollection("adventures")
 
   try {
-    const adventure = await adventuresColl.findOne({ "meta.basePath": new RegExp(`${escapeRegExp(urlPath)}/?`) } )
+    const adventure = await adventuresColl.findOne({ "meta.urlPath": new RegExp(escapeRegExp(urlPath)) } )
 
     if (adventure == null)
       return null

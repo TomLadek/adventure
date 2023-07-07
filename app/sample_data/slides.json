@@ -104,7 +104,7 @@
     }
   ],
   "meta": {
-    "basePath": "/",
+    "urlPath": "my-adventure",
     "title": "meta.title",
     "desc": "meta.desc"
   },
