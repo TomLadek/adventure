@@ -11,6 +11,11 @@ const props = defineProps({
 });
 
 const cmsControlsStore = useCmsControlsStore();
+
+function publish() {
+  console.log("publishing ...")
+  cmsControlsStore.action(cmsControlsStore.actions.PUBLISH);
+}
 </script>
 
 <template>
@@ -19,6 +24,9 @@ const cmsControlsStore = useCmsControlsStore();
   <div class="cms-controls-input">
     <label for="input-edit-mode">Edit mode:</label>
     <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
+  </div>
+  <div class="cms-controls-input centered">
+    <button class="cms-button-publish" @click="publish">Publish & distribute</button>
   </div>
 </div>
 </template>
@@ -93,5 +101,16 @@ const cmsControlsStore = useCmsControlsStore();
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.cms-controls-input.centered {
+  justify-content: center;
+}
+
+.cms-button-publish {
+  padding: 0.5rem 1rem;
+  color: inherit;
+  background: transparent;
+  border-radius: 0.5rem;
 }
 </style>

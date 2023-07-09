@@ -7,7 +7,7 @@ const path = require('path')
 const express = require('express')
 const multer = require('multer')
 const { renderPage } = require('vite-plugin-ssr/server')
-const { execSync } = require('child_process')
+const { exec, execSync } = require('child_process')
 
 // For verbose request logging run 'npm install winston express-winston' add the following:
 // const winston = require('winston')
@@ -72,6 +72,7 @@ async function startServer() {
   const {
     insertOneAdventure,
     findAdventures,
+    findAdventureDeploymentPath,
     insertOneSlide,
     removeOneSlide,
     findImgReference,
@@ -124,9 +125,28 @@ async function startServer() {
 
 
   /* Routes */
-  app.get('/rest/deploy', async (_, res) => {
+  app.post('/rest/adventure/:adventureId/publish', async (req, res) => {
     try {
-      execSync("npm run build")
+      const adventureDeploymentPath = await findAdventureDeploymentPath(req.params.adventureId),
+            publishCommand = `DEPLOYMENT_PATH=${adventureDeploymentPath} npm run build`
+
+      console.log(`publishing using following command: ${publishCommand}`)
+
+      await new Promise((resolve, reject) => {
+        exec(publishCommand, (error, stdOut, stdErr) => {
+          if (error)
+            reject(error)
+          
+          if (stdErr)
+            console.error(stdErr)
+
+          if (stdOut)
+            console.log(stdOut)
+  
+          resolve()
+        })
+      })
+
       res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)

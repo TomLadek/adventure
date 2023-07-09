@@ -377,6 +377,18 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_CONTENT, (
   });
 });
 
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () => {
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/publish`, {
+    method: "POST"
+  });
+
+  if (res.status === 200) {
+    console.log("published successfully!")
+  } else {
+    console.error(res)
+  }
+});
+
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));

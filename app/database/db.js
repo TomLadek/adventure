@@ -461,6 +461,25 @@ export async function findAdventure(urlPath) {
   }
 }
 
+export async function findAdventureDeploymentPath(adventureId) {
+  const adventuresColl = getCollection("adventures")
+
+  try {
+    const res = await adventuresColl.findOne(
+      { _id: new ObjectId(adventureId) },
+      { projection: { "meta.urlPath": 1, _id: 0 } }
+    )
+
+    if (res && res.meta && res.meta.urlPath)
+      return res.meta.urlPath
+
+    throw new Error(`adventure with ID ${adventureId} not found or it doesn't contain meta.urlPath`)
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function findImgReference(adventureId, imgName) {
   const adventuresColl = getCollection("adventures"),
         imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\\.(jpg|png|gif))?$`)
