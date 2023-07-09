@@ -114,7 +114,7 @@ const slides = computed(() => (adventure.value.slides || []).map((slide) => {
 
   if (slide.gallery) {
     slide.gallery.images = (slide.gallery.images || []).map((galleryImg) => {
-      if (!/^\/img\//.test(galleryImg.src)) {
+      if (!/\/img\//.test(galleryImg.src)) {
         galleryImg.id = getIdFromSrc(galleryImg.src);
         galleryImg.srcset = gallerySrcSet(adventure.value.meta.id, galleryImg.src);
         galleryImg.src = gallerySrc(adventure.value.meta.id, galleryImg.src, 0);
