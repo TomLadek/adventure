@@ -37,14 +37,14 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
 
   function action(name, args) {
     if (validateActionName(name))
-      actionArgs[name].value = args;
+      actionArgs[name].value = args || Math.random();
   }
 
   function actionWithResult(name, args) {
     if (!validateActionName(name))
       return;
 
-    actionArgs[name].value = args;
+    actionArgs[name].value = args || Math.random();
 
     const executor = {},
           promise = new Promise((resolve, reject) => {
