@@ -1,7 +1,5 @@
 // Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
 
-require('dotenv').config()
-
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
