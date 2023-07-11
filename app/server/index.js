@@ -126,7 +126,7 @@ async function startServer() {
   app.post('/rest/adventure/:adventureId/publish', async (req, res) => {
     try {
       const adventureDeploymentPath = await findAdventureDeploymentPath(req.params.adventureId),
-            publishCommand = `DEPLOYMENT_PATH=${adventureDeploymentPath} npm run build`
+            publishCommand = `DEPLOYMENT_PATH=${adventureDeploymentPath} NODE_ENV=production npm run build`
 
       console.log(`publishing using following command: ${publishCommand}`)
 
