@@ -59,6 +59,7 @@ function closeAllPhotoSwipes() {
 }
 
 function initGallery() {
+  console.log(`initGallery isCmsView=${isCmsView}`)
   if (window.photoSwipes === undefined)
     window.photoSwipes = {};
 
