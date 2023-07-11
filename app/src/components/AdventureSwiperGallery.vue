@@ -27,7 +27,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}
+let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
 
 const galleryThumbsClass = computed(() => {
   const baseClass = {
@@ -83,10 +83,10 @@ onImgMouseLeave = id => {
   timeouts[id] = setTimeout(() => imgControlsExpanded.value[id] = false, 1000);
 };
 
-function onBeforeLeave(element) {
+onBeforeLeave = element => {
   element.style.left = `${element.offsetLeft}px`;
   element.style.top = `${element.offsetTop}px`;
-}
+};
 /* /CMS */
 </script>
 
