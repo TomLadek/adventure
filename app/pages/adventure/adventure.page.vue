@@ -407,7 +407,7 @@ onMounted(() => {
   }
 
   window.gsap = gsap;
-
+  console.log(`isCmsView=${isCmsView} NODE_ENV=${process.env.NODE_ENV}`)
   import("../../src/assets/gi-full-page-scroll.js").then(() => {
     // Init full page scroll
     window.fs = new window.fullScroll({
