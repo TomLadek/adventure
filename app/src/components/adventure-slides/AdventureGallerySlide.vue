@@ -522,10 +522,6 @@ onMounted(() => {
   }
 }
 
-div.pswp__bg:empty {
-  display: initial; /* Override div:empty{display:none} */
-}
-
 /* CMS */
 .slide .cms-new-gallery-outer .cms-new-gallery-button {
   background: rgba(0, 0, 0, 0.2);

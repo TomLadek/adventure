@@ -80,10 +80,6 @@ button {
   font-family: inherit;
 }
 
-div:empty {
-  display: none;
-}
-
 .spinner-sm {
   display: block;
   height: 15px;
