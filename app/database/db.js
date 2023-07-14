@@ -413,7 +413,7 @@ export async function updateOneText(adventureId, textModule, locale, newText) {
           res = await adventuresColl.updateOne({
             _id: new ObjectId(adventureId)
           }, {
-            $set: {
+            [newText === "" ? "$unset" : "$set"]: {
               [`messages.${locale}.${textModule}`]: newText
             }
           })
