@@ -36,7 +36,7 @@ const defaultMessages = {
 export function initI18n(messages) {
   const availableLangs = Object.keys(messages || {});
   const languageStore = useLanguageStore();
-  const userLang = (languageStore.language || navigator.language).substring(0, 2).toLowerCase();
+  const userLang = (languageStore.language || (typeof navigator === "object" && navigator.language) || "en").substring(0, 2).toLowerCase();
 
   if (availableLangs.length < 1)
     availableLangs.push("en");

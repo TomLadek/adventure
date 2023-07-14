@@ -80,6 +80,16 @@ button {
   font-family: inherit;
 }
 
+div[data-empty-text]::after {
+  content: "mmmmmmmm";
+  display: inline-block;
+  color: transparent;
+  background: rgb(255 255 255 / 20%);
+  border-radius: 0.75em;
+  padding: 0.05rem 0.4rem;
+  text-shadow: none;
+}
+
 .spinner-sm {
   display: block;
   height: 15px;

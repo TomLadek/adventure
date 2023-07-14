@@ -2,20 +2,6 @@ export const isCmsView = process.env.NODE_ENV === 'development';
 
 export const resourcePath = import.meta.env.VITE_RESOURCE_PATH || "";
 
-export function getCaptionText(captionHtml) {
-  if (!captionHtml)
-    return null
-  
-  if (typeof document !== "object")
-    return captionHtml;
-
-  const dummy = document.createElement("div");
-
-  dummy.innerHTML = captionHtml;
-
-  return dummy.textContent;
-}
-
 export function isObject(item) {
   return (item && typeof item === 'object' && !Array.isArray(item));
 }

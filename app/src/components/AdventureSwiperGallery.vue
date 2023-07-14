@@ -1,7 +1,8 @@
 <script>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText, isCmsView } from "../../src/utils.js";
+import { isCmsView } from "../../src/utils.js";
+import { useVI18nAttr } from "../composables/vI18nAttr.js";
 
 /* CMS */
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
@@ -25,9 +26,8 @@ const props = defineProps({
   }
 });
 
-const { t } = useI18n();
-
-let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
+const { locale } = useI18n(),
+      { vI18nAttr } = useVI18nAttr();
 
 const galleryThumbsClass = computed(() => {
   const baseClass = {
@@ -39,6 +39,8 @@ const galleryThumbsClass = computed(() => {
 
   return baseClass;
 });
+
+let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
@@ -97,10 +99,10 @@ onBeforeLeave = element => {
       <a      
         v-bind:key="image.src"
         :href="image.src"
-        :title="image.caption && getCaptionText(t(image.caption))"
         :data-pswp-width="image.width"
         :data-pswp-height="image.height"
         :data-id="image.id"
+        v-i18n-attr:[locale].title="image.caption"
         data-cropped="true"
         target="_blank"
         class="gallery-original-link"
@@ -110,8 +112,8 @@ onBeforeLeave = element => {
           :srcset="image.srcset"
           :width="image.width"
           :height="image.height"
-          :alt="image.caption && getCaptionText(t(image.caption))"
           :data-caption="isCmsView ? (image.caption || 'none') : null"
+          v-i18n-attr:[locale].alt="image.caption"
           class="gallery-img"
           loading="lazy"
         />

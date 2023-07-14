@@ -4,7 +4,7 @@ import { defineStore } from "pinia";
 const langKey = "adventure_lang";
 
 export const useLanguageStore = defineStore("language", () => {
-    let language = ref(typeof window === "object" ? window.localStorage[langKey] : "en");
+    let language = ref(typeof window === "object" ? window.localStorage[langKey] : undefined);
 
     function setLanguage(lang) {
         language.value = lang;

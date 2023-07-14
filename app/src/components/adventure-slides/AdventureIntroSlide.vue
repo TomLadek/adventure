@@ -2,7 +2,7 @@
 import { useI18n } from "vue-i18n";
 import { ref, onMounted, watch } from "vue";
 import { gsap } from "gsap";
-import { useI18nBundle } from "../../composables/i18nBundle";
+import { useI18nBundle } from "../../composables/i18nBundle.js";
 import AdventureEditableText from "../AdventureEditableText.vue";
 </script>
 

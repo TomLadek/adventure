@@ -1,8 +1,9 @@
 <script>
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { getCaptionText, isCmsView } from "../../../src/utils.js";
-import { useI18nBundle } from "../../composables/i18nBundle";
+import { isCmsView } from "../../../src/utils.js";
+import { useI18nBundle } from "../../composables/i18nBundle.js";
+import { useVI18nAttr } from "../../composables/vI18nAttr.js";
 
 import AdventureEditableText from "../AdventureEditableText.vue";
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
@@ -47,7 +48,8 @@ const slideContentClass = computed(() => {
 });
 
 const { t, locale } = useI18n(),
-      { i18nBundle } = useI18nBundle();
+      { i18nBundle } = useI18nBundle(),
+      { vI18nAttr } = useVI18nAttr();
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -120,6 +122,10 @@ function initGallery() {
       }
     }
   });
+
+  /* CMS */
+  initEditableCaptions();
+  /* /CMS */  
 
   window.photoSwipes[props.slide.id] = pswpInstance;
 
@@ -218,14 +224,7 @@ function onChangeGalleryStyle(newStyle) {
   });
 }
 
-watch(slideControlsExpanded, value => {
-  if (value === false) {
-    for (let submenuType in submenuExpanded.value)
-      submenuExpanded.value[submenuType] = false;
-  }
-});
-
-onMounted(() => {
+function initEditableCaptions() {
   pswpInstance.on("dynamicCaptionMeasureSize", ({ captionEl, captionSize }) => {
     const captionText = captionEl.querySelector(".text-wrapper");
 
@@ -289,7 +288,14 @@ onMounted(() => {
 
       editableTextFocusAction.value = Math.random();
     })
-  });  
+  });
+}
+
+watch(slideControlsExpanded, value => {
+  if (value === false) {
+    for (let submenuType in submenuExpanded.value)
+      submenuExpanded.value[submenuType] = false;
+  }
 });
 /* /CMS */
 </script>
@@ -307,8 +313,8 @@ onMounted(() => {
       :data-pswp-height="slide.mainImg.height"
       :data-id="slide.mainImg.id"
       data-cropped="true"
-      :title="slide.mainImg.caption && getCaptionText(t(slide.mainImg.caption))"
       :data-caption="isCmsView ? (slide.mainImg.caption || 'none') : null"
+      v-i18n-attr:[locale].title="slide.mainImg.caption"
       target="_blank"
       class="main-picture"
     ></a>

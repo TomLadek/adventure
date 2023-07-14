@@ -1,5 +1,6 @@
 <script>
 import { ref, computed } from 'vue';
+import { useVI18nHtml } from '../composables/vI18nHtml.js';
 
 /* CMS */
 import { watch } from 'vue'; 
@@ -40,7 +41,7 @@ const props = defineProps({
   }
 });
 
-let realTextDisplay = true;
+const { vI18nHtml } = useVI18nHtml(props.i18n.t);
 
 const translatedText = computed(() => {
   if (!props.textModule)
@@ -54,18 +55,7 @@ const translatedText = computed(() => {
   return translation;
 });
 
-const sanitizedTranslatedText = computed(() => {
-  const textTmp = translatedText.value;
-
-  if (!props.isMultiline)
-    return textTmp;
-  
-  if (textTmp.length === 0)
-    return "";
-
-  return /<p>.*<\/p>/.test(textTmp) ? textTmp : `<p>${textTmp}</p>`;
-});
-
+let realTextDisplay = true;
 
 /* CMS */
 const emit = defineEmits(["blur", "save"]);
@@ -219,7 +209,7 @@ watch(realTextDisplay, (showRealText) => {
 </script>
 
 <template>
-  <div v-if="realTextDisplay" class="text-wrapper" :class="class" v-html="sanitizedTranslatedText"></div>
+  <div v-if="realTextDisplay" class="text-wrapper" :class="class" v-i18n-html:[i18n.locale]="{ textModule: textModule, isMultiline: isMultiline }"></div>
 
   <!-- CMS -->
   <div v-else class="cms-text-editor-container" :class="class">
