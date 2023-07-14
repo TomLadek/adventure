@@ -24,7 +24,7 @@ export function useVI18nAttr() {
   function getTranslatedTextContent(value) {
     const translatedText = t(value);
 
-    if (!translatedText)
+    if (!translatedText || translatedText === value)
       return null;
   
     const dummy = document.createElement("div");
