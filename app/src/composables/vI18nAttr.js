@@ -44,6 +44,8 @@ export function useVI18nAttr() {
 
       if (text)
         el[getBindingModifier(binding)] = text;
+      else
+        el.removeAttribute(getBindingModifier(binding));
     }
   }
 
