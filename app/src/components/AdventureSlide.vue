@@ -11,6 +11,7 @@ import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
 import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "./buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "./buttons/CmsButtonDelete.vue";
+import CmsButtonSlideType from "./buttons/CmsButtonSlideType.vue";
 /* /CMS */
 
 function getCssUrlString(url) {
@@ -64,7 +65,10 @@ const slideType = computed(() => {
 /* CMS */
 const confirmationStore = useConfirmationStore(),
       cmsControlsStore = useCmsControlsStore(),
-      slideControlsExpanded = ref(false);
+      slideControlsExpanded = ref(false),
+      submenuExpanded = ref({
+        type: false
+      });;
 
 let slideControlsExpandedTimeout = 0;
 
@@ -73,7 +77,7 @@ function onSlideControlsMouseEnter() {
 }
 
 function onSlideControlsMouseLeave() {
-  slideControlsExpandedTimeout = setTimeout(() => slideControlsExpanded.value = false, 1000);
+  slideControlsExpandedTimeout = setTimeout(onSlideControlsCloseClick, 1000);
 }
 
 function onRemoveSlideClick() {
@@ -92,11 +96,26 @@ function onNewSlideContentClick() {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_CONTENT, {
     slideId: props.slide.id,
     headline: "",
+    subheadline: "",
     content: {
       text: "",
       position: "bottom end"
     }
   });
+}
+
+async function onSlideTypeClick(type) {
+  await cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, { slideId: props.slide.id, props: { intro: type === "intro" } });
+
+  submenuExpanded.value.type = false;
+}
+
+function onSlideControlsCloseClick() {
+  for (const submenu of Object.keys(submenuExpanded.value)) {
+    submenuExpanded.value[submenu] = false;
+  }
+
+  slideControlsExpanded.value = false;
 }
 /* /CMS */
 </script>
@@ -115,9 +134,21 @@ function onNewSlideContentClick() {
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
         <template v-else>
+          <CmsButtonSlideType @click="submenuExpanded.type = true" title="Change slide type" />
           <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
-          <CmsButtonClose @click="slideControlsExpanded = false"/>
-        </template>        
+          <CmsButtonClose @click="onSlideControlsCloseClick" />
+
+          <Transition name="slide-controls-submenu-transition">
+            <ul v-if="submenuExpanded.type" class="slide-controls-submenu slide-type-list">
+              <li>
+                <button class="type-item" :class="{ active: slide.intro }" @click="onSlideTypeClick('intro')">Intro slide</button>
+              </li>
+              <li>
+                <button class="type-item" :class="{ active: !slide.intro }" @click="onSlideTypeClick('gallery')">Gallery slide</button>
+              </li>
+            </ul>
+          </Transition>
+        </template>
       </div>
     </template>
     <!-- /CMS -->
@@ -283,7 +314,7 @@ function onNewSlideContentClick() {
 }
 
 .slide .slide-controls.expanded {
-  height: 8rem;
+  height: 10rem;
 }
 
 .slide .slide-controls button {
@@ -299,6 +330,56 @@ function onNewSlideContentClick() {
 .slide .slide-controls button svg {
   fill: white;
   transform: scale(1.4);
+}
+
+.slide .slide-controls .slide-controls-submenu {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(3px);
+  border-radius: 0.5rem;
+}
+
+.slide-controls-submenu-transition-leave-active,
+.slide-controls-submenu-transition-enter-active {
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+  transition-property: opacity transform;
+}
+
+.slide .slide-controls .slide-controls-submenu-transition-enter-from,
+.slide .slide-controls .slide-controls-submenu-transition-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateX(0.25rem);
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list {
+  right: 1rem;
+  top: -1.5rem;
+  width: max-content;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item {
+  width: 100%;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 100%;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item:hover {
+  background: #ffffff38;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item.active {
+  background: #ffffff69;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item.active:hover {
+  background: #ffffff80;
 }
 /* /CMS */
 </style>

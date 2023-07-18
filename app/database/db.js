@@ -154,6 +154,33 @@ export async function removeOneSlide(adventureId, slideId) {
   }
 }
 
+export async function updateOneSlide(adventureId, slideId, props) {
+  const adventuresColl = getCollection("adventures"),
+        updateDocument = { $set: {}, $unset: {} }
+
+  if (!props.intro || props.intro === "false") {
+    updateDocument.$unset = { "slides.$.intro": "" }
+    delete props.intro
+  }
+
+  for (const prop of Object.keys(props)) {
+    updateDocument.$set[`slides.$.${prop}`] = props[prop]
+  }
+
+  try {
+    await adventuresColl.updateOne(
+      {
+        _id: new ObjectId(adventureId),
+        "slides.id": slideId
+      },
+      updateDocument
+    )
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function insertOneAdventure(data) {
   const adventuresColl = getCollection("adventures")
 
@@ -206,6 +233,11 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
       updateDocument.$set[`messages.${locale}.${slideId}_headline`] = slideContent.headline
     }
 
+    if (typeof slideContent.subheadline !== "undefined") {
+      updateDocument.$set["slides.$.subheadline"] = `${slideId}_subheadline`
+      updateDocument.$set[`messages.${locale}.${slideId}_subheadline`] = slideContent.subheadline
+    }
+
     if (slideContent.content) {
       if (typeof slideContent.content.position !== "undefined")
         updateDocument.$set["slides.$.content.position"] = slideContent.content.position
@@ -222,10 +254,13 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
 
   try {
     const adventuresColl = getCollection("adventures"),
-          res = await adventuresColl.updateOne({
-            _id: new ObjectId(adventureId),
-            "slides.id": slideId
-          }, updateDocument)
+          res = await adventuresColl.updateOne(
+            {
+              _id: new ObjectId(adventureId),
+              "slides.id": slideId
+            },
+            updateDocument
+          )
 
     if (res.matchedCount !== 1)
       throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)

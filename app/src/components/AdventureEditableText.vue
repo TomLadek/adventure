@@ -179,6 +179,9 @@ if (props.focusAction)
   watch(props.focusAction, () => editor.value.commands.focus());
 
 watch(cmsEditorControlsShown, (shown) => {
+  if (!cmsTextEditor.value)
+    return;
+
   if (!tippyInstance) {
     tippyInstance = tippy(cmsTextEditor.value.rootEl, {
         // appendTo: document.body, // no wrapping, nicer background blur - but bad accessibility

@@ -165,14 +165,15 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE, async fil
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_CONTENT, ({ slideId, headline, content }) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_CONTENT, ({ slideId, headline, subheadline, content }) => {
   const formData = new FormData(),
         currentLocale = locale.value;
 
   formData.append("headline", headline);
+  formData.append("subheadline", subheadline);
   formData.append("contentText", content.text);
   formData.append("contentPosition", content.position);
-  formData.append("locale", currentLocale)
+  formData.append("locale", currentLocale);
 
   fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/content`, {
     method: "PUT",
@@ -181,15 +182,18 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_CONTENT, (
     if (res.status === 201) {
       const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
             headlineTextModule = `${slideToChange.id}_headline`,
+            subheadlineTextModule = `${slideToChange.id}_subheadline`,
             contentTextModule = `${slideToChange.id}_content`;
 
       slideToChange.headline = headlineTextModule;
+      slideToChange.subheadline = subheadlineTextModule;
       slideToChange.content = {
         text: contentTextModule,
         position: content.position
       };
 
       messages.value[currentLocale][headlineTextModule] = headline;
+      messages.value[currentLocale][subheadlineTextModule] = subheadline;
       messages.value[currentLocale][contentTextModule] = content.text;
     }
   });
@@ -338,7 +342,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_CONTENT
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_STYLE, ({ slideId, style }, resolve) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_STYLE, ({ slideId, style }, resolve, reject) => {
   const formData = new FormData();
 
   formData.append("style", style);
@@ -348,7 +352,10 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY
     body: formData
   }).then(res => {
     if (res.status !== 200) {
-      res.json().then(error => console.error(error));
+      res.json().then(error => {
+        console.error(error);
+        reject(error);
+      });
       return;
     }
 
@@ -389,6 +396,37 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () =>
   }
 });
 
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, async ({ slideId, props }, resolve, reject) => {
+  const formData = new FormData();
+
+  for (const prop of Object.keys(props)) {
+    formData.append(prop, props[prop]);
+  }
+
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/props`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (res.status !== 200) {
+    const error = await res.json();
+    console.error(error);
+    reject(error);
+    return;
+  }
+
+  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+
+  for (const prop of Object.keys(props)) {
+    if (prop === "intro" && !props.intro) {
+      delete slideToChange.intro;
+    } else {
+      slideToChange[prop] = props[prop];
+    }
+  }
+
+  resolve();
+});
 /* /CMS */
 
 watch(theme, (value) => updatePageTheme(value));

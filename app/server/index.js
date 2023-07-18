@@ -74,6 +74,7 @@ async function startServer() {
     insertOneSlide,
     removeOneSlide,
     findImgReference,
+    updateOneSlide,
     updateOneSlideContent,
     updateOneSlideGallery,
     updateOneSlideGalleryAddImg,
@@ -123,6 +124,7 @@ async function startServer() {
 
 
   /* Routes */
+  // Publish an adventure
   app.post('/rest/adventure/:adventureId/publish', async (req, res) => {
     try {
       const adventureDeploymentPath = await findAdventureDeploymentPath(req.params.adventureId),
@@ -152,6 +154,7 @@ async function startServer() {
     }
   })
 
+  // Get a list of all adventures
   app.get('/rest/adventure/list', async (_, res) => {
     try {
       const adventures = await findAdventures()
@@ -191,11 +194,12 @@ async function startServer() {
   })
 
   // Add slide content
-  app.put('/rest/adventure/:adventureId/slide/:slideId/content', upload.fields(["locale", "contentPosition", "headline", "contentText"]), async (req, res) => {
+  app.put('/rest/adventure/:adventureId/slide/:slideId/content', upload.fields(["locale", "contentPosition", "headline", "subheadline", "contentText"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
             slideContent = {
               headline: req.body.headline,
+              subheadline: req.body.subheadline,
               content: {
                 text: req.body.contentText,
                 position: req.body.contentPosition
@@ -335,6 +339,7 @@ async function startServer() {
     }
   })
 
+  // Change slide content position
   app.post('/rest/adventure/:adventureId/slide/:slideId/content', upload.fields(["contentPosition"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
@@ -347,6 +352,21 @@ async function startServer() {
 
       await updateOneSlideContent(adventureId, slideId, slideContent)
       
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  app.post('/rest/adventure/:adventureId/slide/:slideId/props', upload.fields(["intro"]), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            intro = req.body.intro
+
+      await updateOneSlide(adventureId, slideId, { intro })
+
       res.status(200).json({ok: true})
     } catch (ex) {
       console.error(ex)
@@ -382,6 +402,7 @@ async function startServer() {
     }      
   })
 
+  // Return 404 for any request to /img/ directory that doesn't contain an adventure ID
   app.get('/img/*', (_, res) => {
     res.status(404).end()
   })
