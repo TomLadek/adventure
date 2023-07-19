@@ -40,7 +40,7 @@ function onMinimizeControlsClick() {
 }
 
 onMounted(() => {
-  if (!cmsControlsMinimized.value) {
+  if (cmsControlsMinimized.value) {
     cmsControlsHeight.value = `10rem`;
     cmsControlsWidth.value = `15rem`;
   } else {
