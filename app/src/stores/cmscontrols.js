@@ -1,9 +1,24 @@
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
 import { isCmsView } from "../../src/utils.js";
+import { usePageContext } from "../../renderer/usePageContext.js";
 
 export const useCmsControlsStore = defineStore("cmsControls", () => {
-  const editMode = isCmsView ? ref(true) : false;
+  const { userSettings } = usePageContext();
+
+  const editModeLSKey = "CmsControls-editmode",
+        editMode = (() => {
+          if (isCmsView) {
+            if (userSettings && typeof userSettings.editmode !== "undefined")
+              return ref(userSettings.editmode === "true")
+            if (typeof localStorage !== "undefined")
+              return ref(localStorage.getItem(editModeLSKey) === "true");
+
+            return ref(true);
+          }
+
+          return false;
+        })();
   
   function toggleEditMode() {
     if (typeof editMode === "object")
@@ -77,6 +92,11 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
       });
     }
   }
+
+  watch(editMode, newVal => {
+    localStorage.setItem(editModeLSKey, newVal);
+    document.cookie = `${editModeLSKey}=${newVal}; SameSite=None; Secure`;
+  })
 
   return {
     isCmsView,

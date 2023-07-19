@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const express = require('express')
 const multer = require('multer')
+const cookieParser = require('cookie-parser')
 const { renderPage } = require('vite-plugin-ssr/server')
 const { exec, execSync } = require('child_process')
 
@@ -99,6 +100,7 @@ async function startServer() {
   // }))
 
   app.use(express.json())
+  app.use(cookieParser())
 
   if (isProduction) {
     const sirvMiddleware = require('sirv')
@@ -410,9 +412,21 @@ async function startServer() {
   // IMPORTANT: Catch-all-route needs to be after /rest routes otherwise
   // vite-plugin-ssr tries to handle those as well.
   app.get('*', async (req, res, next) => {
+    const userSettings = {}
+
+    if (req.cookies) {
+      for (const cookie in req.cookies) {
+        const cookieMatch = cookie.match(/CmsControls-(.*)/)
+        
+        if (cookieMatch && cookieMatch.length > 1)
+        userSettings[cookieMatch[1]] = req.cookies[cookie]
+      }
+    }
+
     try {
       const result = await renderPage({
-              urlOriginal: req.originalUrl
+              urlOriginal: req.originalUrl,
+              userSettings: userSettings
             }),
             { httpResponse } = result
 
