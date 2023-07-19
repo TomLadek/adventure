@@ -19,9 +19,11 @@ const { userSettings } = usePageContext(),
       cmsControlsWidth = ref("initial"),
       cmsControlsMinimized = ref((() => {
         if (userSettings && typeof userSettings.minimized !== "undefined")
-          return userSettings.minimized === "true"
-        else
+          return userSettings.minimized === "true";
+        else if (typeof localStorage !== "undefined")
           return localStorage.getItem(minimizedLSKey) === "true";
+        else
+          return false;
       })()),
       minimizedLSKey = "CmsControls-minimized";
 
