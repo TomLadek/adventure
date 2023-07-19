@@ -13,6 +13,7 @@ const props = defineProps({
 });
 
 const { userSettings } = usePageContext(),
+      minimizedLSKey = "CmsControls-minimized",
       cmsControlsStore = useCmsControlsStore(),
       cmsControls = ref(null),
       cmsControlsHeight = ref("initial"),
@@ -24,8 +25,7 @@ const { userSettings } = usePageContext(),
           return localStorage.getItem(minimizedLSKey) === "true";
         else
           return false;
-      })()),
-      minimizedLSKey = "CmsControls-minimized";
+      })());
 
 function publish() {
   console.log("publishing ...")
