@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import { usePageContext } from "../../renderer/usePageContext.js";
 </script>
@@ -13,19 +13,19 @@ const props = defineProps({
 });
 
 const { userSettings } = usePageContext(),
-      minimizedLSKey = "CmsControls-minimized",
+      minimizedUserSettingsKey = "CmsControls-minimized",
+      minimizedStartValue = ref((() => {
+        if (userSettings && typeof userSettings.minimized !== "undefined")
+          return userSettings.minimized === "true";
+        else
+          return false;
+      })()),
+      cmsControlsAnimTime = "0.15s",
       cmsControlsStore = useCmsControlsStore(),
       cmsControls = ref(null),
       cmsControlsHeight = ref("initial"),
       cmsControlsWidth = ref("initial"),
-      cmsControlsMinimized = ref((() => {
-        if (userSettings && typeof userSettings.minimized !== "undefined")
-          return userSettings.minimized === "true";
-        else if (typeof localStorage !== "undefined")
-          return localStorage.getItem(minimizedLSKey) === "true";
-        else
-          return false;
-      })());
+      cmsControlsMinimized = ref(false);
 
 function publish() {
   console.log("publishing ...")
@@ -35,23 +35,30 @@ function publish() {
 function onMinimizeControlsClick() {
   cmsControlsMinimized.value = !cmsControlsMinimized.value;
 
-  localStorage.setItem(minimizedLSKey, cmsControlsMinimized.value);
-  document.cookie = `${minimizedLSKey}=${cmsControlsMinimized.value}; SameSite=None; Secure`;
+  const cookieExpireDate = new Date();
+  cookieExpireDate.setFullYear(cookieExpireDate.getFullYear() + 1);
+
+  document.cookie = `${minimizedUserSettingsKey}=${cmsControlsMinimized.value}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
 }
 
-onMounted(() => {
-  if (cmsControlsMinimized.value) {
-    cmsControlsHeight.value = `10rem`;
-    cmsControlsWidth.value = `15rem`;
-  } else {
-    cmsControlsHeight.value = `${cmsControls.value.clientHeight}px`;
-    cmsControlsWidth.value = `${cmsControls.value.clientWidth}px`;
+onMounted(async () => {
+  cmsControlsHeight.value = `${cmsControls.value.clientHeight}px`;
+  cmsControlsWidth.value = `${cmsControls.value.clientWidth}px`;
+
+  await nextTick();
+
+  if (minimizedStartValue.value) {
+    cmsControlsMinimized.value = true;
+
+    setTimeout(() => {
+      minimizedStartValue.value = null;
+    }, parseFloat(cmsControlsAnimTime) * 1000);
   }
 });
 </script>
 
 <template>
-<div id="cms-controls" class="cms-controls" :class="{ minimized: cmsControlsMinimized }" ref="cmsControls" :aria-expanded="!cmsControlsMinimized">
+<div id="cms-controls" class="cms-controls" :class="{ minimized: cmsControlsMinimized }" ref="cmsControls" :aria-expanded="!cmsControlsMinimized" :style="{ opacity: minimizedStartValue ? 0 : null }">
   <div class="cms-controls-wrapper">
     <button class="cms-controls-title" @click="onMinimizeControlsClick" aria-controls="cms-controls">
       CMS controls
@@ -60,15 +67,17 @@ onMounted(() => {
         <path d="M4,15 L9,10 L14,15" fill="none" stroke-width="2"></path>
       </svg>
     </button>
-    <div class="cms-controls-content">
-      <div class="cms-controls-input">
-        <label for="input-edit-mode">Edit mode:</label>
-        <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
+    <Transition name="fade">
+      <div v-if="!cmsControlsMinimized" class="cms-controls-content">
+        <div class="cms-controls-input">
+          <label for="input-edit-mode">Edit mode:</label>
+          <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
+        </div>
+        <div class="cms-controls-input centered">
+          <button class="cms-button-publish" @click="publish">Publish</button>
+        </div>
       </div>
-      <div class="cms-controls-input centered">
-        <button class="cms-button-publish" @click="publish">Publish</button>
-      </div>
-    </div>
+    </Transition>
   </div>
 </div>
 </template>
@@ -86,7 +95,7 @@ onMounted(() => {
   border-radius: 1.5rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(4px);
-  transition: all 0.15s ease-out;
+  transition: all v-bind(cmsControlsAnimTime) ease-out;
 }
 
 .cms-controls.minimized {
@@ -100,7 +109,7 @@ onMounted(() => {
 
 .cms-controls .cms-controls-wrapper {
   padding: 1.5rem;
-  transition: padding 0.15s ease-out;
+  transition: padding v-bind(cmsControlsAnimTime) ease-out;
 }
 
 .cms-controls.minimized .cms-controls-wrapper {
@@ -116,7 +125,8 @@ onMounted(() => {
   border: none;
   color: inherit;
   padding: 0;
-  transition: gap 0.15s ease-out;
+  white-space: nowrap;
+  transition: gap v-bind(cmsControlsAnimTime) ease-out;
 }
 
 .cms-controls.minimized .cms-controls-title {
@@ -131,21 +141,14 @@ onMounted(() => {
 
 .cms-controls.minimized .cms-controls-title svg {
   width: 1rem;
-  transform: rotate(180deg) translate(0, -1px);
+  transform: rotate(180deg);
 }
-
 
 .cms-controls .cms-controls-content {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 1rem;
-  opacity: 1;
-  transition: opacity 0.15s ease-out;
-}
-
-.cms-controls.minimized .cms-controls-content {
-  opacity: 0;
 }
 
 .cms-controls .cms-controls-toggle {
@@ -211,5 +214,15 @@ onMounted(() => {
   color: inherit;
   background: transparent;
   border-radius: 0.5rem;
+}
+
+.cms-controls .fade-enter-active,
+.cms-controls .fade-leave-active {
+  transition: opacity v-bind(cmsControlsAnimTime) ease-out;
+}
+
+.cms-controls .fade-enter-from,
+.cms-controls .fade-leave-to {
+  opacity: 0;
 }
 </style>

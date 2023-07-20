@@ -6,13 +6,11 @@ import { usePageContext } from "../../renderer/usePageContext.js";
 export const useCmsControlsStore = defineStore("cmsControls", () => {
   const { userSettings } = usePageContext();
 
-  const editModeLSKey = "CmsControls-editmode",
+  const editModeUserSettingsKey = "CmsControls-editmode",
         editMode = (() => {
           if (isCmsView) {
             if (userSettings && typeof userSettings.editmode !== "undefined")
               return ref(userSettings.editmode === "true")
-            if (typeof localStorage !== "undefined")
-              return ref(localStorage.getItem(editModeLSKey) === "true");
 
             return ref(true);
           }
@@ -94,8 +92,10 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
   }
 
   watch(editMode, newVal => {
-    localStorage.setItem(editModeLSKey, newVal);
-    document.cookie = `${editModeLSKey}=${newVal}; SameSite=None; Secure`;
+    const cookieExpireDate = new Date();
+    cookieExpireDate.setFullYear(cookieExpireDate.getFullYear() + 1);
+
+    document.cookie = `${editModeUserSettingsKey}=${newVal}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
   })
 
   return {
