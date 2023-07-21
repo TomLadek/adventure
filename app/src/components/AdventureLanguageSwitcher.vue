@@ -31,7 +31,7 @@ function setLang(lang) {
 </script>
 
 <template>
-<div class="lang-switcher" v-if="languages.length > 1">
+<div class="lang-switcher slide-themed" v-if="languages.length > 1">
   <button v-for="lang in languages" @click="setLang(lang)" class="lang" v-active:[lang]="languageStore.language">{{lang.toUpperCase()}}</button>
 </div>
 </template>
@@ -46,16 +46,15 @@ function setLang(lang) {
 }
 
 .lang-switcher button {
+  width: 2rem;
   padding: 0.3rem;
   background: transparent;
   border: none;
   border-radius: 5px;
-  color: unset;
 }
 
 .lang-switcher button.active {
   font-weight: bold;
-  transition: backdrop-filter var(--default-anim-time) ease;
 }
 
 .lang-switcher button.active {

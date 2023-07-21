@@ -361,13 +361,12 @@ async function startServer() {
     }
   })
 
-  app.post('/rest/adventure/:adventureId/slide/:slideId/props', upload.fields(["intro"]), async (req, res) => {
+  app.post('/rest/adventure/:adventureId/slide/:slideId/props', upload.fields(["intro", "theme"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
-            slideId = req.params.slideId,
-            intro = req.body.intro
+            slideId = req.params.slideId
 
-      await updateOneSlide(adventureId, slideId, { intro })
+      await updateOneSlide(adventureId, slideId, req.body)
 
       res.status(200).json({ok: true})
     } catch (ex) {

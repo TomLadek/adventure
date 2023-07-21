@@ -158,13 +158,14 @@ export async function updateOneSlide(adventureId, slideId, props) {
   const adventuresColl = getCollection("adventures"),
         updateDocument = { $set: {}, $unset: {} }
 
-  if (!props.intro || props.intro === "false") {
+  if (props.intro === "false") {
     updateDocument.$unset = { "slides.$.intro": "" }
     delete props.intro
   }
 
   for (const prop of Object.keys(props)) {
-    updateDocument.$set[`slides.$.${prop}`] = props[prop]
+    const propValue = props[prop]
+    updateDocument.$set[`slides.$.${prop}`] = /true|false/i.test(propValue) ? propValue === "true" : propValue
   }
 
   try {

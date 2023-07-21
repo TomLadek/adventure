@@ -106,7 +106,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <slot name="cmsRemoveSlideButton"></slot>
+    <slot name="cmsSlideControls"></slot>
   </section>
 </template>
 
@@ -120,7 +120,6 @@ onMounted(() => {
   text-align: center;
   text-shadow: 3px 3px 2px #272727;
   margin: max(2rem, 6vh) 0;
-  transition: text-shadow var(--default-anim-time) ease;
 }
 
 @media (min-width: 768px) {
@@ -129,7 +128,7 @@ onMounted(() => {
   }
 }
 
-.dark .slide-intro .headline {
+.slide-intro.slide-theme-dark .headline {
   text-shadow: 4px -4px 7px #646464;
 }
 
@@ -149,12 +148,6 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  color: white;
-  transition: color var(--default-anim-time) ease;
-}
-
-.dark .slide-intro .content-outer {
-  color: var(--color-black);
 }
 
 .slide-intro .content-outer p {
@@ -204,10 +197,9 @@ onMounted(() => {
 
 .slide-intro .start-link-icon path {
   stroke: white;
-  transition: stroke var(--default-anim-time) ease;
 }
 
-.dark .slide-intro .start-link-icon path {
+.slide-intro.slide-theme-dark  .start-link-icon path {
   stroke: var(--color-black);
 }
 
@@ -223,7 +215,6 @@ onMounted(() => {
   left: 28px;
   width: max-content;
   padding: 1rem;
-  color: white;
   text-shadow: 0 0 4px rgb(0 0 0 / 45%);
   border-radius: 20px 20px 20px 0;
   box-shadow: 0 0 3px 0 rgb(0 0 0 / 70%);
@@ -242,7 +233,6 @@ onMounted(() => {
   font-family: monospace;
   font-weight: bold;
   font-size: 18pt;
-  color: #ffffff;
   background: transparent;
   border: none;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);

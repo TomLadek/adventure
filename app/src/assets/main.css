@@ -78,6 +78,7 @@ p {
 button {
   cursor: pointer;
   font-family: inherit;
+  color: inherit;
 }
 
 div[data-empty-text]::after {

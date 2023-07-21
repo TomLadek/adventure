@@ -375,7 +375,7 @@ watch(slideControlsExpanded, value => {
 
     <slot v-else name="cmsAddSlideContentButton"></slot>
 
-    <slot name="cmsRemoveSlideButton"></slot>
+    <slot name="cmsSlideControls"></slot>
   </section>
 </template>
 

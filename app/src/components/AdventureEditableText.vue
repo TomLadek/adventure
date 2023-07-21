@@ -260,13 +260,12 @@ watch(realTextDisplay, (showRealText) => {
   height: auto;
   padding: 0.5rem;
   background: rgba(0, 0, 0, 0.68);
-  color: white;
+  color: var(--color-white);
   border-radius: 0.4rem;
   backdrop-filter: blur(3px);
 }
 
 .cms-text-editor-controls button.editor-action {
-  color: inherit;
   border: none;
   background: none;
 }

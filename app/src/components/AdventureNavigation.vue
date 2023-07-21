@@ -19,7 +19,7 @@ const props = defineProps({
 </script>
 
 <template>
-<ol class="dots">
+<ol class="dots slide-themed">
   <li v-for="i in slideCount" :class="{active: i - 1 === slideChange.current}"><a :href="`#slide${i - 1}`"></a></li>
 </ol>
 </template>

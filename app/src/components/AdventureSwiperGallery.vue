@@ -309,7 +309,6 @@ onBeforeLeave = element => {
   border: none;
   padding: 0;
   display: flex;
-  color: inherit;
 }
 
 .gallery-thumbs .gallery-img-controls button svg {

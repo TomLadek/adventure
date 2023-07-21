@@ -12,6 +12,7 @@ import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "./buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "./buttons/CmsButtonDelete.vue";
 import CmsButtonSlideType from "./buttons/CmsButtonSlideType.vue";
+import CmsButtonTheme from "./buttons/CmsButtonTheme.vue";
 /* /CMS */
 
 function getCssUrlString(url) {
@@ -67,7 +68,8 @@ const confirmationStore = useConfirmationStore(),
       cmsControlsStore = useCmsControlsStore(),
       slideControlsExpanded = ref(false),
       submenuExpanded = ref({
-        type: false
+        type: false,
+        theme: false
       });;
 
 let slideControlsExpandedTimeout = 0;
@@ -110,6 +112,12 @@ async function onSlideTypeClick(type) {
   submenuExpanded.value.type = false;
 }
 
+async function onSlideThemeClick(theme) {
+  await cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, { slideId: props.slide.id, props: { theme } });
+
+  submenuExpanded.value.theme = false;
+}
+
 function onSlideControlsCloseClick() {
   for (const submenu of Object.keys(submenuExpanded.value)) {
     submenuExpanded.value[submenu] = false;
@@ -117,11 +125,17 @@ function onSlideControlsCloseClick() {
 
   slideControlsExpanded.value = false;
 }
+
+function onSubmenuExpandClick(submenu) {
+  for (const submn in submenuExpanded.value) {
+    submenuExpanded.value[submn] = submn === submenu;
+  }
+}
 /* /CMS */
 </script>
 
 <template>
-  <component class="slide" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
+  <component class="slide" :class="`slide-theme-${slide.theme || 'light'}`" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
     <!-- CMS -->
     <template #cmsAddSlideContentButton>
       <div v-if="cmsControlsStore.editMode" class="cms-new-slide-content-outer">
@@ -129,26 +143,49 @@ function onSlideControlsCloseClick() {
       </div>
     </template>
 
-    <template #cmsRemoveSlideButton>
-      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
+    <template #cmsSlideControls>
+      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="false && onSlideControlsMouseLeave">
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
-        <template v-else>
-          <CmsButtonSlideType @click="submenuExpanded.type = true" title="Change slide type" />
-          <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
-          <CmsButtonClose @click="onSlideControlsCloseClick" />
+        <Transition name="slide-controls-actions">
+          <div v-if="slideControlsExpanded" class="slide-controls-actions">
+            <CmsButtonTheme @click="onSubmenuExpandClick('theme')" title="Change slide theme" />
+            <Transition name="slide-controls-submenu-transition">
+              <ul v-if="submenuExpanded.theme" class="slide-controls-submenu slide-theme-list">
+                <li>
+                  <button class="submenu-item theme-item" :class="{ active: !slide.theme || slide.theme === 'light' }" @click="onSlideThemeClick('light')">
+                    <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="white" width="34" height="34">
+                      <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
+                    </svg>
+                  </button>
+                </li>
+                <li>
+                  <button class="submenu-item theme-item dark" :class="{ active: slide.theme === 'dark' }" @click="onSlideThemeClick('dark')">
+                    <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="black" width="34" height="34">
+                      <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
+                    </svg>
+                  </button>
+                </li>
+              </ul>
+            </Transition>
 
-          <Transition name="slide-controls-submenu-transition">
-            <ul v-if="submenuExpanded.type" class="slide-controls-submenu slide-type-list">
-              <li>
-                <button class="type-item" :class="{ active: slide.intro }" @click="onSlideTypeClick('intro')">Intro slide</button>
-              </li>
-              <li>
-                <button class="type-item" :class="{ active: !slide.intro }" @click="onSlideTypeClick('gallery')">Gallery slide</button>
-              </li>
-            </ul>
-          </Transition>
-        </template>
+            <CmsButtonSlideType @click="onSubmenuExpandClick('type')" title="Change slide type" />
+            <Transition name="slide-controls-submenu-transition">
+              <ul v-if="submenuExpanded.type" class="slide-controls-submenu slide-type-list">
+                <li>
+                  <button class="submenu-item type-item" :class="{ active: slide.intro }" @click="onSlideTypeClick('intro')">Intro slide</button>
+                </li>
+                <li>
+                  <button class="submenu-item type-item" :class="{ active: !slide.intro }" @click="onSlideTypeClick('gallery')">Gallery slide</button>
+                </li>
+              </ul>
+            </Transition>
+
+            <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
+
+            <CmsButtonClose @click="onSlideControlsCloseClick" />
+          </div>
+        </Transition>
       </div>
     </template>
     <!-- /CMS -->
@@ -256,6 +293,14 @@ function onSlideControlsCloseClick() {
   }
 }
 
+.slide.slide-theme-light {
+  color: var(--color-white);
+}
+
+.slide.slide-theme-dark {
+  color: var(--color-black);
+}
+
 .slide .main-picture {
   position: absolute;
   left: 0;
@@ -296,9 +341,7 @@ function onSlideControlsCloseClick() {
   width: 3rem;
   height: 5rem;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  justify-content: space-evenly;
+  justify-content: center;
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
   background: rgba(0, 0, 0, 0.68);
@@ -314,10 +357,32 @@ function onSlideControlsCloseClick() {
 }
 
 .slide .slide-controls.expanded {
-  height: 10rem;
+  height: 14rem;
+}
+
+.slide .slide-controls .slide-controls-actions {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.slide .slide-controls .slide-controls-actions-enter-active,
+.slide .slide-controls .slide-controls-actions-leave-active {
+  position: absolute;
+  overflow: hidden;
+  transition: opacity 0.15s ease;
+}
+
+.slide .slide-controls .slide-controls-actions-enter-from,
+.slide .slide-controls .slide-controls-actions-leave-to {
+  opacity: 0;
 }
 
 .slide .slide-controls button {
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -352,9 +417,7 @@ function onSlideControlsCloseClick() {
   transform: scale(0.9) translateX(0.25rem);
 }
 
-.slide .slide-controls .slide-controls-submenu.slide-type-list {
-  right: 1rem;
-  top: -1.5rem;
+.slide .slide-controls .slide-controls-submenu {
   width: max-content;
   list-style: none;
   display: flex;
@@ -363,23 +426,47 @@ function onSlideControlsCloseClick() {
   padding: 0;
 }
 
+.slide .slide-controls .slide-controls-submenu.slide-type-list {
+  right: 1rem;
+  top: 1.5rem;
+}
+
 .slide .slide-controls .slide-controls-submenu.slide-type-list .type-item {
   width: 100%;
   padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
   font-size: 100%;
 }
 
-.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item:hover {
+.slide .slide-controls .slide-controls-submenu .submenu-item {
+  border-radius: 0.5rem;
+}
+
+.slide .slide-controls .slide-controls-submenu .submenu-item:hover {
   background: #ffffff38;
 }
 
-.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item.active {
+.slide .slide-controls .slide-controls-submenu .submenu-item.active {
   background: #ffffff69;
 }
 
-.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item.active:hover {
+.slide .slide-controls .slide-controls-submenu .submenu-item.active:hover {
   background: #ffffff80;
 }
+
+.slide .slide-controls .slide-controls-submenu.slide-theme-list {
+  right: 0.5rem;
+  top: -0.5rem;
+  flex-direction: row;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-theme-list .theme-item {
+  width: 3rem;
+  height: 3rem;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-theme-list .theme-item.dark svg {
+  fill: black;
+}
+
 /* /CMS */
 </style>

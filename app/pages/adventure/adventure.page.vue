@@ -384,18 +384,6 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_CONTENT, (
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () => {
-  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/publish`, {
-    method: "POST"
-  });
-
-  if (res.status === 200) {
-    console.log("published successfully!")
-  } else {
-    console.error(res)
-  }
-});
-
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, async ({ slideId, props }, resolve, reject) => {
   const formData = new FormData();
 
@@ -426,6 +414,18 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, 
   }
 
   resolve();
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () => {
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/publish`, {
+    method: "POST"
+  });
+
+  if (res.status === 200) {
+    console.log("published successfully!")
+  } else {
+    console.error(res)
+  }
 });
 /* /CMS */
 
@@ -498,12 +498,17 @@ body {
   overflow: hidden;
 }
 
-.adventure-container {
-  color: var(--color-white);
-  transition: color var(--default-anim-time) ease;
+.slide-themed, .slide-themed button {
+  transition-property: color, backdrop-filter;
+  transition-duration: var(--default-anim-time);
+  transition-timing-function: ease;
 }
 
-.dark .adventure-container {
+.light .slide-themed button {
+  color: var(--color-white);
+}
+
+.dark .slide-themed button {
   color: var(--color-black);
 }
 

@@ -91,7 +91,7 @@ onMounted(async () => {
   position: fixed;
   left: 1rem;
   top: 1rem;
-  color: #fff;
+  color: white;
   border-radius: 1.5rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(4px);
@@ -123,7 +123,6 @@ onMounted(async () => {
   align-items: center;
   background: none;
   border: none;
-  color: inherit;
   padding: 0;
   white-space: nowrap;
   transition: gap v-bind(cmsControlsAnimTime) ease-out;
@@ -211,7 +210,6 @@ onMounted(async () => {
 
 .cms-controls .cms-button-publish {
   padding: 0.5rem 1rem;
-  color: inherit;
   background: transparent;
   border-radius: 0.5rem;
 }
