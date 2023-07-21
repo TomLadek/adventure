@@ -144,7 +144,7 @@ function onSubmenuExpandClick(submenu) {
     </template>
 
     <template #cmsSlideControls>
-      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="false && onSlideControlsMouseLeave">
+      <div v-if="cmsControlsStore.editMode" class="slide-controls" :class="{ expanded: slideControlsExpanded }" @mouseenter="onSlideControlsMouseEnter" @mouseleave="onSlideControlsMouseLeave">
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
         <Transition name="slide-controls-actions">
