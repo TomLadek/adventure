@@ -128,7 +128,6 @@ const slides = computed(() => (adventure.value.slides || []).map((slide) => {
 }));
 
 const slideChange = ref({ last: 0, current: 0, duration: 0 });
-const theme = ref("light");
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
@@ -429,8 +428,6 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () =>
 });
 /* /CMS */
 
-watch(theme, (value) => updatePageTheme(value));
-
 onMounted(() => {
   if (adventure.meta) {
     const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
@@ -440,9 +437,7 @@ onMounted(() => {
     watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
   }
 
-  if (slides.value.length > 0 && slides.value[0].theme) {
-    updatePageTheme(slides.value[0].theme);
-  }
+  updatePageTheme(isCmsView ? "light" : slides.value.length > 0 && slides.value[0].theme);
 
   window.gsap = gsap;
 
@@ -457,7 +452,7 @@ onMounted(() => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
 
         if (toSlide >= 0 && toSlide < slides.value.length)
-          theme.value = slides.value[toSlide].theme;
+          updatePageTheme(slides.value[toSlide].theme);
       }
     });
   });
