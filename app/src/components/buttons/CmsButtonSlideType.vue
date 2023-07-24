@@ -4,6 +4,7 @@
 
 <style>
 .button-type {
-  font-size: 170%;
+  font-size: 200%;
+  font-family: serif;
 }
 </style>
