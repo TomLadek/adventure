@@ -109,7 +109,7 @@ export async function removeOneSlide(adventureId, slideId) {
     )
 
     const slideTextsAggregate = await adventuresColl.aggregate([
-      { $match: { _id: new ObjectId(adventureId) } },
+      { $match: { _id: adventureIdObj } },
       { $unwind: "$slides" },
       { $match: { "slides.id": slideId } },
       { 
@@ -284,7 +284,7 @@ export async function updateOneRemoveSlideContent(adventureId, slideId) {
     )
 
     const slideContentTextsAggregate = await adventuresColl.aggregate([
-      { $match: { _id: new ObjectId(adventureId) } },
+      { $match: { _id: adventureIdObj } },
       { $unwind: "$slides" },
       { $match: { "slides.id": slideId } },
       { 
@@ -412,9 +412,10 @@ export async function updateOneSlideGalleryAddImgCaption(adventureId, slideId, i
 export async function updateOneSlideGalleryRemoveImg(adventureId, slideId, img) {
   try {
     const adventuresColl = getCollection("adventures"),
+          adventureIdObj = new ObjectId(adventureId),
           imgRegex = new RegExp(escapeRegExp(img)),
           captionTextsAggregate = await adventuresColl.aggregate([
-            { $match: { _id: new ObjectId(adventureId) } },
+            { $match: { _id: adventureIdObj } },
             { $unwind: "$slides" },
             { $match: { "slides.id": slideId }},
             { $unwind: "$slides.gallery.images" },
@@ -426,7 +427,7 @@ export async function updateOneSlideGalleryRemoveImg(adventureId, slideId, img) 
       await removeTexts(adventuresColl, adventureId, getPrimitiveValues(captionTextsAggregate))
 
     await adventuresColl.updateOne({
-      _id: new ObjectId(adventureId),
+      _id: adventureIdObj,
       "slides.id": slideId
     }, {
       $pull: {
