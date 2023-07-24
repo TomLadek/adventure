@@ -443,6 +443,56 @@ export async function updateOneSlideGalleryRemoveImg(adventureId, slideId, img) 
   }
 }
 
+export async function updateOneSlideGalleryMoveImg(adventureId, slideId, imageId, direction) {
+  try {
+    const adventuresColl = getCollection("adventures"),
+          adventureIdObj = new ObjectId(adventureId),
+          adventure = await adventuresColl.findOne({ 
+                        _id: adventureIdObj,
+                        "slides.id": slideId
+                      },
+                      {
+                        projection: { "slides.$": 1 }
+                      }),
+          images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
+
+    if (images) {
+      const imgToMoveRegex = new RegExp(escapeRegExp(imageId)),
+            imgToMoveIdx = images.findIndex(img => imgToMoveRegex.test(img.src)),
+            neighborimgIdx = imgToMoveIdx + (direction === "prev" ? -1 : 1),
+            neighborImg = neighborimgIdx >= 0 && neighborimgIdx < images.length && images[neighborimgIdx]      
+
+      if (neighborImg) {
+        images.sort((a, b) => {
+          if (a.src === neighborImg.src && imgToMoveRegex.test(b.src))
+              return direction === "prev" ? 1 : -1;
+
+          if (b.src === neighborImg.src && imgToMoveRegex.test(a.src))
+            return direction === "prev" ? -1 : 1;
+
+          return 0;
+        });
+
+        await adventuresColl.updateOne({
+          _id: adventureIdObj,
+          "slides.id": slideId
+        }, {
+          $set: {
+            "slides.$.gallery.images": images
+          }
+        })
+
+        console.log(`moved ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
+      } else {
+        throw new Error(`can't move ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
+      }
+    }
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function updateOneText(adventureId, textModule, locale, newText) {
   try {
     const adventuresColl = getCollection("adventures"),

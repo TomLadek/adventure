@@ -415,6 +415,42 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, 
   resolve();
 });
 
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMG_POSITION, async ({ slideId, imageId, direction }) => {
+  const formData = new FormData();
+
+  formData.append("direction", direction);
+
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/${imageId}/move`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (res.status !== 200) {
+    const error = await res.json();
+    console.error(error.message);
+    return;
+  }
+
+  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+        imgToMoveIdx = slideToChange.gallery.images.findIndex(img => img.id === imageId),
+        neighborimgIdx = imgToMoveIdx + (direction === "prev" ? -1 : 1),
+        neighborImg = neighborimgIdx >= 0 && neighborimgIdx < slideToChange.gallery.images.length && slideToChange.gallery.images[neighborimgIdx]
+
+  // console.log(`moving ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.id})`)
+
+  if (neighborImg) {
+    slideToChange.gallery.images.sort((a, b) => {
+      if (a.id === neighborImg.id && b.id === imageId)
+          return direction === "prev" ? 1 : -1;
+
+      if (b.id === neighborImg.id && a.id === imageId)
+        return direction === "prev" ? -1 : 1;
+
+      return 0;
+    });
+  }
+});
+
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () => {
   const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/publish`, {
     method: "POST"

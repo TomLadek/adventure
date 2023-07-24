@@ -11,6 +11,7 @@ import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
 import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "./buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "./buttons/CmsButtonDelete.vue";
+import CmsButtonArrow from "./buttons/CmsButtonArrow.vue";
 /* /CMS */
 </script>
 
@@ -62,7 +63,15 @@ const showNewGalleryImgButton = computed(() => {
 function onChooseNextGalleryImg(file) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
     slideId: props.slideId,
-    file: file
+    file
+  });
+}
+
+function onMoveImage(imageId, direction) {
+  cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMG_POSITION, {
+    slideId: props.slideId,
+    imageId,
+    direction
   });
 }
 
@@ -95,7 +104,7 @@ onBeforeLeave = element => {
 <template>
 <div class="gallery-thumbs" :class="galleryThumbsClass">
   <TransitionGroup name="image-list" @before-leave="onBeforeLeave">
-    <div class="gallery-img-container" v-for="image in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.src">
+    <div class="gallery-img-container" v-for="image, i in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.src">
       <a      
         v-bind:key="image.src"
         :href="image.src"
@@ -125,7 +134,9 @@ onBeforeLeave = element => {
 
         <Transition name="expand-width">
           <div class="gallery-img-controls-actions" v-if="imgControlsExpanded[image.src]">
-            <CmsButtonClose @click="imgControlsExpanded[image.src] = false"/>
+            <CmsButtonClose @click="imgControlsExpanded[image.src] = false" />
+            <CmsButtonArrow v-if="i !== 0" @click="onMoveImage(image.id, 'prev')" direction="left" title="Swap with previous" />
+            <CmsButtonArrow v-if="i !== gallery.images.length - 1" @click="onMoveImage(image.id, 'next')" direction="right" title="Swap with next" />
             <CmsButtonDelete @click="onImgDeleteClick(image.src)" deleteWhatText="image" />
           </div>
         </Transition>
@@ -265,29 +276,29 @@ onBeforeLeave = element => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 24px;
+  width: 1.5rem;
   overflow-x: hidden;
   background: rgba(0, 0, 0, 0.68);
   color: white;
   backdrop-filter: blur(3px);
   padding: 0.2rem;
   display: flex;
-  border-top-left-radius: 8px;
+  border-top-left-radius: 0.5rem;
   border-top-right-radius: 0;
-  border-bottom-right-radius: 8px;
+  border-bottom-right-radius: 0.5rem;
   transition-property: width, border-top-right-radius, border-bottom-right-radius;
   transition-duration: 0.15s;
   transition-timing-function: ease-out;
 }
 
 .gallery-thumbs .gallery-img-controls.expanded {
-  width: calc(100% - 0.2rem * 2); /**/
-  border-top-right-radius: 8px;
+  width: calc(100% - 0.2rem * 2);
+  border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0;
 }
 
 .gallery-thumbs .gallery-img-controls .gallery-img-controls-actions {
-  width: calc(48px + 0.2rem);
+  width: max-content;
   display: flex;
   gap: 0.2rem;
   overflow-x: auto;
@@ -305,10 +316,13 @@ onBeforeLeave = element => {
 }
 
 .gallery-thumbs .gallery-img-controls button {
+  width: 1.5rem;
   background: none;
   border: none;
   padding: 0;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .gallery-thumbs .gallery-img-controls button svg {
@@ -316,7 +330,6 @@ onBeforeLeave = element => {
 }
 
 .gallery-thumbs .gallery-img-controls .button-options {
-  width: 24px;
   transition: width, 0.15s ease-out;
 }
 
