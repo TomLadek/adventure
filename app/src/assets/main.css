@@ -75,6 +75,10 @@ p {
   margin: 0;
 }
 
+a {
+  color: #cae1ff;
+}
+
 button {
   cursor: pointer;
   font-family: inherit;
@@ -93,8 +97,8 @@ div[data-empty-text]::after {
 
 .spinner-sm {
   display: block;
-  height: 15px;
-  width: 15px;
+  height: 0.75rem;
+  width: 0.75rem;
   position: relative;
   -webkit-animation: rotation .7s infinite linear;
   -moz-animation: rotation .7s infinite linear;
@@ -116,7 +120,7 @@ div[data-empty-text]::after {
   border-top: 3px solid white;
   border-left: 3px solid transparent;
   border-bottom: 3px solid transparent;
-  border-right: 0px solid transparent;
+  border-right: 3px solid transparent;
   border-radius: 100%;
 }
 

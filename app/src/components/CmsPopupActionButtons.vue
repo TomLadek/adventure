@@ -18,22 +18,31 @@ defineEmits(["confirm", "cancel"])
 }
 
 .cms-adventure-popup-actions-container button {
-  border: 1px solid #787878;
+  border: 1px solid #5f5f5f7d;
   border-radius: 8px;
   background: none;
   padding: 12px;
   font-size: 1em;
+  transition: background-color 0.15s ease;
 }
 
 .cms-adventure-popup-actions-container button.button-ok {
-  background-color: rgba(0, 255, 21, 0.178);
+  background-color: hsl(204, 100%, 36%);
+}
+
+.cms-adventure-popup-actions-container button.button-ok:hover {
+  background-color: hsl(204, 100%, 42%);
 }
 
 .cms-adventure-popup-actions-container button.button-ok:active {
-    background-color: rgb(0 145 12 / 18%);
+  background-color: hsl(204, 100%, 48%);
+}
+
+.cms-adventure-popup-actions-container button.button-cancel:hover {
+  background-color: hsla(0, 0%, 18%);
 }
 
 .cms-adventure-popup-actions-container button.button-cancel:active {
-    background-color: rgba(145, 0, 0, 0.18);
+  background-color: hsla(0, 0%, 27%);
 }
 </style>

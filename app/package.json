@@ -11,6 +11,7 @@
   "dependencies": {
     "@intlify/unplugin-vue-i18n": "^0.8.2",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@tiptap/extension-link": "^2.0.4",
     "@tiptap/extension-placeholder": "^2.0.3",
     "@tiptap/pm": "^2.0.3",
     "@tiptap/starter-kit": "^2.0.3",

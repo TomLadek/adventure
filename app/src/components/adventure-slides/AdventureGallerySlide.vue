@@ -73,7 +73,7 @@ function initGallery() {
   // Init photoswipe
   pswpInstance = new PhotoSwipeLightbox({
       gallery: `#slide_${props.slide.id}`,
-      children: "a",
+      children: "a:not([external])",
       wheelToZoom: true,
       preload: [1, 1], // One before, one after - PhotSwipe minimum
       preloaderDelay: 500,

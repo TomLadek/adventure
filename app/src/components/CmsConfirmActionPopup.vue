@@ -17,7 +17,7 @@ const confirmationStore = useConfirmationStore();
 </script>
 
 <template>
-  <CmsPopup :popupShowing="confirmPopupShowing">
+  <CmsPopup :popupShowing="confirmPopupShowing" @keydown.prevent.escape="confirmationStore.cancel">
     <h2>{{ confirmationStore.headline }}</h2>
     <div class="confirmation-content" v-html="confirmationStore.content"></div>
     <CmsPopupActionButtons @confirm="confirmationStore.confirm" @cancel="confirmationStore.cancel" />

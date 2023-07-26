@@ -1,4 +1,5 @@
 <script>
+import { ref, watch } from "vue";
 // import ButtonClose from "./ButtonClose.vue";
 </script>
 
@@ -8,45 +9,69 @@ const props = defineProps({
     required: true,
     type: Boolean
   }
+});
+
+const dialog = ref(null);
+
+watch(() => props.popupShowing, (open) => {
+    if (open)
+      dialog.value.showModal();
+    else
+      dialog.value.close();
 })
 </script>
 
 <template>
-  <Transition name="popup-fade">
-    <div v-if="popupShowing" class="cms-adventure-popup">
-      <div class="cms-adventure-popup-content">
-        <!-- <ButtonClose class="popup-button-close" @close-click="closePopup" /> -->
-  
-        <div class="cms-adventure-popup-fields-container">
-          <slot></slot>
-        </div>
-      </div>
+  <dialog class="cms-adventure-popup" ref="dialog">
+    <!-- <ButtonClose class="popup-button-close" @close-click="closePopup" /> -->
+
+    <div class="cms-adventure-popup-fields-container">
+      <slot></slot>
     </div>
-  </Transition>
+  </dialog>
 </template>
 
 <style>
 .cms-adventure-popup {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  color: initial;
-  background: #00000036;
-  z-index:101;
+  width: min(30rem, 80vw);
+  border-radius: 32px;
+  background: #0000008a;
+  backdrop-filter: blur(10px);
+  color: white;
+  border: none;
+  padding: 0;
+  box-shadow: 0px 0px 32px 0px #000000b5;
+  /* transition: all 0.15s ease; */
 }
 
-.cms-adventure-popup-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(30rem, 80vw);
-  transform: translate(-50%, -50%);
-  border-radius: 32px;
-  background: #fff;
-  box-shadow: 0px 0px 32px 0px #686868;
+.cms-adventure-popup[open] {
+  animation: fadeIn 0.15s ease normal;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cms-adventure-popup::backdrop {
+  /* animation: backdropFade 0.15s ease normal; */
+  background: #00000085;
+}
+
+
+/* TODO fix backdrop animation and closing animations in general */
+/* @keyframes backdropFade {
+  from {
+    background: #00000000;
+  }
+  to {
+    background: #00000085;
+  }
+} */
 
 /*
 .popup-button-close {

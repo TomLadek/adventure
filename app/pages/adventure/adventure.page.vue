@@ -22,8 +22,10 @@ import { escapeRegExp, isCmsView, resourcePath } from "../../src/utils.js";
 import CmsControls from "../../src/components/CmsControls.vue";
 import CmsAdventureNewSlide from "../../src/components/adventure-slides/CmsAdventureNewSlide.vue";
 import CmsConfirmActionPopup from "../../src/components/CmsConfirmActionPopup.vue";
+import CmsLinkPopup from "../../src/components/CmsLinkPopup.vue";
 import { useCmsControlsStore } from "../../src/stores/cmscontrols.js";
 import { useConfirmationStore } from "../../src/stores/confirmation.js";
+import { useLinksStore } from "../../src/stores/links.js";
 import { useImageLoader } from "../../src/composables/imageLoader";
 /* /CMS */
 
@@ -132,6 +134,7 @@ const slideChange = ref({ last: 0, current: 0, duration: 0 });
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
+      linkStore = useLinksStore(),
       { loadImage } = useImageLoader();
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE, async file => {
@@ -501,6 +504,8 @@ onMounted(() => {
     <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" />
 
     <CmsConfirmActionPopup :confirmPopupShowing="confirmationStore.pending" />
+
+    <CmsLinkPopup :linkPopupShowing="linkStore.pending"/>
     <!-- /CMS -->
 
     <AdventureLanguageSwitcher />
