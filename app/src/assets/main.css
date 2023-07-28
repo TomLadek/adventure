@@ -80,9 +80,12 @@ a {
 }
 
 button {
-  cursor: pointer;
   font-family: inherit;
   color: inherit;
+}
+
+button:not([disabled]) {
+  cursor: pointer;
 }
 
 div[data-empty-text]::after {
