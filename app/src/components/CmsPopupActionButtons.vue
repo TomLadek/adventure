@@ -4,8 +4,8 @@ defineEmits(["confirm", "cancel"])
 
 <template>
   <div class="cms-adventure-popup-actions-container">
-    <button class="button-ok" @click="$emit('confirm')">OK</button>
-    <button class="button-cancel" @click="$emit('cancel')">Cancel</button>
+    <button class="button-ok" @click="$emit('confirm')" value="ok">OK</button>
+    <button class="button-cancel" @click="$emit('cancel')" value="cancel">Cancel</button>
   </div>
 </template>
 

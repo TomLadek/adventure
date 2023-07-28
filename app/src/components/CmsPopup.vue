@@ -11,18 +11,27 @@ const props = defineProps({
   }
 });
 
-const dialog = ref(null);
+const dialog = ref(null),
+      closing = ref(false);
 
-watch(() => props.popupShowing, (open) => {
-    if (open)
+watch(() => props.popupShowing, (showing) => {
+    if (showing)
       dialog.value.showModal();
-    else
-      dialog.value.close();
+    else {
+      closing.value = true;
+    }
 })
+
+function onAnimationEnd() {
+  if (!props.popupShowing) {
+    dialog.value.close();
+    closing.value = false;
+  }
+}
 </script>
 
 <template>
-  <dialog class="cms-adventure-popup" ref="dialog">
+  <dialog class="cms-adventure-popup" :class="{ closing }" ref="dialog" @animationend="onAnimationEnd">
     <!-- <ButtonClose class="popup-button-close" @close-click="closePopup" /> -->
 
     <div class="cms-adventure-popup-fields-container">
@@ -40,38 +49,35 @@ watch(() => props.popupShowing, (open) => {
   color: white;
   border: none;
   padding: 0;
-  box-shadow: 0px 0px 32px 0px #000000b5;
-  /* transition: all 0.15s ease; */
+  box-shadow: 0px 0px 32px 0px #000000b5;  
 }
 
-.cms-adventure-popup[open] {
-  animation: fadeIn 0.15s ease normal;
+.cms-adventure-popup[open],
+.cms-adventure-popup[open]::backdrop,
+.cms-adventure-popup[open].closing,
+.cms-adventure-popup[open].closing::backdrop {
+  animation-duration: 0.15s;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.cms-adventure-popup[open],
+.cms-adventure-popup[open]::backdrop {
+  animation-name: fadein;
+}
+
+.cms-adventure-popup[open].closing,
+.cms-adventure-popup[open].closing::backdrop {
+  animation-name: fadeout;
 }
 
 .cms-adventure-popup::backdrop {
-  /* animation: backdropFade 0.15s ease normal; */
   background: #00000085;
 }
 
-
-/* TODO fix backdrop animation and closing animations in general */
-/* @keyframes backdropFade {
-  from {
-    background: #00000000;
-  }
-  to {
-    background: #00000085;
-  }
-} */
+.cms-adventure-popup-fields-container {
+  padding: 2rem;
+}
 
 /*
 .popup-button-close {
@@ -81,16 +87,13 @@ watch(() => props.popupShowing, (open) => {
 }
 */
 
-.cms-adventure-popup-fields-container {
-  padding: 2rem;
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.popup-fade-enter-active, .popup-fade-leave-active {
-  transition: all 0.2s ease;
-}
-
-.popup-fade-enter-from,
-.popup-fade-leave-to {
-  opacity: 0;
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 </style>

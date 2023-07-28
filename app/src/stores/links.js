@@ -1,30 +1,29 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 export const useLinksStore = defineStore("links", () => {
   const pending = ref(false),
         linkText = ref(""),
+        linkTextSuggested = ref(""),
         linkHref = ref("")
   
   let onConfirm, onCancel
 
   function reset() {
     pending.value = false
-    linkText.value = ""
-    linkHref.value = ""
   }
 
   function getLink(linkTextParam, linkHrefParam, onConfirmCallback, onCancelCallback) {
-    pending.value = true
     linkText.value = linkTextParam
     linkHref.value = linkHrefParam
     onConfirm = onConfirmCallback
     onCancel = onCancelCallback
+    pending.value = true
   }
 
   function confirm() {
     if (typeof onConfirm === "function")
-      onConfirm(linkText.value, linkHref.value)
+      onConfirm(linkText.value, linkTextSuggested.value, linkHref.value)
 
     reset()
   }
@@ -36,5 +35,7 @@ export const useLinksStore = defineStore("links", () => {
     reset()
   }
 
-  return { getLink, linkText, linkHref, pending, confirm, cancel }
+  watch(linkHref, newVal => linkTextSuggested.value = (newVal || "").replace(/^.*?:\/\/|[?#].*$|\/$/g, ""))
+
+  return { getLink, linkText, linkTextSuggested, linkHref, pending, confirm, cancel }
 })

@@ -90,6 +90,7 @@ const editor = useEditor({
     Link.configure({
       openOnClick: false,
       HTMLAttributes: {
+        rel: "noreferrer",
         external: "",
       }
     })
@@ -178,25 +179,34 @@ function editorAction(type) {
       editor.value.chain().focus().insertContent(String.fromCodePoint(0x00AD) /* &shy; */).run();
       break;
     case "link":
-      const cursorHref = editor.value.getAttributes('link').href;
+      const oldLinkHref = editor.value.getAttributes('link').href;
 
       // If the cursor is at a link, select the whole link
-      if (cursorHref)
+      if (oldLinkHref)
         editor.value.chain().focus().extendMarkRange('link').run()
 
-      linksStore.getLink(selectedText.value, cursorHref, (newLinkText, newLinkHref) => {
+      linksStore.getLink(selectedText.value, oldLinkHref, (newLinkText, newLinkTextSuggested, newLinkHref) => {
         newLinkHref = (newLinkHref || "").trim();
-
-        // If no href was input, abort
-        if (newLinkHref === "")
-          return;
-
-        // If no text was input, set the text to be the href itself
-        if (!newLinkText || newLinkText.trim() === "")
-          newLinkText = newLinkHref.replace(/^.*?:\/\/|[?#].*$/g, "");
 
         // Begin command chain
         const chainedCommands = editor.value.chain().focus();
+
+        // If no href was input
+        if (newLinkHref === "") {
+          if (oldLinkHref !== "") {
+            // Href was cleared from a previous non-empty value
+            chainedCommands
+              .extendMarkRange('link')
+              .unsetLink();
+          }
+
+          chainedCommands.run();
+          return;
+        }
+
+        // If no text was input, set the text to be the href itself
+        if (!newLinkText || newLinkText.trim() === "")
+          newLinkText = newLinkTextSuggested;
 
         if (selectedText.value.trim() === "") {
           // When no text was selected we need to insert the new link text and then select it
