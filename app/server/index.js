@@ -377,7 +377,7 @@ async function startServer() {
     }
   })
 
-  app.post('/rest/adventure/:adventureId/slide/:slideId/props', upload.fields(["intro", "theme"]), async (req, res) => {
+  app.post('/rest/adventure/:adventureId/slide/:slideId/props', upload.fields(["intro", "theme, transition"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
             slideId = req.params.slideId

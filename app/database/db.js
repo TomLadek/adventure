@@ -165,7 +165,16 @@ export async function updateOneSlide(adventureId, slideId, props) {
 
   for (const prop of Object.keys(props)) {
     const propValue = props[prop]
-    updateDocument.$set[`slides.$.${prop}`] = /true|false/i.test(propValue) ? propValue === "true" : propValue
+    let propDbValue;
+
+    if (/true|false/i.test(propValue))
+      propDbValue = propValue.toLowerCase() === "true"
+    else if (/^[0-9.]+$/.test(propValue))
+      propDbValue = parseFloat(propValue)
+    else
+      propDbValue = propValue
+
+    updateDocument.$set[`slides.$.${prop}`] =  propDbValue
   }
 
   try {

@@ -408,11 +408,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, 
   const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
 
   for (const prop of Object.keys(props)) {
-    if (prop === "intro" && !props.intro) {
-      delete slideToChange.intro;
-    } else {
-      slideToChange[prop] = props[prop];
-    }
+    slideToChange[prop] = props[prop];
   }
 
   resolve();

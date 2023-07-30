@@ -67,7 +67,8 @@ const confirmationStore = useConfirmationStore(),
       slideControlsExpanded = ref(false),
       submenuExpanded = ref({
         type: false,
-        theme: false
+        theme: false,
+        transition: false
       });;
 
 let slideControlsExpandedTimeout = 0;
@@ -116,6 +117,21 @@ async function onSlideThemeClick(theme) {
   submenuExpanded.value.theme = false;
 }
 
+async function onSlideTransitionClick(transitionName) {
+  let transition;
+  
+  switch (transitionName) {
+    case "slide-overlay": transition = 2; break;
+    case "crossfade": transition = 1; break;
+    default:
+    case "slide-pushout": transition = 0;
+  };
+
+  await cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, { slideId: props.slide.id, props: { transition } });
+
+  submenuExpanded.value.transition = false;
+}
+
 function onSlideControlsCloseClick() {
   for (const submenu of Object.keys(submenuExpanded.value)) {
     submenuExpanded.value[submenu] = false;
@@ -126,7 +142,7 @@ function onSlideControlsCloseClick() {
 
 function onSubmenuExpandClick(submenu) {
   for (const submn in submenuExpanded.value) {
-    submenuExpanded.value[submn] = submn === submenu;
+    submenuExpanded.value[submn] = submn === submenu ? !submenuExpanded.value[submn] : false;
   }
 }
 /* /CMS */
@@ -146,47 +162,74 @@ function onSubmenuExpandClick(submenu) {
         <CmsOptionsButton v-if="!slideControlsExpanded" @click="slideControlsExpanded = true" />
 
         <Transition name="slide-controls-actions">
-          <div v-if="slideControlsExpanded" class="slide-controls-actions">
-            <button class="button-theme" title="Change slide theme" @click="onSubmenuExpandClick('theme')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024">
-                <path d="M898.56 189.44c-30.72-28.16-76.8-28.16-107.52 0l-440.32 435.2c-53.76 0-128 17.92-161.28 122.88-25.6 56.32-89.6 53.76-89.6 53.76 135.68 148.48 291.84 64 330.24 28.16 30.72-33.28 35.84-71.68 33.28-102.4l435.2-430.08c30.72-30.72 30.72-76.8 0-107.52zM396.8 793.6c-25.6 23.04-138.24 74.24-204.8 25.6 0 0 23.04-17.92 40.96-53.76 40.96-110.08 145.92-94.72 145.92-94.72l35.84 35.84c0-2.56 25.6 46.08-17.92 87.04z m53.76-125.44l-35.84-35.84 53.76-53.76 35.84 35.84-53.76 53.76z m412.16-407.04L537.6 581.12l-35.84-35.84L826.88 225.28c10.24-10.24 25.6-10.24 35.84 0 10.24 10.24 10.24 25.6 0 35.84z"/>
-              </svg>
-            </button>
-            <Transition name="slide-controls-submenu-transition">
-              <ul v-if="submenuExpanded.theme" class="slide-controls-submenu slide-theme-list">
-                <li>
-                  <button class="submenu-item theme-item" :class="{ active: !slide.theme || slide.theme === 'light' }" @click="onSlideThemeClick('light')">
-                    <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="white" width="34" height="34">
-                      <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
-                    </svg>
-                  </button>
-                </li>
-                <li>
-                  <button class="submenu-item theme-item dark" :class="{ active: slide.theme === 'dark' }" @click="onSlideThemeClick('dark')">
-                    <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="black" width="34" height="34">
-                      <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
-                    </svg>
-                  </button>
-                </li>
-              </ul>
-            </Transition>
+          <ul v-if="slideControlsExpanded" class="slide-controls-actions">
+            <li class="slide-controls-action">
+              <button class="button-transition" title="Change slide transition" @click="onSubmenuExpandClick('transition')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 512 512"><path d="M403.8 34.4c12-5 25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V160H352c-10.1 0-19.6 4.7-25.6 12.8L284 229.3 244 176l31.2-41.6C293.3 110.2 321.8 96 352 96h32V64c0-12.9 7.8-24.6 19.8-29.6zM164 282.7L204 336l-31.2 41.6C154.7 401.8 126.2 416 96 416H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c10.1 0 19.6-4.7 25.6-12.8L164 282.7zm274.6 188c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V416H352c-30.2 0-58.7-14.2-76.8-38.4L121.6 172.8c-6-8.1-15.5-12.8-25.6-12.8H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c30.2 0 58.7 14.2 76.8 38.4L326.4 339.2c6 8.1 15.5 12.8 25.6 12.8h32V320c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64z"/></svg>
+              </button>
+              <Transition name="slide-controls-submenu-transition">
+                <ul v-if="submenuExpanded.transition" class="slide-controls-submenu slide-transition-list">
+                  <li>
+                    <button class="submenu-item transition-item" :class="{ active: !slide.transition || slide.transition === 0 }" @click="onSlideTransitionClick('slide-pushout')">Slide pushout</button>
+                  </li>
+                  <li>
+                    <button class="submenu-item transition-item" :class="{ active: slide.transition === 2 }" @click="onSlideTransitionClick('slide-overlay')">Slide overlay</button>
+                  </li>
+                  <li>
+                    <button class="submenu-item transition-item" :class="{ active: slide.transition === 1 }" @click="onSlideTransitionClick('crossfade')">Crossfade</button>
+                  </li>
+                </ul>
+              </Transition>
+            </li>
 
-            <button class="button-type" title="Change slide type" @click="onSubmenuExpandClick('type')">T</button>
-            <Transition name="slide-controls-submenu-transition">
-              <ul v-if="submenuExpanded.type" class="slide-controls-submenu slide-type-list">
-                <li>
-                  <button class="submenu-item type-item" :class="{ active: slide.intro }" @click="onSlideTypeClick('intro')">Intro slide</button>
-                </li>
-                <li>
-                  <button class="submenu-item type-item" :class="{ active: !slide.intro }" @click="onSlideTypeClick('gallery')">Gallery slide</button>
-                </li>
-              </ul>
-            </Transition>
+            <li class="slide-controls-action">
+              <button class="button-theme" title="Change slide theme" @click="onSubmenuExpandClick('theme')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024">
+                  <path d="M898.56 189.44c-30.72-28.16-76.8-28.16-107.52 0l-440.32 435.2c-53.76 0-128 17.92-161.28 122.88-25.6 56.32-89.6 53.76-89.6 53.76 135.68 148.48 291.84 64 330.24 28.16 30.72-33.28 35.84-71.68 33.28-102.4l435.2-430.08c30.72-30.72 30.72-76.8 0-107.52zM396.8 793.6c-25.6 23.04-138.24 74.24-204.8 25.6 0 0 23.04-17.92 40.96-53.76 40.96-110.08 145.92-94.72 145.92-94.72l35.84 35.84c0-2.56 25.6 46.08-17.92 87.04z m53.76-125.44l-35.84-35.84 53.76-53.76 35.84 35.84-53.76 53.76z m412.16-407.04L537.6 581.12l-35.84-35.84L826.88 225.28c10.24-10.24 25.6-10.24 35.84 0 10.24 10.24 10.24 25.6 0 35.84z"/>
+                </svg>
+              </button>
+              <Transition name="slide-controls-submenu-transition">
+                <ul v-if="submenuExpanded.theme" class="slide-controls-submenu slide-theme-list">
+                  <li>
+                    <button class="submenu-item theme-item" :class="{ active: !slide.theme || slide.theme === 'light' }" @click="onSlideThemeClick('light')">
+                      <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="white" width="34" height="34">
+                        <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
+                      </svg>
+                    </button>
+                  </li>
+                  <li>
+                    <button class="submenu-item theme-item dark" :class="{ active: slide.theme === 'dark' }" @click="onSlideThemeClick('dark')">
+                      <svg xmlns="http://www.w3.org/2000/svg" view-box="0 0 34 34" fill="black" width="34" height="34">
+                        <circle cx="17" cy="17" r="8" stroke="white" stroke-width="1"></circle>
+                      </svg>
+                    </button>
+                  </li>
+                </ul>
+              </Transition>
+            </li>
 
-            <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
+            <li class="slide-controls-action">
+              <button class="button-type" title="Change slide type" @click="onSubmenuExpandClick('type')">T</button>
+              <Transition name="slide-controls-submenu-transition">
+                <ul v-if="submenuExpanded.type" class="slide-controls-submenu slide-type-list">
+                  <li>
+                    <button class="submenu-item type-item" :class="{ active: slide.intro }" @click="onSlideTypeClick('intro')">Intro slide</button>
+                  </li>
+                  <li>
+                    <button class="submenu-item type-item" :class="{ active: !slide.intro }" @click="onSlideTypeClick('gallery')">Gallery slide</button>
+                  </li>
+                </ul>
+              </Transition>
+            </li>
 
-            <CmsButtonClose @click="onSlideControlsCloseClick" />
-          </div>
+            <li class="slide-controls-action">
+              <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
+            </li>
+
+            <li class="slide-controls-action">
+              <CmsButtonClose @click="onSlideControlsCloseClick" />
+            </li>
+          </ul>
         </Transition>
       </div>
     </template>
@@ -359,7 +402,7 @@ function onSubmenuExpandClick(submenu) {
 }
 
 .slide .slide-controls.expanded {
-  height: 14rem;
+  height: 16rem;
 }
 
 .slide .slide-controls .slide-controls-actions {
@@ -368,6 +411,9 @@ function onSubmenuExpandClick(submenu) {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .slide .slide-controls .slide-controls-actions-enter-active,
@@ -380,6 +426,10 @@ function onSubmenuExpandClick(submenu) {
 .slide .slide-controls .slide-controls-actions-enter-from,
 .slide .slide-controls .slide-controls-actions-leave-to {
   opacity: 0;
+}
+
+.slide .slide-controls .slide-controls-action {
+  flex-basis: 100%;
 }
 
 .slide .slide-controls button {
@@ -406,6 +456,7 @@ function onSubmenuExpandClick(submenu) {
 
 .slide .slide-controls .slide-controls-submenu {
   position: absolute;
+  z-index: 1;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(3px);
   border-radius: 0.5rem;
@@ -434,11 +485,23 @@ function onSubmenuExpandClick(submenu) {
 }
 
 .slide .slide-controls .slide-controls-submenu.slide-type-list {
-  right: 1rem;
-  top: 1.5rem;
+  right: 0.6rem;
+  top: 4.2rem;
 }
 
-.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item {
+.slide .slide-controls .slide-controls-submenu.slide-transition-list {
+  right: 0.5rem;
+  top: -4.5rem;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-theme-list {
+  right: 0.5rem;
+  top: 2.6rem;
+  flex-direction: row;
+}
+
+.slide .slide-controls .slide-controls-submenu.slide-type-list .type-item,
+.slide .slide-controls .slide-controls-submenu.slide-transition-list .transition-item {
   width: 100%;
   padding: 0.6rem 1.2rem;
   font-size: 100%;
@@ -458,12 +521,6 @@ function onSubmenuExpandClick(submenu) {
 
 .slide .slide-controls .slide-controls-submenu .submenu-item.active:hover {
   background: #ffffff80;
-}
-
-.slide .slide-controls .slide-controls-submenu.slide-theme-list {
-  right: 0.5rem;
-  top: -0.5rem;
-  flex-direction: row;
 }
 
 .slide .slide-controls .slide-controls-submenu.slide-theme-list .theme-item {
