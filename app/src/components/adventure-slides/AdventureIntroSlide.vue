@@ -116,15 +116,20 @@ onMounted(() => {
 }
 
 .slide-intro .headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-size: min(min(18vw, 8em), 12vh);
   text-align: center;
   text-shadow: 3px 3px 2px #272727;
-  margin: max(2rem, 6vh) 0;
+  margin: max(2rem, 6vh) 1rem;
 }
 
 @media (min-width: 768px) {
   .slide-intro .headline {
     font-size: 8em;
+    margin-left: 2.5rem;
+    margin-right: 2.5rem;
   }
 }
 

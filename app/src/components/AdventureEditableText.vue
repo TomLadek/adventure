@@ -368,10 +368,6 @@ watch(realTextDisplay, (showRealText) => {
   font-style: italic;
 }
 
-h1 .cms-text-editor .ProseMirror p.is-editor-empty:first-child:before {
-  float: initial;
-}
-
 .cms-text-editor-controls {
   display: flex;
   align-items: center;
