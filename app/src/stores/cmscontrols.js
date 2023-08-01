@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
-import { isCmsView } from "../../src/utils.js";
+import { isCmsView, setCookie } from "../../src/utils.js";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 export const useCmsControlsStore = defineStore("cmsControls", () => {
@@ -16,14 +16,19 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           }
 
           return false;
-        })();
-  
-  function toggleEditMode() {
-    if (typeof editMode === "object")
-      editMode.value = !editMode.value;
-  }
+        })(),
+        fullScrollUserSettingsKey = "CmsControls-fullscroll",
+        fullScroll = (() => {
+          if (isCmsView) {
+            if (userSettings && typeof userSettings.fullscroll !== "undefined")
+              return ref(userSettings.fullscroll === "true")
 
-  const actions = {
+            return ref(false);
+          }
+
+          return false;
+        })(),
+        actions = {
           ADD_SLIDE: "addSlide",
           REMOVE_SLIDE: "removeSlide",
           ADD_SLIDE_CONTENT: "addSlideContent",
@@ -43,6 +48,11 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           return actArgs;
         }, {}),
         actionExecutors = {};
+  
+  function toggleEditMode() {
+    if (typeof editMode === "object")
+      editMode.value = !editMode.value;
+  }
 
   function validateActionName(name) {
     if (Object.values(actions).indexOf(name) >= 0)
@@ -92,16 +102,14 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
     }
   }
 
-  watch(editMode, newVal => {
-    const cookieExpireDate = new Date();
-    cookieExpireDate.setFullYear(cookieExpireDate.getFullYear() + 1);
+  watch(editMode, newVal => setCookie(editModeUserSettingsKey, newVal))
 
-    document.cookie = `${editModeUserSettingsKey}=${newVal}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
-  })
+  watch(fullScroll, newVal => setCookie(fullScrollUserSettingsKey, newVal))
 
   return {
     isCmsView,
     editMode,
+    fullScroll,
     actions,
     toggleEditMode,
     action,

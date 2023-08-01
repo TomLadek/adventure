@@ -1,6 +1,7 @@
 <script>
 // Vue functions
 import { ref, computed, watch, onMounted } from "vue";
+import { storeToRefs } from 'pinia';
 import { useI18n } from "vue-i18n";
 
 // Vue components
@@ -135,7 +136,17 @@ const slideChange = ref({ last: 0, current: 0, duration: 0 });
 const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
       linkStore = useLinksStore(),
+      { fullScroll } = storeToRefs(cmsControlsStore),
       { loadImage } = useImageLoader();
+
+watch(fullScroll, (fullScrollValue) => {
+  if (window.fs) {
+    if (fullScrollValue)
+      window.fs.activate();
+    else
+      window.fs.deactivate();
+  }
+});
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE, async file => {
   const { imgFile, imgWidth, imgHeight } = await loadImage(file),
@@ -482,7 +493,7 @@ onMounted(() => {
       mainElement: "adventure",
       sections: document.querySelectorAll("section"),
       sectionTransitions: slides.value.map((slide) => slide.transition || 0),
-      activateOnInit: !isCmsView ? true : false,
+      activateOnInit: !isCmsView ? true : fullScroll.value,
       onStartAnimate: (fromSlide, toSlide) => {
         slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
 

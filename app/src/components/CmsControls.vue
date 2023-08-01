@@ -69,10 +69,13 @@ onMounted(async () => {
     </button>
     <Transition name="fade">
       <div v-if="!cmsControlsMinimized" class="cms-controls-content">
-        <div class="cms-controls-input">
+        <div class="cms-controls-grid">
           <label for="input-edit-mode">Edit mode:</label>
           <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
+          <label for="input-edit-mode">Full scroll:</label>
+          <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.fullScroll }" v-model="cmsControlsStore.fullScroll">
         </div>
+
         <div class="cms-controls-input centered">
           <button class="cms-button-publish" @click="publish">Publish</button>
         </div>
@@ -198,13 +201,15 @@ onMounted(async () => {
   left: calc(1.5rem - 2px);
 }
 
-.cms-controls .cms-controls-input {
-  display: flex;
-  align-items: center;
+.cms-controls .cms-controls-grid {
+  display: grid;
+  grid-template-columns: auto auto;
   gap: 0.5rem;
+  justify-content: space-between;
 }
 
 .cms-controls .cms-controls-input.centered {
+  display: flex;
   justify-content: center;
 }
 

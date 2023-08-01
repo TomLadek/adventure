@@ -46,3 +46,10 @@ export function closest(elem, className) {
 
   return closest(elem.parentElement, className);
 }
+
+export function setCookie(name, value) {
+  const cookieExpireDate = new Date();
+  cookieExpireDate.setFullYear(cookieExpireDate.getFullYear() + 1);
+
+  document.cookie = `${name}=${value}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
+}
