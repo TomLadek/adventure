@@ -1,5 +1,4 @@
 <script>
-import { useI18n } from "vue-i18n";
 import { ref, onMounted, watch } from "vue";
 import { gsap } from "gsap";
 import { useI18nBundle } from "../../composables/i18nBundle.js";
@@ -101,8 +100,8 @@ onMounted(() => {
     <div class="adventure-info">
       <button class="info-button" aria-controls="adventure-info-content" :aria-expanded="infoShowing" @click.prevent="infoShowing = !infoShowing">i</button>
       <div id="adventure-info-content" class="adventure-info-content" v-show="infoShowing">
-        <div>Made <span v-if="author.madeBy">by <span v-html="author.madeBy"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
-        <div class="author-content" v-if="author.content">Content &copy; {{ author.content }}</div>
+        <div>Made <span v-if="author.madeBy">by <span v-html="i18nBundle.t(author.madeBy)"></span></span> with the <a href="https://github.com/TomLadek/adventure" target="_blank">Adventure CMS</a>.</div>
+        <div class="author-content" v-if="author.content">Content &copy; {{ i18nBundle.t(author.content) }}</div>
       </div>
     </div>
 
