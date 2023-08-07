@@ -216,6 +216,7 @@ onMounted(() => {
   bottom: 28px;
   left: 28px;
   width: max-content;
+  max-width: calc(100vw - 2 * (28px + 1rem));
   padding: 1rem;
   text-shadow: 0 0 4px rgb(0 0 0 / 45%);
   border-radius: 20px 20px 20px 0;
