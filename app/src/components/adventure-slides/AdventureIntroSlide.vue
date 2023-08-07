@@ -77,9 +77,9 @@ onMounted(() => {
     ></span>
 
     <div v-if="slide.headline || slide.content" class="content-outer" ref="contentOuter">
-      <h1 class="headline">
-        <AdventureEditableText :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Empty headline" />
-        <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Empty subheadline" />
+      <h1 class="headline-container">
+        <AdventureEditableText class="headline" :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Headline" />
+        <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Subheadline" />
       </h1>
 
       <div class="content-inner">
@@ -112,7 +112,7 @@ onMounted(() => {
   z-index: -1;
 }
 
-.slide-intro .headline {
+.slide-intro .headline-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -123,24 +123,24 @@ onMounted(() => {
 }
 
 @media (min-width: 768px) {
-  .slide-intro .headline {
+  .slide-intro .headline-container {
     font-size: 8em;
     margin-left: 2.5rem;
     margin-right: 2.5rem;
   }
 }
 
-.slide-intro.slide-theme-dark .headline {
+.slide-intro.slide-theme-dark .headline-container {
   text-shadow: 4px -4px 7px #646464;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .slide-intro .headline {
+  .slide-intro .headline-container {
     font-size: min(min(18vw, 8em), 18vh);
   }
 }
 
-.slide-intro .subheadline {
+.slide-intro .headline-container .subheadline {
   display: block;
   font-size: 40%;
 }
