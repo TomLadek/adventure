@@ -24,11 +24,17 @@ const props = defineProps({
 const { i18nBundle } = useI18nBundle();
 
 const startLinkHasSpace = ref(false),
-  infoShowing = ref(false),
-  slideSwitched = ref(false),
-  author = props.adventureMeta ? props.adventureMeta.author : {};
+      infoShowing = ref(false),
+      slideSwitched = ref(false),
+      startLink = ref(null),
+      contentOuter = ref(null),
+      author = props.adventureMeta ? props.adventureMeta.author : {};
 
-let startLinkElement;
+function checkStartLinkSpace() { 
+  return 0 < (window.innerHeight - (contentOuter.value ? contentOuter.value.clientHeight : 0)) / 2 /* remaining space below the actual slide content */
+              - (matchMedia("(orientation: landscape) and (max-height: 500px)").matches ? 16 : 48) /* link's distance from the bottom */
+              - (startLink.value.clientHeight) /* height of the link */;
+}
 
 onMounted(() => {
   let startLinkAnimation = gsap.timeline({
@@ -37,16 +43,8 @@ onMounted(() => {
     repeatDelay: 2
   });
 
-  startLinkElement = document.querySelector(".slide-intro .start-link");
-
-  const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
-    checkStartLinkSpace = () => 0 <
-      (window.innerHeight - contentOuterElement.clientHeight) / 2 /* remaining space below the actual slide content */
-      - (matchMedia("(orientation: landscape) and (max-height: 500px)").matches ? 16 : 48) /* link's distance from the bottom */
-      - (startLinkElement.clientHeight) /* height of the link */;
-
-  startLinkAnimation.to(startLinkElement, { y: "-10" });
-  startLinkAnimation.to(startLinkElement, { y: "0", ease: "elastic", duration: 1.7 });
+  startLinkAnimation.to(startLink.value, { y: "-10" });
+  startLinkAnimation.to(startLink.value, { y: "0", ease: "elastic", duration: 1.7 });
 
   startLinkHasSpace.value = checkStartLinkSpace();
 
@@ -54,7 +52,7 @@ onMounted(() => {
     startLinkHasSpace.value = checkStartLinkSpace();
   });
 
-  watch(() => props.showing, (showing) => {
+  watch(() => props.showing, showing => {
     // perform one time actions when this slide stops showing
     if (!showing && !slideSwitched.value) {
       slideSwitched.value = true;
@@ -78,7 +76,7 @@ onMounted(() => {
       class="main-picture"
     ></span>
 
-    <div v-if="slide.headline || slide.content" class="content-outer">
+    <div v-if="slide.headline || slide.content" class="content-outer" ref="contentOuter">
       <h1 class="headline">
         <AdventureEditableText :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Empty headline" />
         <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Empty subheadline" />
@@ -91,7 +89,7 @@ onMounted(() => {
 
     <slot v-else name="cmsAddSlideContentButton"></slot>
 
-    <a href="#slide1" class="start-link" :class="{ cornered: !startLinkHasSpace }" :style="{ opacity: showing && !slideSwitched ? 1 : 0}">
+    <a href="#slide1" class="start-link" :class="{ cornered: !startLinkHasSpace }" :style="{ opacity: showing && !slideSwitched ? 1 : 0}" ref="startLink">
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="22" viewBox="0 0 35 22" class="start-link-icon">
         <path d="M4,4 L18,18 L32,4" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
@@ -251,4 +249,17 @@ onMounted(() => {
 .slide-intro .adventure-info-content .author-content {
   margin-top: 0.5rem;
 }
+
+/* CMS */
+.slide.slide-intro .cms-new-slide-content-outer {
+  position: relative;
+  right: unset;
+  bottom: unset;
+}
+
+.slide.slide-intro .cms-new-slide-content-outer .cms-new-slide-content-button {
+  width: min(60rem, 80vw);
+  height: min(10rem, 80vh);
+}
+/* /CMS */
 </style>
