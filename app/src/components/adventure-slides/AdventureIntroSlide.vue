@@ -262,5 +262,9 @@ onMounted(() => {
   width: min(60rem, 80vw);
   height: min(10rem, 80vh);
 }
+
+.slide.slide-intro .cms-text-editor p {
+  white-space: normal;
+}
 /* /CMS */
 </style>
