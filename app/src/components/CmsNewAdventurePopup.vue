@@ -312,6 +312,7 @@ onUnmounted(() => {
 
 .cms-adventure-popup-fields .field-value-container .chip {
   position: relative;
+  width: 3.5rem;
   border: 1px solid #787878;
   border-radius: 8px;
   padding: calc(3rem / 16) 0.6rem;
@@ -319,11 +320,10 @@ onUnmounted(() => {
   font: inherit;
 }
 
-.cms-adventure-popup-fields .field-value-container .chip:hover::after,
-.cms-adventure-popup-fields .field-value-container .chip:focus::after {
+.cms-adventure-popup-fields .field-value-container .chip-container:not(:last-child) .chip::after {
   content: '×';
   position: absolute;
-  right: 1px;
+  right: 3px;
   top: 3px;
   color: #787878;
 }
@@ -356,7 +356,7 @@ onUnmounted(() => {
   width: 2em;
   height: calc(100% - 2px);
   margin: 1px 1px 1px 0;
-  background: #e9e9e9;
+  background: #555454;
   pointer-events: none;
   opacity: 0.5;
   font-size: 0.8em;
