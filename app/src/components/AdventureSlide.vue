@@ -6,7 +6,7 @@ import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 
 /* CMS */
 import { useConfirmationStore } from "../stores/confirmation.js";
-import { useCmsControlsStore } from "../stores/cmscontrols";
+import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
 import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "./buttons/CmsButtonClose.vue";

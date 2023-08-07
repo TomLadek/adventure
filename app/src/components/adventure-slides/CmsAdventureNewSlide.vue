@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { useCmsControlsStore } from '../../stores/cmscontrols';
+import { useCmsControlsStore } from '../../stores/cmscontrols.js';
 import CmsAdventureItemButtonNew from '../buttons/CmsAdventureItemButtonNew.vue';
 
 const imgData = ref(""),
