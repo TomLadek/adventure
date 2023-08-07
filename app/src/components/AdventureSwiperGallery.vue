@@ -1,7 +1,6 @@
 <script>
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isCmsView } from "../../src/utils.js";
 import { useVI18nAttr } from "../composables/vI18nAttr.js";
 
 /* CMS */
@@ -121,7 +120,7 @@ onBeforeLeave = element => {
           :srcset="image.srcset"
           :width="image.width"
           :height="image.height"
-          :data-caption="isCmsView ? (image.caption || 'none') : null"
+          :data-caption="image.caption || 'none'"
           v-i18n-attr:[locale].alt="image.caption"
           class="gallery-img"
           loading="lazy"

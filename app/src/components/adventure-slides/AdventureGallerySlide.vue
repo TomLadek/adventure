@@ -109,16 +109,29 @@ function initGallery() {
       const slideElement = pswpSlide.data.element,
             img = pswpSlide.data.element.querySelector("img");
 
+      function getTranslatedCaptionContent(element) {
+        const elCaptionData = element.dataset.caption;
+
+        if (elCaptionData && elCaptionData !== "none") {
+          const translatedText = t(elCaptionData);
+
+          if (translatedText !== elCaptionData)
+            return translatedText;
+        }
+
+        return "";
+      }
+
       if (img) {
         if (isCmsView)
           return img.dataset.caption;
         else
-          return img.alt;
+          return getTranslatedCaptionContent(img);
       } else {
         if (isCmsView)
           return slideElement.dataset.caption;
         else
-          return slideElement.title;
+          return getTranslatedCaptionContent(slideElement);
       }
     }
   });
@@ -313,7 +326,7 @@ watch(slideControlsExpanded, value => {
       :data-pswp-height="slide.mainImg.height"
       :data-id="slide.mainImg.id"
       data-cropped="true"
-      :data-caption="isCmsView ? (slide.mainImg.caption || 'none') : null"
+      :data-caption="slide.mainImg.caption || 'none'"
       v-i18n-attr:[locale].title="slide.mainImg.caption"
       target="_blank"
       class="main-picture"
