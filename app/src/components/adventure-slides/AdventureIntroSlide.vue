@@ -1,8 +1,13 @@
 <script>
-import { ref, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { gsap } from "gsap";
 import { useI18nBundle } from "../../composables/i18nBundle.js";
 import AdventureEditableText from "../AdventureEditableText.vue";
+
+/* CMS */
+import { storeToRefs } from "pinia";
+import { useCmsControlsStore } from "../../stores/cmscontrols.js";
+/* /CMS */
 </script>
 
 <script setup>
@@ -21,14 +26,21 @@ const props = defineProps({
   }
 });
 
-const { i18nBundle } = useI18nBundle();
-
-const startLinkHasSpace = ref(false),
+const { i18nBundle } = useI18nBundle(),
+      startLinkHasSpace = ref(false),
       infoShowing = ref(false),
       slideSwitched = ref(false),
       startLink = ref(null),
       contentOuter = ref(null),
       author = props.adventureMeta ? props.adventureMeta.author : {};
+
+const innerContentHasText = computed(() => {
+  const translatedInnerContentText = i18nBundle.value.t(props.slide.content.text);
+
+  return translatedInnerContentText !== '' && translatedInnerContentText !== props.slide.content.text;
+});
+
+let shouldShowInnerContent = computed(() => innerContentHasText.value);
 
 function checkStartLinkSpace() { 
   return 0 < (window.innerHeight - (contentOuter.value ? contentOuter.value.clientHeight : 0)) / 2 /* remaining space below the actual slide content */
@@ -64,6 +76,12 @@ onMounted(() => {
     }
   });
 });
+
+/* CMS */
+const { editMode } = storeToRefs(useCmsControlsStore());
+
+shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.value);
+/* /CMS */
 </script>
 
 <template>
@@ -82,7 +100,7 @@ onMounted(() => {
         <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Subheadline" />
       </h1>
 
-      <div class="content-inner">
+      <div v-if="shouldShowInnerContent" class="content-inner">
         <AdventureEditableText class="content-text" :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty intro text" />
       </div>
     </div>
