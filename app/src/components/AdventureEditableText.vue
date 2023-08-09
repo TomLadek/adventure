@@ -435,12 +435,11 @@ watch(realTextDisplay, (showRealText) => {
 }
 
 .cms-text-editor-controls .editor-status.status-syncing {
-  width: calc(1rem - 6px);
-  height: calc(1rem - 6px);
+  box-sizing: border-box;
 }
 
 .cms-text-editor-controls .editor-status.status-ok {
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 .cms-text-editor-controls .editor-status.status-error svg {
