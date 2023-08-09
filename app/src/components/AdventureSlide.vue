@@ -355,6 +355,10 @@ function onSubmenuExpandClick(submenu) {
 }
 
 /* CMS */
+html:not(.fps-enabled) .slide {
+  min-height: 100vh;
+}
+
 .slide .cms-new-slide-content-outer {
   position: absolute;
   bottom: 3rem;
