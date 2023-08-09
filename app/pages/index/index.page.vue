@@ -90,8 +90,12 @@ main#index {
 }
 
 .cms-adventure-link {
-  display: inline-block;
+  display: flex;
   width: 100%;
   height: 100%;
+  color: black;
+  text-decoration: none;
+  justify-content: center;
+  align-items: center;
 }
 </style>
