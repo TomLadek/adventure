@@ -77,6 +77,7 @@ onMounted(async () => {
         </div>
 
         <div class="cms-controls-input centered">
+          <button class="cms-button-reset" onclick="javascript:location.reload(true)">Reload</button>
           <button class="cms-button-publish" @click="publish">Publish</button>
         </div>
       </div>
@@ -211,9 +212,10 @@ onMounted(async () => {
 .cms-controls .cms-controls-input.centered {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
 }
 
-.cms-controls .cms-button-publish {
+.cms-controls button {
   padding: 0.5rem 1rem;
   background: transparent;
   border-radius: 0.5rem;
