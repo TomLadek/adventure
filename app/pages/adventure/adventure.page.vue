@@ -132,6 +132,36 @@ const slides = computed(() => (adventure.value.slides || []).map((slide) => {
 
 const slideChange = ref({ last: 0, current: 0, duration: 0 });
 
+onMounted(() => {
+  if (adventure.meta) {
+    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
+      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
+
+    updateAdventureMeta(titleGetter, descriptionGetter);
+    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
+  }
+
+  updatePageTheme(isCmsView ? "light" : slides.value.length > 0 && slides.value[0].theme);
+
+  window.gsap = gsap;
+
+  import("../../src/assets/gi-full-page-scroll.js").then(() => {
+    // Init full page scroll
+    window.fs = new window.fullScroll({
+      mainElement: "adventure",
+      sections: document.querySelectorAll("section"),
+      sectionTransitions: slides.value.map((slide) => slide.transition || 0),
+      activateOnInit: !isCmsView ? true : fullScroll.value,
+      onStartAnimate: (fromSlide, toSlide) => {
+        slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
+
+        if (toSlide >= 0 && toSlide < slides.value.length)
+          updatePageTheme(slides.value[toSlide].theme);
+      }
+    });
+  });
+});
+
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
@@ -473,36 +503,6 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () =>
   }
 });
 /* /CMS */
-
-onMounted(() => {
-  if (adventure.meta) {
-    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
-      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
-
-    updateAdventureMeta(titleGetter, descriptionGetter);
-    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
-  }
-
-  updatePageTheme(isCmsView ? "light" : slides.value.length > 0 && slides.value[0].theme);
-
-  window.gsap = gsap;
-
-  import("../../src/assets/gi-full-page-scroll.js").then(() => {
-    // Init full page scroll
-    window.fs = new window.fullScroll({
-      mainElement: "adventure",
-      sections: document.querySelectorAll("section"),
-      sectionTransitions: slides.value.map((slide) => slide.transition || 0),
-      activateOnInit: !isCmsView ? true : fullScroll.value,
-      onStartAnimate: (fromSlide, toSlide) => {
-        slideChange.value = { last: fromSlide, current: toSlide, duration: 0.7 };
-
-        if (toSlide >= 0 && toSlide < slides.value.length)
-          updatePageTheme(slides.value[toSlide].theme);
-      }
-    });
-  });
-});
 </script>
 
 <template>
