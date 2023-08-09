@@ -140,11 +140,11 @@ onUnmounted(() => {
     <div class="cms-adventure-popup-fields">
       <label for="input-languages">Languages:</label>
       <ul class="field-value-container chips-values">
-        <li class="chip-container" v-for="(lang) in newAdventureData.langs">
-          <button class="chip" @click="removeLanguage(lang)">{{ lang }}</button>
+        <li class="chip-container chosen-lang-chip-container" v-for="(lang, i) in newAdventureData.langs">
+          <button class="chip chosen-lang-chip" :class="{ 'fallback-lang': i === 0 }" @click="removeLanguage(lang)" :title="`${availableLangs.filter(l => l.code === lang)[0].name}${(i === 0 ? ' (fallback language)' : '')}`">{{ lang }}</button>
         </li>
         <li class="chip-container new-lang-chip-container">
-          <button class="chip">+</button>
+          <button class="chip new-lang-chip">+</button>
           <select @change="addLanguage($event.target.value)">
             <option v-for="(lang) in availableLangs" :value="lang.code">{{ lang.name }} ({{ lang.code }})</option>
           </select>
@@ -318,6 +318,10 @@ onUnmounted(() => {
   padding: calc(3rem / 16) 0.6rem;
   background: none;
   font: inherit;
+}
+
+.cms-adventure-popup-fields .field-value-container .fallback-lang {
+  box-shadow: 0px 0px 0px 1px white;
 }
 
 .cms-adventure-popup-fields .field-value-container .chip-container:not(:last-child) .chip::after {
