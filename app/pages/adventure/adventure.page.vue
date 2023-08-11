@@ -133,9 +133,9 @@ let getFullScrollSections = () => document.querySelectorAll("section"),
     getActivateFullScrollOnInit = () => true;
 
 onMounted(() => {
-  if (adventure.meta) {
-    const titleGetter = () => adventure.meta.title ? t(adventure.meta.title) : "",
-      descriptionGetter = () => adventure.meta.desc ? t(adventure.meta.desc) : "";
+  if (adventure.value.meta) {
+    const titleGetter = () => adventure.value.meta.title ? t(adventure.value.meta.title) : "",
+      descriptionGetter = () => adventure.value.meta.desc ? t(adventure.value.meta.desc) : "";
 
     updateAdventureMeta(titleGetter, descriptionGetter);
     watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
