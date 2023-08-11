@@ -30,8 +30,6 @@ import { useLinksStore } from "../../src/stores/links.js";
 import { useImageLoader } from "../../src/composables/imageLoader";
 /* /CMS */
 
-export const myData = 42
-
 function imageUrl(adventureId, image, width = 0, height = 0) {
   const imgMatch = image.match(/(?<imgName>.*?)(\.(?<imgExt>\w+))?$/),
         imgExtension = imgMatch.groups.imgExt || "jpg",
@@ -103,8 +101,7 @@ const getIdFromSrc = src => src.replace(/\..+?$/, "");
 
 <script setup>
 const pageContext = usePageContext(),
-      adventure = ref(pageContext.pageProps.adventure),
-      routeParams = pageContext.routeParams; // get the current URL path
+      adventure = ref(pageContext.pageProps.adventure);
 
 const { t, locale, messages } = useI18n();
 
