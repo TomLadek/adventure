@@ -339,30 +339,43 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, ({ slideId, imageId, captionTextModule }, resolve) => {
-  const formData = new FormData();
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, async ({ slideId, imageId, captionTextModule }, resolve, reject) => {
+  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+        galleryImgIndex = slideToChange.gallery && slideToChange.gallery.images && slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src)),
+        isMainImgCaption = galleryImgIndex < 0,
+        formData = new FormData();
+
+  let res;
 
   formData.append("captionTextModule", captionTextModule);
 
-  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/${imageId}/caption`, {
-    method: "PUT",
-    body: formData
-  }).then(res => {
-    if (res.status !== 200) {
-      res.json().then(error => console.error(error));
-      return;
-    }
+  if (isMainImgCaption) {
+    res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/mainImg/caption`, {
+      method: "PUT",
+      body: formData
+    });
+  } else {
+    res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/${imageId}/caption`, {
+      method: "PUT",
+      body: formData
+    });
+  }
 
-    const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-          galleryImgIndex = slideToChange.gallery && slideToChange.gallery.images && slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src));
+  if (res.status !== 200) {
+    const error = await res.json();
 
-    if (galleryImgIndex >= 0)
-      slideToChange.gallery.images[galleryImgIndex].caption = captionTextModule;
-    else
-      slideToChange.mainImg.caption = captionTextModule;
+    console.error(error);
+    reject(error);
 
-    resolve();
-  });
+    return;
+  }
+
+  if (isMainImgCaption)
+    slideToChange.mainImg.caption = captionTextModule;
+  else
+    slideToChange.gallery.images[galleryImgIndex].caption = captionTextModule;
+
+  resolve();
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_CONTENT_POSITION, ({ slideId, position }, resolve) => {

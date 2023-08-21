@@ -396,22 +396,37 @@ export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, 
 export async function updateOneSlideGalleryAddImgCaption(adventureId, slideId, imgId, captionTextModule) {
   try {
     const adventuresColl = getCollection("adventures"),
-          imgIdRegex = { $regex: new RegExp(escapeRegExp(imgId)) }
+          adventureIdObj = new ObjectId(adventureId)
 
-    await adventuresColl.updateOne({ 
-      _id: new ObjectId(adventureId),
-      "slides.id": slideId,
-      "slides.gallery.images.src": imgIdRegex
-    }, {
-      $set: {
-        "slides.$[slideElem].gallery.images.$[imageElem].caption": captionTextModule
-      }
-    }, {
-      arrayFilters: [
-        { "slideElem.id": slideId},
-        { "imageElem.src": imgIdRegex }
-      ]
-    })
+    if (imgId === null) {
+      // Main image caption
+      await adventuresColl.updateOne({ 
+        _id: adventureIdObj,
+        "slides.id": slideId
+      }, {
+        $set: {
+          "slides.$.mainImg.caption": captionTextModule
+        }
+      })
+    } else {
+      // Gallery image caption
+      const imgIdRegex = { $regex: new RegExp(escapeRegExp(imgId)) }
+
+      await adventuresColl.updateOne({ 
+        _id: adventureIdObj,
+        "slides.id": slideId,
+        "slides.gallery.images.src": imgIdRegex
+      }, {
+        $set: {
+          "slides.$[slideElem].gallery.images.$[imageElem].caption": captionTextModule
+        }
+      }, {
+        arrayFilters: [
+          { "slideElem.id": slideId},
+          { "imageElem.src": imgIdRegex }
+        ]
+      })
+    }
   } catch (ex) {
     console.error(ex)
     throw ex
