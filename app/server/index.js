@@ -303,7 +303,7 @@ async function startServer() {
     }
   })
 
-  // Add gallery image caption text module
+  // Move gallery image to prev/next position
   app.post('/rest/adventure/:adventureId/slide/:slideId/gallery/:imageId/move', upload.fields(["direction"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
