@@ -119,6 +119,13 @@ function initGallery() {
             return translatedText;
         }
 
+        const mainImgCaption = `${props.slide.id}_main_caption`,
+              mainImgCaptionTranslation = t(mainImgCaption);
+
+        if (mainImgCaptionTranslation !== "") {
+          return mainImgCaptionTranslation;
+        }
+
         return "";
       }
 
