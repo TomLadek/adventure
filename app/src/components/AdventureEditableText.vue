@@ -245,6 +245,19 @@ function editorAction(type) {
       });
 
       break;
+    case "translate":
+      const textToTranslate = editor.value.view.dom.innerText;
+
+      (async () => {
+        try {
+          const translation = await cmsControlsStore.actionWithResult(cmsControlsStore.actions.TRANSLATE_TEXT, { text: textToTranslate, sourceLocale: props.i18n.fallbackLocale, targetLocale: props.i18n.locale })
+          console.log(`translation: ${translation}`)
+        } catch (ex) {
+          console.error(ex)
+        }
+      })()
+
+      break;
   }
 }
 
@@ -321,6 +334,18 @@ watch(realTextDisplay, (showRealText) => {
         </li>
         <li>
           <button class="editor-action editor-action-link" data-editor-action @click="editorAction('link')" @blur="checkShouldHideControls" title="Link"><svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 640 512" fill="white"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg></button>
+        </li>
+        <li>
+          <button class="editor-action editor-action-translate" data-editor-action @click="editorAction('translate')" @blur="checkShouldHideControls" title="Auto-translate">
+            <span>{{ i18n.locale }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="1em" height="1em" viewBox="0 0 32 32">
+              <g>
+                <path d="M18,11a1,1,0,0,1-1,1,5,5,0,0,0-5,5,1,1,0,0,1-2,0,5,5,0,0,0-5-5,1,1,0,0,1,0-2,5,5,0,0,0,5-5,1,1,0,0,1,2,0,5,5,0,0,0,5,5A1,1,0,0,1,18,11Z"/>
+                <path d="M19,24a1,1,0,0,1-1,1,2,2,0,0,0-2,2,1,1,0,0,1-2,0,2,2,0,0,0-2-2,1,1,0,0,1,0-2,2,2,0,0,0,2-2,1,1,0,0,1,2,0,2,2,0,0,0,2,2A1,1,0,0,1,19,24Z"/>
+                <path d="M28,17a1,1,0,0,1-1,1,4,4,0,0,0-4,4,1,1,0,0,1-2,0,4,4,0,0,0-4-4,1,1,0,0,1,0-2,4,4,0,0,0,4-4,1,1,0,0,1,2,0,4,4,0,0,0,4,4A1,1,0,0,1,28,17Z"/>
+              </g>
+            </svg>
+          </button>
         </li>
         <li>
           <button class="editor-action editor-action-undo" :disabled="!undoAvailable" data-editor-action @click="editorAction('undo')" @blur="checkShouldHideControls" title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 512 512" fill="white"><path d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/></svg></button>
@@ -400,12 +425,12 @@ watch(realTextDisplay, (showRealText) => {
 }
 
 .cms-text-editor-controls button.editor-action {
-  min-width: 2rem;
+  min-width: 1.6rem;
   height: 2rem;
   display: flex;
   border: none;
   background: none;
-  padding: 0 0.5rem;
+  padding: 0 0.3rem;
   align-items: center;
   justify-content: center;
 }
@@ -425,6 +450,14 @@ watch(realTextDisplay, (showRealText) => {
 
 .cms-text-editor-controls .editor-action-shy {
   font-family: monospace;
+}
+
+.cms-text-editor-controls .editor-action-translate span {
+  transform: scale(0.8) translate(1px, 2px);
+}
+
+.cms-text-editor-controls .editor-action-translate svg {
+  transform: translate(-5px, -4px);
 }
 
 .cms-text-editor-controls .editor-status {

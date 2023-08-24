@@ -1,6 +1,7 @@
 // Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
 
 const fs = require('fs')
+const deepl = require('deepl-node')
 const path = require('path')
 const express = require('express')
 const multer = require('multer')
@@ -17,6 +18,9 @@ const upload = multer({ dest: 'server/uploads/' })
 const isProduction = process.env.NODE_ENV === 'production',
       port = process.env.PORT || 3000,
       root = path.resolve(__dirname, '..')
+
+const canDoDeepLTranslations = typeof process.env.DEEPL_API_KEY !== 'undefined',
+      translator = canDoDeepLTranslations ? new deepl.Translator(process.env.DEEPL_API_KEY) : null
 
 function init(resourcePath) {
   // Set the SetGID flag on the img directory so that child directories inherit the group (usually 'node')
@@ -400,6 +404,24 @@ async function startServer() {
       await updateOneSlide(adventureId, slideId, req.body)
 
       res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  app.post('/rest/adventure/translate/:sourceLocale/:targetLocale', upload.fields(["text"]), async (req, res) => {
+    if (!canDoDeepLTranslations) {
+      res.status(400).json({ok: false, message: "Server not configured to provide translations."})
+      return
+    }
+
+    try {
+      const sourceLocale = req.params.sourceLocale,
+            targetLocale = req.params.targetLocale,
+            result = await translator.translateText(req.body.text, sourceLocale, targetLocale)
+
+      res.status(200).json({ok: true, translation: result.text});
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})

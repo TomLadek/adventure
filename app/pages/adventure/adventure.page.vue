@@ -518,6 +518,22 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () =>
     console.error(res)
   }
 });
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.TRANSLATE_TEXT, async ({ text, sourceLocale, targetLocale }, resolve, reject) => {
+  const formData = new FormData();
+
+  formData.append("text", text);
+
+  const res = await fetch(`/rest/adventure/translate/${sourceLocale}/${targetLocale}`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (res.status === 200)
+    resolve((await res.json()).translation)
+  else
+    reject((await res.json()).message);
+})
 /* /CMS */
 </script>
 

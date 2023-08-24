@@ -21,6 +21,7 @@
     "@vue/server-renderer": "^3.2.33",
     "cookie-parser": "^1.4.6",
     "cross-env": "^7.0.3",
+    "deepl-node": "^1.10.2",
     "dotenv": "^16.3.1",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
