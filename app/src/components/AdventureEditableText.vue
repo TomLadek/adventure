@@ -80,7 +80,7 @@ realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.valu
 
 let cmsTextSyncTimeout = 0,
     statusVisibilityTimeout = 0,
-    tippyInstance;
+    tippyInstance, editorElementResizeObserver;
 
 function saveText(editor) {
   cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
@@ -317,10 +317,26 @@ watch(cmsEditorControlsShown, (shown) => {
       });
   }
 
-  if (shown)
+  if (shown) {
     tippyInstance.show();
-  else
+
+    if (!editorElementResizeObserver) {
+      // Fixes an issue with the tippy tooltip not repositioning when its anchor element resizes
+      editorElementResizeObserver = new ResizeObserver(() => {
+        tippyInstance.hide();
+        tippyInstance.show();
+      });
+
+      editorElementResizeObserver.observe(cmsTextEditor.value.rootEl);
+    }
+  } else {
     tippyInstance.hide();
+
+    if (editorElementResizeObserver) {
+      editorElementResizeObserver.disconnect();
+      editorElementResizeObserver = null;
+    }
+  }
 });
 
 watch(realTextDisplay, (showRealText) => {
