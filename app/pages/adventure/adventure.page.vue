@@ -522,9 +522,12 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () =>
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.TRANSLATE_TEXT, async ({ text, sourceLocale, targetLocale }, resolve, reject) => {
   const formData = new FormData();
 
+  if (sourceLocale)
+    formData.append("sourceLocale", sourceLocale);
+
   formData.append("text", text);
 
-  const res = await fetch(`/rest/adventure/translate/${sourceLocale}/${targetLocale}`, {
+  const res = await fetch(`/rest/adventure/translate/${targetLocale}`, {
     method: "POST",
     body: formData
   });

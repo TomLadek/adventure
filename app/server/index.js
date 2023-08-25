@@ -410,14 +410,14 @@ async function startServer() {
     }
   })
 
-  app.post('/rest/adventure/translate/:sourceLocale/:targetLocale', upload.fields(["text"]), async (req, res) => {
+  app.post('/rest/adventure/translate/:targetLocale', upload.fields(["text", "sourceLocale"]), async (req, res) => {
     if (!canDoDeepLTranslations) {
       res.status(400).json({ok: false, message: "Server not configured to provide translations."})
       return
     }
 
     try {
-      const sourceLocale = req.params.sourceLocale,
+      const sourceLocale = req.body.sourceLocale || null,
             targetLocale = req.params.targetLocale,
             result = await translator.translateText(req.body.text, sourceLocale, targetLocale)
 

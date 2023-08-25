@@ -73,6 +73,7 @@ const cmsControlsStore = useCmsControlsStore(),
       editorReady = ref(false),
       undoAvailable = ref(false),
       redoAvailable = ref(false),
+      translationAvailable = ref(false),
       selectedText = ref("");
 
 realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value)
@@ -80,6 +81,47 @@ realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.valu
 let cmsTextSyncTimeout = 0,
     statusVisibilityTimeout = 0,
     tippyInstance;
+
+function saveText(editor) {
+  cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
+  statusVisible.value = true;
+
+  undoAvailable.value = editor.can().undo();
+  redoAvailable.value = editor.can().redo();
+
+  clearTimeout(cmsTextSyncTimeout);
+  clearTimeout(statusVisibilityTimeout);
+
+  cmsTextSyncTimeout = setTimeout(() => {
+    emit("save");
+
+    cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCING;
+
+    cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
+      textModule: props.textModule,
+      locale: props.i18n.locale,
+      newText: processContent(editor.getHTML())
+    }).then(() => {
+      cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
+      statusVisibilityTimeout = setTimeout(() => statusVisible.value = false, 1500);
+    }).catch(reason => {
+      console.error(reason)
+      cmsTextSyncStatus.value = cmsTextSyncStatusValue.ERROR;
+      statusVisible.value = true;
+    }).finally(() => {
+      checkShouldHideControls();
+      cmsTextSyncTimeout = 0;        
+    });
+  }, 1000);
+}
+
+function checkHasContent(editor) {
+  if (editor.getText().trim() === "") {
+    translationAvailable.value = false;
+  } else {
+    translationAvailable.value = true;
+  }
+}
 
 const editor = useEditor({
   extensions: [
@@ -99,37 +141,12 @@ const editor = useEditor({
   onBeforeCreate() {
     editorReady.value = true;
   },
+  onCreate({ editor} ) {
+    checkHasContent(editor);
+  },
   onUpdate({ editor }) {
-    cmsTextSyncStatus.value = cmsTextSyncStatusValue.WRITING;
-    statusVisible.value = true;
-
-    undoAvailable.value = editor.can().undo();
-    redoAvailable.value = editor.can().redo();
-
-    clearTimeout(cmsTextSyncTimeout);
-    clearTimeout(statusVisibilityTimeout);
-
-    cmsTextSyncTimeout = setTimeout(() => {
-      emit("save");
-
-      cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCING;
-
-      cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
-        textModule: props.textModule,
-        locale: props.i18n.locale,
-        newText: processContent(editor.getHTML())
-      }).then(() => {
-        cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
-        statusVisibilityTimeout = setTimeout(() => statusVisible.value = false, 1500);
-      }).catch(reason => {
-        console.error(reason)
-        cmsTextSyncStatus.value = cmsTextSyncStatusValue.ERROR;
-        statusVisible.value = true;
-      }).finally(() => {
-        checkShouldHideControls();
-        cmsTextSyncTimeout = 0;        
-      });
-    }, 1000);
+    checkHasContent(editor);
+    saveText(editor);
   },
   onFocus() {
     cmsEditorControlsShown.value = true;
@@ -161,7 +178,7 @@ function checkShouldHideControls() {
   }, 100);
 }
 
-function editorAction(type) {
+async function editorAction(type) {
   switch (type) {
     case "bold":
       editor.value.chain().focus().toggleBold().run();
@@ -248,14 +265,15 @@ function editorAction(type) {
     case "translate":
       const textToTranslate = editor.value.view.dom.innerText;
 
-      (async () => {
-        try {
-          const translation = await cmsControlsStore.actionWithResult(cmsControlsStore.actions.TRANSLATE_TEXT, { text: textToTranslate, sourceLocale: props.i18n.fallbackLocale, targetLocale: props.i18n.locale })
-          console.log(`translation: ${translation}`)
-        } catch (ex) {
-          console.error(ex)
-        }
-      })()
+      try {
+        const translation = await cmsControlsStore.actionWithResult(cmsControlsStore.actions.TRANSLATE_TEXT, { text: textToTranslate, targetLocale: props.i18n.locale })
+
+        editor.value.commands.setContent(translation.split("\r\n\r\n").map(r => `<p>${r}</p>`).join(""));
+
+        saveText(editor.value);
+      } catch (ex) {
+        console.error(ex)
+      }
 
       break;
   }
@@ -336,7 +354,7 @@ watch(realTextDisplay, (showRealText) => {
           <button class="editor-action editor-action-link" data-editor-action @click="editorAction('link')" @blur="checkShouldHideControls" title="Link"><svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 640 512" fill="white"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg></button>
         </li>
         <li>
-          <button class="editor-action editor-action-translate" data-editor-action @click="editorAction('translate')" @blur="checkShouldHideControls" title="Auto-translate">
+          <button class="editor-action editor-action-translate" :disabled="!translationAvailable" data-editor-action @click="editorAction('translate')" @blur="checkShouldHideControls" title="Auto-translate">
             <span>{{ i18n.locale }}</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="1em" height="1em" viewBox="0 0 32 32">
               <g>
