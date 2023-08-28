@@ -182,10 +182,10 @@ const galleryStyleButtonSelection = computed(() => {
   }
 });
 
-function onChooseFirstGalleryImg(file) {
-  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
+function onChooseGalleryImages(files) {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
     slideId: props.slide.id,
-    file: file
+    files
   });
 }
 
@@ -348,7 +348,7 @@ watch(slideControlsExpanded, value => {
         <!-- CMS -->
         <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
           <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" size="small" />
-          <input type="file" @change="onChooseFirstGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="firstGalleryImgInput">
+          <input type="file" @change="onChooseGalleryImages($event.target.files)" accept="image/jpeg,image/png,image/gif" multiple ref="firstGalleryImgInput">
         </div>
         <!-- /CMS -->
       </div>

@@ -1,6 +1,6 @@
 <script>
 // Vue functions
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, reactive } from "vue";
 import { storeToRefs } from 'pinia';
 import { useI18n } from "vue-i18n";
 
@@ -281,41 +281,48 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, ({ textMo
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, async ({ slideId, file }) => {
-  const { imgFile, imgWidth, imgHeight } = await loadImage(file),
-        formData = new FormData();
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, async ({ slideId, files }) => {
+  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
 
-  formData.append("galleryImg", imgFile);
-  formData.append("imgWidth", imgWidth);
-  formData.append("imgHeight", imgHeight);
-  
-  fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
-    method: "POST",
-    body: formData
-  }).then(res => {
-    if (res.status !== 200) {
-      res.json().then(error => console.error(error));
-      return;
-    }
+  if (!slideToChange.gallery)
+    slideToChange.gallery = {};
 
-    res.json().then(data => {
-      const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+  if (!Array.isArray(slideToChange.gallery.images))
+    slideToChange.gallery.images = [];
 
-      if (!slideToChange.gallery)
-        slideToChange.gallery = {};
+  for (const file of files) {
+    const { imgFile, imgWidth, imgHeight } = await loadImage(file),
+          formData = new FormData(),
+          imgObj = reactive({
+            originalName: file.name,
+            src: URL.createObjectURL(file),
+            width: imgWidth,
+            height: imgHeight,
+            uploading: true
+          });
 
-      if (!Array.isArray(slideToChange.gallery.images))
-        slideToChange.gallery.images = [];
+    slideToChange.gallery.images.push(imgObj);
 
-      slideToChange.gallery.images.push({
-        id: getIdFromSrc(data.src),
-        src: gallerySrc(adventure.value.meta.id, data.src, 0),
-        srcset: gallerySrcSet(adventure.value.meta.id, data.src),
-        width: imgWidth,
-        height: imgHeight
+    formData.append("galleryImg", imgFile);
+    formData.append("imgWidth", imgWidth);
+    formData.append("imgHeight", imgHeight);
+    
+    fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
+      method: "POST",
+      body: formData
+    }).then(res => {
+      if (res.status !== 200) {
+        res.json().then(error => console.error(error));
+        return;
+      }
+
+      res.json().then(data => {
+        imgObj.id = getIdFromSrc(data.src);
+        imgObj.srcset = gallerySrcSet(adventure.value.meta.id, data.src);
+        imgObj.uploading = null;
       });
     });
-  });
+  }
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, ({ slideId, src }) => {

@@ -59,10 +59,10 @@ const showNewGalleryImgButton = computed(() => {
   return true;
 });
 
-function onChooseNextGalleryImg(file) {
-  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG, {
+function onChooseNextGalleryImages(files) {
+  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
     slideId: props.slideId,
-    file
+    files
   });
 }
 
@@ -103,8 +103,8 @@ onBeforeLeave = element => {
 <template>
 <div class="gallery-thumbs" :class="galleryThumbsClass">
   <TransitionGroup name="image-list" @before-leave="onBeforeLeave">
-    <div class="gallery-img-container" v-for="image, i in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.src">
-      <a      
+    <div class="gallery-img-container" v-for="image, i in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.originalName ? image.originalName : image.id">
+      <a
         v-bind:key="image.src"
         :href="image.src"
         :data-pswp-width="image.width"
@@ -127,6 +127,8 @@ onBeforeLeave = element => {
         />
       </a>
 
+      <div class="gallery-img-overlay" :class="{ active: image.uploading }"></div>
+
       <!-- CMS -->
       <div class="gallery-img-controls" :class="{ expanded: imgControlsExpanded[image.src] }" v-if="cmsControlsStore.editMode">
         <CmsOptionsButton v-if="!imgControlsExpanded[image.src]" @click="imgControlsExpanded[image.src] = !imgControlsExpanded[image.src]" />
@@ -147,7 +149,7 @@ onBeforeLeave = element => {
   <!-- CMS -->
   <div v-if="showNewGalleryImgButton" class="cms-new-gallery-image-outer">
     <CmsAdventureItemButtonNew class="cms-new-gallery-image-button" @click="nextGalleryImgInput.click()" size="small" />
-    <input class="cms-new-gallery-image-input" type="file" @change="onChooseNextGalleryImg($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="nextGalleryImgInput">
+    <input class="cms-new-gallery-image-input" type="file" @change="onChooseNextGalleryImages($event.target.files)" accept="image/jpeg,image/png,image/gif" multiple ref="nextGalleryImgInput">
   </div>
   <!-- /CMS -->
 </div>
@@ -402,6 +404,21 @@ onBeforeLeave = element => {
 
 .cms-new-gallery-image-outer .cms-new-gallery-image-button:hover {
   background-color: #57575752;
+}
+
+.gallery-thumbs .gallery-img-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: backdrop-filter 0.3s ease;
+  pointer-events: none;
+}
+
+.gallery-thumbs .gallery-img-overlay.active {
+  backdrop-filter: saturate(0) brightness(1.5) blur(1px);
 }
 
 .image-list-move,
