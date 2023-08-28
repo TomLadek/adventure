@@ -74,14 +74,11 @@ function onMoveImage(imageId, direction) {
   });
 }
 
-function onImgDeleteClick(src) {
-  const pathSplit = src.split("/"),
-        imgName = pathSplit[pathSplit.length - 1];
-
+function onImgDeleteClick(id) {
   confirmationStore.getConfirmation(
     `Remove image`,
-    `<p>Are you sure you want to remove image <b style="white-space: nowrap;">${imgName}</b>? This will also delete its caption in all languages.</p>`,
-    () => cmsControlsStore.action(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, { slideId: props.slideId, src: imgName })
+    `<p>Are you sure you want to remove image <b style="white-space: nowrap;">${id}</b>? This will also delete its caption in all languages.</p>`,
+    () => cmsControlsStore.action(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, { slideId: props.slideId, id: id })
   )
 }
 
@@ -138,7 +135,7 @@ onBeforeLeave = element => {
             <CmsButtonClose @click="imgControlsExpanded[image.src] = false" />
             <CmsButtonArrow v-if="i !== 0" @click="onMoveImage(image.id, 'prev')" direction="left" title="Swap with previous" />
             <CmsButtonArrow v-if="i !== gallery.images.length - 1" @click="onMoveImage(image.id, 'next')" direction="right" title="Swap with next" />
-            <CmsButtonDelete @click="onImgDeleteClick(image.src)" deleteWhatText="image" />
+            <CmsButtonDelete @click="onImgDeleteClick(image.id)" deleteWhatText="image" />
           </div>
         </Transition>
         </div>

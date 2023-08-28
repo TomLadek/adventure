@@ -325,10 +325,10 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
   }
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, ({ slideId, src }) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IMG, ({ slideId, id }) => {
   const formData = new FormData();
 
-  formData.append("galleryImg", src);
+  formData.append("galleryImg", id);
 
   fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
     method: "DELETE",
@@ -340,7 +340,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
     }
 
     const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-          imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(src)).test(galleryImg.src));
+          imgIndex = slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(id)).test(galleryImg.src));
 
     slideToChange.gallery.images.splice(imgIndex, 1);
   });
