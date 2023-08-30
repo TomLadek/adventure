@@ -17,7 +17,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { escapeRegExp, resourcePath } from "../../src/utils.js";
+import { escapeRegExp, resourcePath, asyncTimeout } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -540,10 +540,40 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.TRANSLATE_TEXT, asyn
   });
 
   if (res.status === 200)
-    resolve((await res.json()).translation)
+    resolve((await res.json()).translation);
   else
     reject((await res.json()).message);
-})
+});
+
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_MAIN_IMG, async ({ slideId, file }, resolve, reject) => {
+  const { imgFile, imgWidth, imgHeight } = await loadImage(file),
+          formData = new FormData();
+
+  formData.append("mainImg", imgFile);
+  formData.append("imgWidth", imgWidth);
+  formData.append("imgHeight", imgHeight);
+
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/mainImg`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (res.status === 200) {
+    const slideToChange = slides.value.find(slide => slide.id === slideId),
+          data = await res.json();
+
+    // wait for the selected image to render fully and the transitions to finish before replacing the path to the old one
+    await asyncTimeout(600);
+
+    slideToChange.mainImg.src = data.src;
+    slideToChange.mainImg.width = imgWidth;
+    slideToChange.mainImg.height = imgHeight;
+
+    resolve();
+  } else {
+    reject((await res.json()).message);
+  }
+});
 /* /CMS */
 </script>
 

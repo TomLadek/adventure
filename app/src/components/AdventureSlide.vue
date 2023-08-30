@@ -1,5 +1,5 @@
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 
 import AdventureGallerySlide from "./adventure-slides/AdventureGallerySlide.vue";
 import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
@@ -7,6 +7,7 @@ import AdventureIntroSlide from "./adventure-slides/AdventureIntroSlide.vue";
 /* CMS */
 import { useConfirmationStore } from "../stores/confirmation.js";
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
+import { asyncTimeout } from "../utils.js";
 import CmsAdventureItemButtonNew from "./buttons/CmsAdventureItemButtonNew.vue";
 import CmsOptionsButton from "./buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "./buttons/CmsButtonClose.vue";
@@ -64,12 +65,17 @@ const slideType = computed(() => {
 /* CMS */
 const confirmationStore = useConfirmationStore(),
       cmsControlsStore = useCmsControlsStore(),
+      imageChangeContainer = ref(null),
+      slideMainImageInput = ref(null),
       slideControlsExpanded = ref(false),
+      changingMainImg = ref(false),
+      newImageLoaded = ref(false),
       submenuExpanded = ref({
         type: false,
         theme: false,
         transition: false
-      });;
+      }),
+      imageChangeAnimTime = "0.6s";
 
 let slideControlsExpandedTimeout = 0;
 
@@ -130,6 +136,56 @@ async function onSlideTransitionClick(transitionName) {
   await cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, { slideId: props.slide.id, props: { transition } });
 
   submenuExpanded.value.transition = false;
+}
+
+async function onChangeSlideImage(file) {
+  const newImg = new Image();
+
+  // add the image-change-container to the DOM
+  changingMainImg.value = true;
+  
+  // wait for the image-change-container to be added to the DOM, otherwise imageChangeContainer will be null
+  await nextTick();
+
+  // add the image tag for the selected image to the image-change-container
+  imageChangeContainer.value.prepend(newImg);
+
+  // wait for the selected image to finish loading
+  newImg.addEventListener("load", async () => {
+    // wait for the image-change-container to be rendered (after setting changingMainImg to true), otherwise the blur overlay appears instantaneously
+    await asyncTimeout(100);
+
+    // fade in blur overlay
+    newImageLoaded.value = true;
+
+    // fade in selected image
+    newImg.style.opacity = 1;
+
+    try {
+      // actually call CMS Control Store to change the image on the server
+      await cmsControlsStore.actionWithResult(cmsControlsStore.actions.CHANGE_SLIDE_MAIN_IMG, { slideId: props.slide.id, file });
+    } catch (ex) {
+      // TODO display error in UI
+      console.error(ex);
+    } finally {
+      // CMS Controls Store changed the image on the server and exchanged the slide's background image.
+      // Wait for the new background image to finish loading.
+      await asyncTimeout(1000);
+  
+      // fade out blur overlay
+      newImageLoaded.value = false;
+      
+      // wait for the blur overlay transition to finish
+      await asyncTimeout(parseFloat(imageChangeAnimTime) * 1000);
+  
+      // remove the image-change-container from the DOM
+      changingMainImg.value = false
+    }
+  });
+
+  // set the image tag's src attribute, initiating the loading of the selected image
+  newImg.src = URL.createObjectURL(file);
+  newImg.className = "fill-screen";
 }
 
 function onSlideControlsCloseClick() {
@@ -223,6 +279,15 @@ function onSubmenuExpandClick(submenu) {
             </li>
 
             <li class="slide-controls-action">
+              <button class="button-type" title="Change slide image" @click="slideMainImageInput.click()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="white" width="18" height="18">
+                  <path d="M448 80c8.8 0 16 7.2 16 16V415.8l-5-6.5-136-176c-4.5-5.9-11.6-9.3-19-9.3s-14.4 3.4-19 9.3L202 340.7l-30.5-42.7C167 291.7 159.8 288 152 288s-15 3.7-19.5 10.1l-80 112L48 416.3l0-.3V96c0-8.8 7.2-16 16-16H448zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm80 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/>
+                </svg>
+              </button>
+              <input type="file" @change="onChangeSlideImage($event.target.files[0])" accept="image/jpeg,image/png,image/gif" ref="slideMainImageInput">
+            </li>
+
+            <li class="slide-controls-action">
               <CmsButtonDelete @click="onRemoveSlideClick" deleteWhatText="slide" />
             </li>
 
@@ -231,6 +296,12 @@ function onSubmenuExpandClick(submenu) {
             </li>
           </ul>
         </Transition>
+      </div>
+    </template>
+
+    <template #cmsImageChangeOverlay>
+      <div v-if="changingMainImg" class="image-change-container fill-screen" ref="imageChangeContainer">
+        <div class="image-change-overlay fill-screen" :class="{ active: newImageLoaded }"></div>
       </div>
     </template>
     <!-- /CMS -->
@@ -387,7 +458,9 @@ html:not(.fps-enabled) .slide {
   border-bottom-left-radius: 1rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(3px);
-  transition: height 0.15s ease-out;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+  transition-property: height, width;
 }
 
 @media (min-width: 768px) {
@@ -398,18 +471,29 @@ html:not(.fps-enabled) .slide {
 }
 
 .slide .slide-controls.expanded {
-  height: 16rem;
+  width: 18rem;
 }
 
 .slide .slide-controls .slide-controls-actions {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-evenly;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+@media (min-height: 400px) {
+  .slide .slide-controls.expanded {
+    height: 18rem;
+    width: 3rem;
+  }
+
+  .slide .slide-controls .slide-controls-actions {
+    flex-direction: column;
+  }
 }
 
 .slide .slide-controls .slide-controls-actions-enter-active,
@@ -426,6 +510,12 @@ html:not(.fps-enabled) .slide {
 
 .slide .slide-controls .slide-controls-action {
   flex-basis: 100%;
+}
+
+.slide .slide-controls .slide-controls-action input {
+  width: 0;
+  height: 0;
+  visibility: hidden;
 }
 
 .slide .slide-controls button {
@@ -528,5 +618,24 @@ html:not(.fps-enabled) .slide {
   fill: black;
 }
 
+.slide .image-change-container {
+  pointer-events: none;
+}
+
+.slide .image-change-container img {
+  object-fit: cover;
+  transition: all v-bind(imageChangeAnimTime) ease;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.slide .image-change-container .image-change-overlay {
+  transition: backdrop-filter v-bind(imageChangeAnimTime) ease;
+  pointer-events: none;
+}
+
+.slide .image-change-container .image-change-overlay.active {
+  backdrop-filter: grayscale(1) brightness(1.5) blur(6px);
+}
 /* /CMS */
 </style>

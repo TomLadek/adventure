@@ -2,6 +2,12 @@ import path from "path";
 import fs from "fs";
 import gm from "gm";
 
+const chars = [
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+  'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
+]
+
 export const resourcePath = process.env.RESOURCE_PATH;
 
 export function escapeRegExp(string) {
@@ -17,8 +23,14 @@ export function pad(str, length = 2) {
   return finalStr;
 }
 
-export function getRandomId(length = 3) {
-  return pad(Math.floor(Math.random() * Math.pow(10, length)), length)
+export function getRandomId(length = 4) {
+  let res = ""
+
+  for (let i = 0; i < length; i++) {
+    res += chars[Math.floor(Math.random() * chars.length)]
+  }
+
+  return res
 }
 
 export async function generateScaledImage(imgPath, originalDir, originalName, targetSize) {

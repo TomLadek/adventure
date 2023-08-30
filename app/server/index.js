@@ -90,7 +90,7 @@ async function startServer() {
     updateOneText,
     closeDb
   } = await import('../database/db.js')
-  const { generateScaledImage, resourcePath } = await import("../utils-node/utils.js")
+  const { generateScaledImage, getRandomId, resourcePath } = await import("../utils-node/utils.js")
   const { imgPath } = init(resourcePath)
 
 
@@ -285,6 +285,30 @@ async function startServer() {
       deleteAdventureImages(imgPath, adventureId, [galleryImgSrc])
 
       res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  // Change slide main image
+  app.post('/rest/adventure/:adventureId/slide/:slideId/mainImg', upload.single("mainImg"), async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            slideId = req.params.slideId,
+            fileExt = getFileExt(req.file.originalname),
+            mainImgSrc = `${slideId}_main-${getRandomId()}${fileExt === "jpg" ? "" : `.${fileExt}`}`
+
+      await updateOneSlide(adventureId, slideId, {
+        "mainImg.src": mainImgSrc,
+        "mainImg.width": Number(req.body.imgWidth),
+        "mainImg.height": Number(req.body.imgHeight)
+      })
+
+      deleteAdventureImages(imgPath, adventureId, [`${slideId}_main`])
+      moveImgFile(fileExt, req.file.path, imgPath, adventureId, mainImgSrc)
+      
+      res.status(200).json({ok: true, src: mainImgSrc})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})

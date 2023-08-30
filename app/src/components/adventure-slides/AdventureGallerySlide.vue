@@ -332,6 +332,8 @@ watch(slideControlsExpanded, value => {
       class="main-picture"
     ></a>
 
+    <slot name="cmsImageChangeOverlay"></slot>
+
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">
         <AdventureEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" />

@@ -89,6 +89,8 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
     :id="`slide_${slide.id}`"
     class="slide-intro"
   >
+    <slot name="cmsImageChangeOverlay"></slot>
+
     <div v-if="slide.headline || slide.content" class="content-outer" ref="contentOuter">
       <h1 class="headline-container">
         <AdventureEditableText class="headline" :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Headline" />

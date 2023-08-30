@@ -70,7 +70,7 @@ export async function insertOneSlide(adventureId, imgExt, width, height) {
   const adventuresColl = getCollection("adventures")
   
   const newSlideId = `slide-${getRandomId()}`,
-        mainImgSrc = `${newSlideId}_main${imgExt}`,
+        mainImgSrc = `${newSlideId}_main-${getRandomId()}${imgExt}`,
         newSlide = {
           id: newSlideId,
           mainImg: {

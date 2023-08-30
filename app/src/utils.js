@@ -53,3 +53,9 @@ export function setCookie(name, value) {
 
   document.cookie = `${name}=${value}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
 }
+
+export function asyncTimeout(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
