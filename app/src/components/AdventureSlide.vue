@@ -346,14 +346,6 @@ function onSubmenuExpandClick(submenu) {
   color: var(--color-black);
 }
 
-.slide .main-picture {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-}
-
 /* CMS */
 html:not(.fps-enabled) .slide {
   min-height: 100vh;

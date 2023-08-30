@@ -89,11 +89,6 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
     :id="`slide_${slide.id}`"
     class="slide-intro"
   >
-    <span
-      v-if="slide.mainImg"
-      class="main-picture"
-    ></span>
-
     <div v-if="slide.headline || slide.content" class="content-outer" ref="contentOuter">
       <h1 class="headline-container">
         <AdventureEditableText class="headline" :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Headline" />
@@ -126,10 +121,6 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
 </template>
 
 <style>
-.slide-intro .main-picture {
-  z-index: -1;
-}
-
 .slide-intro .headline-container {
   display: flex;
   flex-direction: column;
