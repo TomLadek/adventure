@@ -323,8 +323,10 @@ watch(cmsEditorControlsShown, (shown) => {
     if (!editorElementResizeObserver) {
       // Fixes an issue with the tippy tooltip not repositioning when its anchor element resizes
       editorElementResizeObserver = new ResizeObserver(() => {
-        tippyInstance.hide();
-        tippyInstance.show();
+        if (tippyInstance) {
+          tippyInstance.hide();
+          tippyInstance.show();
+        }
       });
 
       editorElementResizeObserver.observe(cmsTextEditor.value.rootEl);
