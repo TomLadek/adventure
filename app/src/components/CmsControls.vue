@@ -2,6 +2,8 @@
 import { ref, onMounted, nextTick } from "vue";
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import { usePageContext } from "../../renderer/usePageContext.js";
+
+import CmsButtonArrow from "./buttons/CmsButtonArrow.vue";
 </script>
 
 <script setup>
@@ -41,9 +43,13 @@ function onMinimizeControlsClick() {
   document.cookie = `${minimizedUserSettingsKey}=${cmsControlsMinimized.value}; Expires=${cookieExpireDate}; SameSite=Lax; Secure`;
 }
 
+function onBackClick() {
+  window.location.href = window.location.href.replace(/\/[^\/]*$/, "/");
+}
+
 onMounted(async () => {
   cmsControlsHeight.value = `${cmsControls.value.clientHeight}px`;
-  cmsControlsWidth.value = `${cmsControls.value.clientWidth}px`;
+  cmsControlsWidth.value = `${Math.ceil(cmsControls.value.getBoundingClientRect().width)}px`;
 
   await nextTick();
 
@@ -72,12 +78,16 @@ onMounted(async () => {
         <div class="cms-controls-grid">
           <label for="input-edit-mode">Edit mode:</label>
           <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.editMode }" v-model="cmsControlsStore.editMode">
-          <label for="input-edit-mode">Full scroll:</label>
-          <input id="input-edit-mode" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.fullScroll }" v-model="cmsControlsStore.fullScroll">
+
+          <label for="input-full-scroll">Full scroll:</label>
+          <input id="input-full-scroll" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.fullScroll }" v-model="cmsControlsStore.fullScroll">
+
+          <label for="button-publish">Publish:</label>
+          <button id="button-publish" class="cms-controls-button cms-button-publish" @click="publish">Publish</button>
         </div>
 
         <div class="cms-controls-input centered">
-          <button class="cms-button-publish" @click="publish">Publish</button>
+          <CmsButtonArrow class="cms-button-back" @click="onBackClick">Back to list</CmsButtonArrow>
         </div>
       </div>
     </Transition>
@@ -111,6 +121,9 @@ onMounted(async () => {
 }
 
 .cms-controls .cms-controls-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   padding: 1.5rem;
   transition: padding v-bind(cmsControlsAnimTime) ease-out;
 }
@@ -128,7 +141,9 @@ onMounted(async () => {
   border: none;
   padding: 0;
   white-space: nowrap;
-  transition: gap v-bind(cmsControlsAnimTime) ease-out;
+  transition-property: gap, background-color;
+  transition-timing-function: ease-out;
+  transition-duration: v-bind(cmsControlsAnimTime);
 }
 
 .cms-controls.minimized .cms-controls-title {
@@ -150,7 +165,25 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 1rem;
+}
+
+.cms-controls label {
+  white-space: nowrap;
+}
+
+.cms-controls button {
+  background-color: transparent;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease-out;
+}
+
+.cms-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cms-controls .cms-controls-toggle, .cms-controls .cms-controls-button {
+  justify-self: end;
 }
 
 .cms-controls .cms-controls-toggle {
@@ -205,7 +238,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: auto auto;
   gap: 0.5rem;
-  justify-content: space-between;
+  align-items: center;
 }
 
 .cms-controls .cms-controls-input.centered {
@@ -214,9 +247,16 @@ onMounted(async () => {
 }
 
 .cms-controls .cms-button-publish {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.cms-controls .cms-button-back {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
 }
 
 .cms-controls .fade-enter-active,

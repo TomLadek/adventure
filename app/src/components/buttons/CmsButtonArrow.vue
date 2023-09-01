@@ -13,5 +13,6 @@ const props = defineProps({
     <path d="M12,6 L5,12 L12,18" stroke-width="2" stroke="currentColor" fill="none"></path>
     <path d="M6,12 L20,12" stroke-width="2" stroke="currentColor"></path>
   </svg>
+  <slot></slot>
 </button>
 </template>
