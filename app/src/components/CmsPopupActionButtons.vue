@@ -1,11 +1,29 @@
 <script setup>
-defineEmits(["confirm", "cancel"])
+const props = defineProps({
+  cancelText: {
+    type: String,
+    required: false,
+    default: "Cancel"
+  },
+  okText: {
+    type: String,
+    required: false,
+    default: "OK"
+  },
+  showOkButton: {
+    type: Boolean,
+    required: false,
+    default: true
+  }
+});
+
+defineEmits(["confirm", "cancel"]);
 </script>
 
 <template>
   <div class="cms-adventure-popup-actions-container">
-    <button class="button-ok" @click="$emit('confirm')" value="ok">OK</button>
-    <button class="button-cancel" @click="$emit('cancel')" value="cancel">Cancel</button>
+    <button class="button-ok" v-if="showOkButton" @click="$emit('confirm')" value="ok">{{ okText }}</button>
+    <button class="button-cancel" @click="$emit('cancel')" value="cancel">{{ cancelText }}</button>
   </div>
 </template>
 

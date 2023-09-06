@@ -4,13 +4,15 @@ import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 import CmsButtonArrow from "./buttons/CmsButtonArrow.vue";
+import CmsPopup from "./CmsPopup.vue";
+import CmsPopupActionButtons from "./CmsPopupActionButtons.vue";
 </script>
 
 <script setup>
 const props = defineProps({
-  slides: {
-    type: Array,
-    required: false
+  adventure: {
+    type: Object,
+    required: true
   }
 });
 
@@ -27,10 +29,15 @@ const { userSettings } = usePageContext(),
       cmsControls = ref(null),
       cmsControlsHeight = ref("initial"),
       cmsControlsWidth = ref("initial"),
-      cmsControlsMinimized = ref(false);
+      cmsControlsMinimized = ref(false),
+      publishPopupShowing = ref(false);
 
-function publish() {
-  console.log("publishing ...")
+function onPublishClick() {
+  publishPopupShowing.value = !publishPopupShowing.value;
+}
+
+async function doPublish() {
+  console.log("Publishing ...")
   cmsControlsStore.action(cmsControlsStore.actions.PUBLISH);
 }
 
@@ -81,9 +88,10 @@ onMounted(async () => {
 
           <label for="input-full-scroll">Full scroll:</label>
           <input id="input-full-scroll" type="checkbox" class="cms-controls-toggle" :class="{ 'toggle-on': cmsControlsStore.fullScroll }" v-model="cmsControlsStore.fullScroll">
+        </div>
 
-          <label for="button-publish">Publish:</label>
-          <button id="button-publish" class="cms-controls-button cms-button-publish" @click="publish">Publish</button>
+        <div class="cms-controls-input centered">
+          <button id="button-publish" class="cms-controls-button cms-button-publish" @click="onPublishClick">Publish ...</button>
         </div>
 
         <div class="cms-controls-input centered">
@@ -92,6 +100,25 @@ onMounted(async () => {
       </div>
     </Transition>
   </div>
+
+  <CmsPopup class="publishing-popup" :popupShowing="publishPopupShowing" @keydown.prevent.escape="publishPopupShowing = false">
+    <h2 class="publishing-popup-headline">Publish</h2>
+    <div class="publishing-popup-content">
+      <div class="publishing-popup-info">
+        <label for="published-page-link">Link:</label>
+        <a href="https://www.google.com/" id="published-page-link">abc</a>
+
+        <label for="published-date">Last published:</label>
+        <!-- <span id="published-date">2023-09-06 10:54:00 GMT+2</span> -->
+        <span id="published-date">{{ adventure.meta.publisheddate || "N/A" }}</span>
+      </div>
+      <div class="publishing-popup-process">
+        <label for="publishing-status">Publishing status:</label>
+        <span id="publishing-status">MMM</span>
+      </div>
+    </div>
+    <CmsPopupActionButtons okText="Publish" cancelText="Close" @confirm="doPublish" @cancel="publishPopupShowing = false" />
+  </CmsPopup>
 </div>
 </template>
 
@@ -164,25 +191,25 @@ onMounted(async () => {
 .cms-controls .cms-controls-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.7rem;
 }
 
 .cms-controls label {
   white-space: nowrap;
 }
 
-.cms-controls button {
+.cms-controls .cms-controls-wrapper button {
   background-color: transparent;
   border-radius: 0.5rem;
   box-sizing: border-box;
   transition: background-color 0.15s ease-out;
 }
 
-.cms-controls button:hover {
+.cms-controls .cms-controls-wrapper button:not(.cms-controls-title):hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.cms-controls .cms-controls-toggle, .cms-controls .cms-controls-button {
+.cms-controls .cms-controls-toggle {
   justify-self: end;
 }
 
@@ -247,7 +274,8 @@ onMounted(async () => {
 }
 
 .cms-controls .cms-button-publish {
-  padding: 0.5rem 0.75rem;
+  width: 100%;
+  padding: 0.5rem 0;
 }
 
 .cms-controls .cms-button-back {
@@ -257,6 +285,28 @@ onMounted(async () => {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.25rem 0;
+}
+
+.publishing-popup .publishing-popup-headline {
+  margin-bottom: 1rem;
+}
+
+.publishing-popup .publishing-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.publishing-popup .publishing-popup-content .publishing-popup-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+}
+
+.publishing-popup .publishing-popup-content .publishing-popup-process {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .cms-controls .fade-enter-active,

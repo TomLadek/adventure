@@ -580,7 +580,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_MAIN_IM
 <template>
   <div class="adventure-container">
     <!-- CMS -->
-    <CmsControls v-if="cmsControlsStore.isCmsView" :slides="slides" />
+    <CmsControls v-if="cmsControlsStore.isCmsView" :adventure="adventure" />
 
     <CmsConfirmActionPopup :confirmPopupShowing="confirmationStore.pending" />
 
