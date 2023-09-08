@@ -42,8 +42,20 @@ function onPublishClick() {
   publishPopupShowing.value = !publishPopupShowing.value;
 }
 
+function onClosePublishPopupClick() {
+  publishPopupShowing.value = false;
+
+  if (publishingStatus.value.code !== 1) {
+    setTimeout(() => {
+      publishingStatus.value.code = 0;
+      publishingStatus.value.text = "Idle";
+      publishingStatus.value.moreInfo = "";
+    }, 150);
+  }
+}
+
 async function doPublish() {
-  publishingStatus.value.code = 1
+  publishingStatus.value.code = 1;
   publishingStatus.value.text = "Publishing ...";
   publishingStatus.value.moreInfo = "";
 
@@ -121,7 +133,7 @@ onMounted(async () => {
     </Transition>
   </div>
 
-  <CmsPopup class="publishing-popup" :popupShowing="publishPopupShowing" @keydown.prevent.escape="publishPopupShowing = false">
+  <CmsPopup class="publishing-popup" :popupShowing="publishPopupShowing" @keydown.prevent.escape="onClosePublishPopupClick">
     <h2 class="publishing-popup-headline">Publishing</h2>
     <div class="publishing-popup-content">
       <div class="publishing-popup-info">
@@ -145,7 +157,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <CmsPopupActionButtons okText="Publish" cancelText="Close" @confirm="doPublish" @cancel="publishPopupShowing = false" />
+    <CmsPopupActionButtons okText="Publish" cancelText="Close" @confirm="doPublish" @cancel="onClosePublishPopupClick" />
   </CmsPopup>
 </div>
 </template>
