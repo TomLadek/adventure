@@ -416,6 +416,10 @@ watch(realTextDisplay, (showRealText) => {
   transition: outline-color .15s ease-out;
 }
 
+.cms-text-editor .ProseMirror:not(:focus-visible):hover {
+  outline-color: #858585;
+}
+
 .cms-text-editor .ProseMirror:focus-visible {
   outline-color: black;
 }
