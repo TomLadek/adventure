@@ -520,6 +520,10 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async (_, r
   });
 
   if (res.status === 200) {
+    const publishedDate = (await res.json()).publishedDate;
+
+    adventure.value.meta.lastPublishDate = publishedDate;
+
     resolve();
   } else {
     console.error(res);

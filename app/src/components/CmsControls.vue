@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useCmsControlsStore } from "../stores/cmscontrols.js";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
@@ -32,11 +32,17 @@ const { userSettings } = usePageContext(),
       cmsControlsMinimized = ref(false),
       publishPopupShowing = ref(false),
       publishedPageLink = ref(""),
-      publishingStatus = ref({
-        code: 0,
-        text: "Idle",
-        moreInfo: ""
-      });
+      publishStatusCode = ref(props.adventure.meta.lastPublishStatus === 1 ? 1 : 0),
+      lastPublishingError = ref("");
+
+const publishingStatus = computed(() => {
+  switch (publishStatusCode.value) {
+    case 0: return { text: "Idle", moreInfo: "" };
+    case 1: return { text: "Publishing ...", moreInfo: "" };
+    case 2: return { text: "Success!", moreInfo: "" };
+    case 3: return { text: "Error", moreInfo: lastPublishingError.value };
+  }
+})
 
 function onPublishClick() {
   publishPopupShowing.value = !publishPopupShowing.value;
@@ -45,29 +51,21 @@ function onPublishClick() {
 function onClosePublishPopupClick() {
   publishPopupShowing.value = false;
 
-  if (publishingStatus.value.code !== 1) {
-    setTimeout(() => {
-      publishingStatus.value.code = 0;
-      publishingStatus.value.text = "Idle";
-      publishingStatus.value.moreInfo = "";
-    }, 150);
+  if (publishStatusCode.value !== 1) {
+    setTimeout(() => publishStatusCode.value = 0, 150);
   }
 }
 
 async function doPublish() {
-  publishingStatus.value.code = 1;
-  publishingStatus.value.text = "Publishing ...";
-  publishingStatus.value.moreInfo = "";
+  publishStatusCode.value = 1;
 
   try {
     await cmsControlsStore.actionWithResult(cmsControlsStore.actions.PUBLISH);
 
-    publishingStatus.value.code = 2;
-    publishingStatus.value.text = "Success!";
+    publishStatusCode.value = 2;
   } catch (ex) {
-    publishingStatus.value.code = 3;
-    publishingStatus.value.text = "Error";
-    publishingStatus.value.moreInfo = ex;
+    publishStatusCode.value = 3;
+    lastPublishingError.value = ex;
   }
 }
 
@@ -142,15 +140,15 @@ onMounted(async () => {
 
         <label for="published-date">Last published:</label>
         <!-- <span id="published-date">2023-09-06 10:54:00 GMT+2</span> -->
-        <span id="published-date">{{ adventure.meta.publisheddate || "N/A" }}</span>
+        <span id="published-date">{{ adventure.meta.lastPublishDate && new Date(adventure.meta.lastPublishDate).toUTCString() }}</span>
       </div>
       <div class="publishing-popup-process">
         <div class="publishing-status-text">
           <span>Status:</span>
-          <span :class="{ 'idle': publishingStatus.code === 0, 'in-progress': publishingStatus.code === 1 }">{{ publishingStatus.text }}</span>
-          <span v-if="publishingStatus.code === 1" class="spinner-sm"></span>
-          <svg v-else-if="publishingStatus.code === 2" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 490" fill="#00d700"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
-          <svg v-else-if="publishingStatus.code === 3" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 450" fill="red"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+          <span :class="{ 'idle': publishStatusCode === 0, 'in-progress': publishStatusCode === 1 }">{{ publishingStatus.text }}</span>
+          <span v-if="publishStatusCode === 1" class="spinner-sm"></span>
+          <svg v-else-if="publishStatusCode === 2" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 490" fill="#00d700"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+          <svg v-else-if="publishStatusCode === 3" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 450" fill="red"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
         </div>
         <div v-if="publishingStatus.moreInfo" class="publishing-status-moreinfo">
           {{ publishingStatus.moreInfo }}

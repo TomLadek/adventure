@@ -234,6 +234,37 @@ export async function insertOneAdventure(data) {
   }
 }
 
+export async function updateOneAdventure(adventureId, props) {
+  const adventuresColl = getCollection("adventures"),
+        updateDocument = { $set: {}, $unset: {} }
+
+  for (const prop of Object.keys(props)) {
+    const propValue = props[prop]
+    let propDbValue;
+
+    if (/true|false/i.test(propValue))
+      propDbValue = propValue.toLowerCase() === "true"
+    else if (/^[0-9.]+$/.test(propValue))
+      propDbValue = parseFloat(propValue)
+    else
+      propDbValue = propValue
+
+    updateDocument.$set[prop] =  propDbValue
+  }
+
+  try {
+    await adventuresColl.updateOne(
+      {
+        _id: new ObjectId(adventureId)
+      },
+      updateDocument
+    )
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function updateOneSlideContent(adventureId, slideId, slideContent, locale) {
   const updateDocument = { $set: {} }
 

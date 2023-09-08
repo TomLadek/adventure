@@ -88,6 +88,7 @@ async function startServer() {
     updateOneSlideGalleryAddImgCaption,
     updateOneRemoveSlideContent,
     updateOneText,
+    updateOneAdventure,
     closeDb
   } = await import('../database/db.js')
   const { generateScaledImage, getRandomId, resourcePath } = await import("../utils-node/utils.js")
@@ -134,8 +135,11 @@ async function startServer() {
   // Publish an adventure
   app.post('/rest/adventure/:adventureId/publish', async (req, res) => {
     try {
-      const adventureDeploymentPath = await findAdventureDeploymentPath(req.params.adventureId),
+      const adventureId = req.params.adventureId,
+            adventureDeploymentPath = await findAdventureDeploymentPath(adventureId),
             publishCommand = `DEPLOYMENT_PATH=${adventureDeploymentPath} NODE_ENV=production npm run build`
+
+      await updateOneAdventure(adventureId, { "meta.lastPublishStatus": 1 })
 
       console.log(`publishing using following command: ${publishCommand}`)
 
@@ -154,8 +158,17 @@ async function startServer() {
         })
       })
 
-      res.status(200).json({ok: true})
+      const publishedDate = new Date()
+      await updateOneAdventure(adventureId, { "meta.lastPublishStatus": 2, "meta.lastPublishDate": publishedDate })
+
+      res.status(200).json({ok: true, publishedDate })
     } catch (ex) {
+      try {
+        await updateOneAdventure(adventureId, { "meta.lastPublishStatus": 3 })
+      } catch (ex2) {
+        ex = ex2
+      }
+
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
     }
