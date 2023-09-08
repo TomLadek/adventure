@@ -140,7 +140,7 @@ onMounted(async () => {
 
         <label for="published-date">Last published:</label>
         <!-- <span id="published-date">2023-09-06 10:54:00 GMT+2</span> -->
-        <span id="published-date">{{ adventure.meta.lastPublishDate && new Date(adventure.meta.lastPublishDate).toUTCString() }}</span>
+        <span id="published-date">{{ adventure.meta.lastPublishDate && new Date(adventure.meta.lastPublishDate).toUTCString() || "N/A" }}</span>
       </div>
       <div class="publishing-popup-process">
         <div class="publishing-status-text">
