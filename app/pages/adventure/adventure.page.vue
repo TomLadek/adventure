@@ -514,15 +514,16 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY
   }
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async () => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async (_, resolve, reject) => {
   const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/publish`, {
     method: "POST"
   });
 
   if (res.status === 200) {
-    console.log("published successfully!")
+    resolve();
   } else {
-    console.error(res)
+    console.error(res);
+    reject((await res.json()).message)
   }
 });
 

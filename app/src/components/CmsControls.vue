@@ -30,15 +30,33 @@ const { userSettings } = usePageContext(),
       cmsControlsHeight = ref("initial"),
       cmsControlsWidth = ref("initial"),
       cmsControlsMinimized = ref(false),
-      publishPopupShowing = ref(false);
+      publishPopupShowing = ref(false),
+      publishedPageLink = ref(""),
+      publishingStatus = ref({
+        code: 0,
+        text: "Idle",
+        moreInfo: ""
+      });
 
 function onPublishClick() {
   publishPopupShowing.value = !publishPopupShowing.value;
 }
 
 async function doPublish() {
-  console.log("Publishing ...")
-  cmsControlsStore.action(cmsControlsStore.actions.PUBLISH);
+  publishingStatus.value.code = 1
+  publishingStatus.value.text = "Publishing ...";
+  publishingStatus.value.moreInfo = "";
+
+  try {
+    await cmsControlsStore.actionWithResult(cmsControlsStore.actions.PUBLISH);
+
+    publishingStatus.value.code = 2;
+    publishingStatus.value.text = "Success!";
+  } catch (ex) {
+    publishingStatus.value.code = 3;
+    publishingStatus.value.text = "Error";
+    publishingStatus.value.moreInfo = ex;
+  }
 }
 
 function onMinimizeControlsClick() {
@@ -67,6 +85,8 @@ onMounted(async () => {
       minimizedStartValue.value = null;
     }, parseFloat(cmsControlsAnimTime) * 1000);
   }
+
+  publishedPageLink.value = window.location.href.replace(/staging\//, "");
 });
 </script>
 
@@ -102,19 +122,27 @@ onMounted(async () => {
   </div>
 
   <CmsPopup class="publishing-popup" :popupShowing="publishPopupShowing" @keydown.prevent.escape="publishPopupShowing = false">
-    <h2 class="publishing-popup-headline">Publish</h2>
+    <h2 class="publishing-popup-headline">Publishing</h2>
     <div class="publishing-popup-content">
       <div class="publishing-popup-info">
         <label for="published-page-link">Link:</label>
-        <a href="https://www.google.com/" id="published-page-link">abc</a>
+        <a :href="publishedPageLink" id="published-page-link">{{ publishedPageLink }}</a>
 
         <label for="published-date">Last published:</label>
         <!-- <span id="published-date">2023-09-06 10:54:00 GMT+2</span> -->
         <span id="published-date">{{ adventure.meta.publisheddate || "N/A" }}</span>
       </div>
       <div class="publishing-popup-process">
-        <label for="publishing-status">Publishing status:</label>
-        <span id="publishing-status">MMM</span>
+        <div class="publishing-status-text">
+          <span>Status:</span>
+          <span :class="{ 'idle': publishingStatus.code === 0, 'in-progress': publishingStatus.code === 1 }">{{ publishingStatus.text }}</span>
+          <span v-if="publishingStatus.code === 1" class="spinner-sm"></span>
+          <svg v-else-if="publishingStatus.code === 2" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 490" fill="#00d700"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+          <svg v-else-if="publishingStatus.code === 3" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 450" fill="red"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>
+        </div>
+        <div v-if="publishingStatus.moreInfo" class="publishing-status-moreinfo">
+          {{ publishingStatus.moreInfo }}
+        </div>
       </div>
     </div>
     <CmsPopupActionButtons okText="Publish" cancelText="Close" @confirm="doPublish" @cancel="publishPopupShowing = false" />
@@ -294,13 +322,39 @@ onMounted(async () => {
 .publishing-popup .publishing-popup-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  word-break: break-all;
 }
 
 .publishing-popup .publishing-popup-content .publishing-popup-info {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.5rem;
+}
+
+.publishing-popup .publishing-popup-content .publishing-status-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 1.4em;
+}
+
+.publishing-popup .publishing-popup-content .publishing-status-text .idle {
+  opacity: 0.5;
+}
+
+.publishing-popup .publishing-popup-content .publishing-status-text .in-progress {
+  animation: in-progress 0.75s ease-in-out 0s infinite alternate;
+}
+
+.publishing-popup .publishing-popup-content .publishing-status-text .spinner-sm {
+  display: inline-block;
+}
+
+.publishing-popup .publishing-popup-content .publishing-status-moreinfo {
+  font-family: monospace;
+  margin-left: 0.75rem;
+  min-height: 1.4em;
 }
 
 .publishing-popup .publishing-popup-content .publishing-popup-process {
@@ -317,5 +371,10 @@ onMounted(async () => {
 .cms-controls .fade-enter-from,
 .cms-controls .fade-leave-to {
   opacity: 0;
+}
+
+@keyframes in-progress {
+  from { opacity: 0.6; transform: scale(0.975); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>
