@@ -341,7 +341,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.5rem 1rem;
 }
 
 .publishing-popup .publishing-popup-content .publishing-status-container {
