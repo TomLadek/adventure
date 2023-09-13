@@ -31,7 +31,7 @@ const { userSettings } = usePageContext(),
       cmsControlsWidth = ref("initial"),
       cmsControlsMinimized = ref(false),
       publishPopupShowing = ref(false),
-      publishedPageLink = ref(""),
+      publishedPageLink = ref(`${import.meta.env.VITE_DEPLOYMENT_HOST && import.meta.env.VITE_DEPLOYMENT_HOST !== 'localhost' ? 'https://' + import.meta.env.VITE_DEPLOYMENT_HOST : ''}${import.meta.env.VITE_URL_BASE}/${props.adventure.meta.urlPath}`),
       publishStatusCode = ref(props.adventure.meta.lastPublishStatus === 1 ? 1 : 0),
       lastPublishingError = ref("");
 
@@ -95,8 +95,6 @@ onMounted(async () => {
       minimizedStartValue.value = null;
     }, parseFloat(cmsControlsAnimTime) * 1000);
   }
-
-  publishedPageLink.value = window.location.href.replace(/staging\//, "");
 });
 </script>
 
