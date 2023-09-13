@@ -6,6 +6,21 @@ import vue from "@vitejs/plugin-vue";
 import ssr from 'vite-plugin-ssr/plugin'
 import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer.js";
 
+/**
+ * In a Vite application only environment variables prefixed with 'VITE_' are available.
+ * This function takes care of converting the necessary environment variables to this format.
+ */
+function createViteEnvVariables() {
+  const envVariablesToVitify = ["RESOURCE_PATH", "URL_BASE_CMS", "URL_BASE", "DEPLOYMENT_HOST"];
+
+  for (envVariable of envVariablesToVitify) {
+    if (process.env[envVariable])
+      process.env[`VITE_${envVariable}`] = process.env[envVariable];
+  }
+}
+
+createViteEnvVariables();
+
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => {
   const isCmsView = configEnv.mode !== "production",
