@@ -79,7 +79,7 @@ function onMinimizeControlsClick() {
 }
 
 function onBackClick() {
-  window.location.href = window.location.href.replace(/\/[^\/]*$/, "/");
+  window.location.href = `${window.location.origin}${import.meta.env.VITE_URL_BASE_CMS}`;
 }
 
 onMounted(async () => {
