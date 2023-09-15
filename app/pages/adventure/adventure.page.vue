@@ -594,7 +594,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_MAIN_IM
 
     <AdventureLanguageSwitcher />
 
-    <AdventureNavigation :slideCount="slides.length" :slideChange="slideChange" />
+    <AdventureNavigation :slides="slides" :slideChange="slideChange" />
 
     <main id="adventure">
       <AdventureSlide

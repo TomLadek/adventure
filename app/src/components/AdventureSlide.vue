@@ -193,7 +193,7 @@ function onSubmenuExpandClick(submenu) {
 </script>
 
 <template>
-  <component class="slide" :class="`slide-theme-${slide.theme || 'light'}`" :is="slideType" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
+  <component class="slide" :class="`slide-theme-${slide.theme || 'light'}`" :is="slideType" :id="`slide_${slide.id}`" :slide="slide" :adventureMeta="adventureMeta" :showing="slideChange.current === slideIdx">
     <!-- CMS -->
     <template #cmsAddSlideContentButton>
       <div v-if="cmsControlsStore.editMode" class="cms-new-slide-content-outer">

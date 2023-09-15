@@ -1,7 +1,17 @@
+<script>
+import { ref } from 'vue';
+
+/* CMS */
+import { computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useCmsControlsStore } from '../stores/cmscontrols.js';
+/* /CMS */
+</script>
+
 <script setup>
 const props = defineProps({
-  slideCount: {
-    type: Number,
+  slides: {
+    type: Array,
     required: true
   },
   slideChange: {
@@ -16,11 +26,73 @@ const props = defineProps({
     }
   }
 });
+
+let navLinkHrefs = ref(props.slides.reduce((prev, _, i) => {
+  prev[i + 1] = `#slide${i}`;
+  return prev;
+}, {}));
+
+let getNavLinkActive = function(i) {
+  return i === props.slideChange.current;
+}
+
+/* CMS */
+const cmsControlsStore = useCmsControlsStore(),
+      { fullScroll } = storeToRefs(cmsControlsStore),
+      { isCmsView } = cmsControlsStore,
+      slideThresholds = [],
+      activeNavLinkIndex = ref(0);
+
+navLinkHrefs = ref(props.slides.reduce((prev, curr, i) => {
+  prev[i + 1] = computed(() => {
+    if (isCmsView && !fullScroll.value) {
+      return `#slide_${curr.id}`;
+    } else {
+      return `#slide${i}`;
+    }
+  });
+  return prev;
+}, {}));
+
+getNavLinkActive = function(i) {
+  if (isCmsView && !fullScroll.value) {
+    return i === activeNavLinkIndex.value;
+  } else {
+    return i === props.slideChange.current;
+  }
+}
+
+function calculateSlideThresholds() {
+  slideThresholds.length = 0;
+  slideThresholds.push(0);
+
+  for (const slide of props.slides) {
+    const slideElement = document.getElementById(`slide_${slide.id}`);
+
+    slideThresholds.push(slideElement.offsetTop + slideElement.clientHeight / 2)
+  }
+}
+
+onMounted(() => {
+  calculateSlideThresholds();
+
+  window.addEventListener("resize", calculateSlideThresholds);
+
+  window.addEventListener("scroll", () => {
+    for (let i = slideThresholds.length - 1; i >= 0; i--) {
+      if (window.scrollY > slideThresholds[i]) {
+        activeNavLinkIndex.value = i;
+        break;
+      }
+    }
+  });
+});
+/* /CMS */
 </script>
 
 <template>
 <ol class="dots slide-themed">
-  <li v-for="i in slideCount" :class="{active: i - 1 === slideChange.current}"><a :href="`#slide${i - 1}`"></a></li>
+  <li v-for="i in slides.length" :class="{active: getNavLinkActive(i - 1)}"><a :href="navLinkHrefs[i]"></a></li>
 </ol>
 </template>
 
@@ -59,14 +131,15 @@ ol.dots {
 }
 
 .dots li {
+  display: flex;
+  align-items: center;
   opacity: 0.5;
   width: 100%;
   height: 0.5rem;
-  transition: background-color var(--default-anim-time) ease;
-}
-
-.dots li {
   background-color: white;
+  transition-property: opacity, background-color ;
+  transition-duration: 0.3s, var(--default-anim-time);
+  transition-timing-function: ease;
 }
 
 @media (min-width: 768px) {
@@ -96,7 +169,8 @@ ol.dots {
 
 .dots li a {
   display: block;
-  height: 100%;
+  height: 300%;
+  width: 100%;
 }
 
 @media (min-width: 768px) {

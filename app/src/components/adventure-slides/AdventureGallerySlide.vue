@@ -315,7 +315,6 @@ watch(slideControlsExpanded, value => {
 
 <template>
   <section
-    :id="`slide_${slide.id}`"
     class="slide-gallery"
     :class="slideClass"
   >

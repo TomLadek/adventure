@@ -86,7 +86,6 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
 
 <template>
   <section
-    :id="`slide_${slide.id}`"
     class="slide-intro"
   >
     <slot name="cmsImageChangeOverlay"></slot>
