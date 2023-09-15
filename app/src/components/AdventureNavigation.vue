@@ -142,6 +142,10 @@ ol.dots {
   transition-timing-function: ease;
 }
 
+.dots li:hover {
+  opacity: 0.75;
+}
+
 @media (min-width: 768px) {
   .dark .dots li {
     background-color: #4e4e4e;
