@@ -40,7 +40,7 @@ const galleryThumbsClass = computed(() => {
   return baseClass;
 });
 
-let showGalleryContainer = computed(() => props.gallery && props.gallery.images && props.gallery.images.length)
+let showGalleryContainer = computed(() => props.gallery.images && props.gallery.images.length)
 
 let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
 
@@ -61,7 +61,7 @@ const showNewGalleryImgButton = computed(() => {
   return true;
 });
 
-showGalleryContainer = computed(() => (props.gallery && props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
+showGalleryContainer = computed(() => (props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
 
 function onChooseNextGalleryImages(files) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
