@@ -1,7 +1,7 @@
 <script>
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { isCmsView } from "../../../src/utils.js";
+import { isCmsView } from "../../utils.js";
 import { useI18nBundle } from "../../composables/i18nBundle.js";
 import { useVI18nAttr } from "../../composables/vI18nAttr.js";
 
@@ -18,7 +18,6 @@ import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 import { ref, h, render } from "vue";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 import { useConfirmationStore } from "../../stores/confirmation";
-import CmsAdventureItemButtonNew from "../buttons/CmsAdventureItemButtonNew.vue";
 import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "../buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
@@ -182,13 +181,6 @@ const galleryStyleButtonSelection = computed(() => {
   }
 });
 
-function onChooseGalleryImages(files) {
-  cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
-    slideId: props.slide.id,
-    files
-  });
-}
-
 function onSlideControlsMouseEnter() {
   clearTimeout(slideControlsExpandedTimeout)
 }
@@ -342,16 +334,8 @@ watch(slideControlsExpanded, value => {
         <AdventureEditableText :i18n="i18nBundle" :textModule="slide.content.text" :isMultiline="true" emptyPlaceholder="Empty content" />
   
         <AdventureSwiperGallery
-          v-if="slide.gallery && slide.gallery.images && slide.gallery.images.length"
           :slideId="slide.id"
-          :gallery="slide.gallery" />
-
-        <!-- CMS -->
-        <div v-else-if="cmsControlsStore.editMode" class="cms-new-gallery-outer">
-          <CmsAdventureItemButtonNew class="cms-new-gallery-button" @click="firstGalleryImgInput.click()" size="small" />
-          <input type="file" @change="onChooseGalleryImages($event.target.files)" accept="image/jpeg,image/png,image/gif" multiple ref="firstGalleryImgInput">
-        </div>
-        <!-- /CMS -->
+          :gallery="slide.gallery || {}" />
       </div>
 
       <!-- CMS -->

@@ -40,6 +40,8 @@ const galleryThumbsClass = computed(() => {
   return baseClass;
 });
 
+let showGalleryContainer = computed(() => props.gallery && props.gallery.images && props.gallery.images.length)
+
 let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
 
 /* CMS */
@@ -58,6 +60,8 @@ const showNewGalleryImgButton = computed(() => {
 
   return true;
 });
+
+showGalleryContainer = computed(() => (props.gallery && props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
 
 function onChooseNextGalleryImages(files) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
@@ -98,7 +102,7 @@ onBeforeLeave = element => {
 </script>
 
 <template>
-<div class="gallery-thumbs" :class="galleryThumbsClass">
+<div v-if="showGalleryContainer" class="gallery-thumbs" :class="galleryThumbsClass">
   <TransitionGroup name="image-list" @before-leave="onBeforeLeave">
     <div class="gallery-img-container" v-for="image, i in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.originalName ? image.originalName : image.id">
       <a

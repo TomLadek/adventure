@@ -282,7 +282,9 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, ({ textMo
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, async ({ slideId, files }) => {
-  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId);
+  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
+        selectedImages = [],
+        imagesToUpload = [];
 
   if (!slideToChange.gallery)
     slideToChange.gallery = {};
@@ -290,38 +292,50 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
   if (!Array.isArray(slideToChange.gallery.images))
     slideToChange.gallery.images = [];
 
-  for (const file of files) {
-    const { imgFile, imgWidth, imgHeight } = await loadImage(file),
-          formData = new FormData(),
-          imgObj = reactive({
-            originalName: file.name,
-            src: URL.createObjectURL(file),
-            width: imgWidth,
-            height: imgHeight,
-            uploading: true
-          });
+  for (const file of files)
+    selectedImages.push(file);
 
-    slideToChange.gallery.images.push(imgObj);
+  // First, sort the selected images by their lastModified date
+  selectedImages.sort((a, b) => a.lastModified - b.lastModified);
 
-    formData.append("galleryImg", imgFile);
-    formData.append("imgWidth", imgWidth);
-    formData.append("imgHeight", imgHeight);
+  // Second, load the selected images to get their other data (widths, heights) and add them to this slide
+  for (const selectedImage of selectedImages) {
+      const { imgFile, imgWidth, imgHeight } = await loadImage(selectedImage),
+            formData = new FormData(),
+            imgObj = reactive({
+              originalName: selectedImage.name,
+              src: URL.createObjectURL(selectedImage),
+              width: imgWidth,
+              height: imgHeight,
+              uploading: true
+            });
     
-    fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
-      method: "POST",
-      body: formData
-    }).then(res => {
-      if (res.status !== 200) {
-        res.json().then(error => console.error(error));
-        return;
-      }
+      slideToChange.gallery.images.push(imgObj);
+    
+      formData.append("galleryImg", imgFile);
+      formData.append("imgWidth", imgWidth);
+      formData.append("imgHeight", imgHeight);
+      
+      imagesToUpload.push({ formData, imgObj });
+  }
 
-      res.json().then(data => {
-        imgObj.id = getIdFromSrc(data.src);
-        imgObj.srcset = gallerySrcSet(adventure.value.meta.id, data.src);
-        imgObj.uploading = null;
-      });
+  // Third, upload the loaded images in the sorted order
+  for (const imageToUpload of imagesToUpload) {
+    const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery`, {
+      method: "POST",
+      body: imageToUpload.formData
     });
+  
+    if (res.status !== 200) {
+      res.json().then(error => console.error(error));
+      return;
+    }
+
+    res.json().then(data => {
+      imageToUpload.imgObj.id = getIdFromSrc(data.src);
+      imageToUpload.imgObj.srcset = gallerySrcSet(adventure.value.meta.id, data.src);
+      imageToUpload.imgObj.uploading = null;
+    });    
   }
 });
 
