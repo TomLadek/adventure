@@ -5,9 +5,8 @@ import { useLanguageStore } from "../stores/language.js";
 </script>
 
 <script setup>
-const languageStore = useLanguageStore();
-
-const { locale, availableLocales } = useI18n()
+const languageStore = useLanguageStore(),
+      { locale, availableLocales } = useI18n();
 
 const languages = computed(() => { return availableLocales.sort() });
 

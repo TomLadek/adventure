@@ -200,7 +200,7 @@ async function editorAction(type) {
 
       // If the cursor is at a link, select the whole link
       if (oldLinkHref)
-        editor.value.chain().focus().extendMarkRange('link').run()
+        editor.value.chain().focus().extendMarkRange('link').run();
 
       linksStore.getLink(selectedText.value, oldLinkHref, (newLinkText, newLinkTextSuggested, newLinkHref) => {
         newLinkHref = (newLinkHref || "").trim();
