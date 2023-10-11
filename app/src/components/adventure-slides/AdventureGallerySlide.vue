@@ -152,7 +152,6 @@ onMounted(initGallery);
 const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
       slideControlsExpanded = ref(false),
-      firstGalleryImgInput = ref(null),
       submenuExpanded = ref({
         position: false,
         galleryStyle: false
