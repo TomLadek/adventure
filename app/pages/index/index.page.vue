@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
 import CmsAdventureItemButtonNew from "../../src/components/buttons/CmsAdventureItemButtonNew.vue";
 
@@ -11,6 +11,10 @@ import { usePageContext } from "../../renderer/usePageContext.js";
 const pageContext = usePageContext(),
       adventures = ref(pageContext.pageProps.adventureList),
       newAdventurePopupShowing = ref(false);
+
+const displayedAdventures = computed(() => {
+  return adventures.value.filter(adventure => !adventure.meta.hideInList);
+});
 
 function updateAdventuresList() {
   fetch("/rest/adventure/list").then(async (response) => {
@@ -35,7 +39,7 @@ function getAdventureLink(adventureUrlPath) {
   <main id="index">
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
-      <li class="cms-adventure-list-item" v-for="adventure in adventures" :key="adventure.id">
+      <li class="cms-adventure-list-item" v-for="adventure in displayedAdventures" :key="adventure.id">
         <a :href="getAdventureLink(adventure.meta.urlPath)" class="cms-adventure-link" :data-adventure-id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
       </li>
       <li class="cms-adventure-list-item new-item">
