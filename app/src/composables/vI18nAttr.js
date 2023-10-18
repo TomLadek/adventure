@@ -21,12 +21,15 @@ import { useI18n } from "vue-i18n";
 export function useVI18nAttr() {
   const { t, availableLocales } = useI18n();
 
-  function getTranslatedTextContent(value) {
+  function getTranslatedTextContent(value, ssr = false) {
     const translatedText = t(value);
 
     if (!translatedText || translatedText === value)
       return null;
   
+    if (ssr)
+      return translatedText;
+
     const dummy = document.createElement("div");
   
     dummy.innerHTML = translatedText;
@@ -56,7 +59,7 @@ export function useVI18nAttr() {
       getSSRProps: (binding) => {
         if (availableLocales.length < 2 && binding.value) {
           return {
-            [getBindingModifier(binding)]: getTranslatedTextContent(binding.value)
+            [getBindingModifier(binding)]: getTranslatedTextContent(binding.value, true)
           }
         }
       }
