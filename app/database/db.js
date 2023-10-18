@@ -589,7 +589,7 @@ export async function findAdventure(urlPath) {
   const adventuresColl = getCollection("adventures")
 
   try {
-    const adventure = await adventuresColl.findOne({ "meta.urlPath": new RegExp(escapeRegExp(urlPath)) } )
+    const adventure = await adventuresColl.findOne({ "meta.urlPath": urlPath } )
 
     if (adventure == null)
       return null
