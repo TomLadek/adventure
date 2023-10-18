@@ -5,10 +5,17 @@ import { initI18n } from "./i18n.js";
 
 import PageShell from './PageShell.vue'
 
-export { createApp }
+export { createApp };
 
 function createApp(pageContext) {
-  const messages = pageContext.pageProps.adventure ? pageContext.pageProps.adventure.messages : {}
+  let messages, fallbackLang;
+
+  if (pageContext.pageProps.adventure) {
+    const adventure = pageContext.pageProps.adventure;
+
+    messages = adventure.messages;
+    fallbackLang = adventure.meta && adventure.meta.fallbackLang;
+  }
 
   const PageWithLayout = {
     render() {
@@ -27,10 +34,10 @@ function createApp(pageContext) {
   const app = createSSRApp(PageWithLayout);
 
   app.use(createPinia());
-  app.use(initI18n(messages));
+  app.use(initI18n(messages, fallbackLang));
 
   // We make `pageContext` available from any Vue component
-  setPageContext(app, pageContext)
+  setPageContext(app, pageContext);
 
-  return app
+  return app;
 }

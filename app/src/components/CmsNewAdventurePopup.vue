@@ -26,6 +26,7 @@ function confirm() {
     author: newAdventureData.value.author,
     authorText: newAdventureData.value.authorText,
     activeLang: activeLang.value,
+    fallbackLang: newAdventureData.value.langs.length ? newAdventureData.value.langs[0] : null,
     multiLangData: Object.entries(newAdventureDataMultilang).reduce((prev, curr) => {
       if (newAdventureData.value.langs.indexOf(curr[0]) > -1 && curr[0] !== activeLang.value)
         prev[curr[0]] = curr[1];

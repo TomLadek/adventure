@@ -33,7 +33,7 @@ const defaultMessages = {
   }
 };
 
-export function initI18n(messages) {
+export function initI18n(messages, fallbackLang) {
   const availableLangs = Object.keys(messages || {});
   const languageStore = useLanguageStore();
   const userLang = (languageStore.language || (typeof navigator === "object" && navigator.language) || "en").substring(0, 2).toLowerCase();
@@ -51,7 +51,7 @@ export function initI18n(messages) {
   return createI18n({
     legacy: false,
     locale: languageStore.language,
-    fallbackLocale: availableLangs[0],
+    fallbackLocale: fallbackLang && availableLangs.includes(fallbackLang) ? fallbackLang : availableLangs[0],
     warnHtmlMessage: false,
     messages: mergeDeep(defaultMessages, messages || {})
   });

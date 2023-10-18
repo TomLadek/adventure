@@ -202,6 +202,7 @@ export async function insertOneAdventure(data) {
     const adventureDoc = {
       slides: [],
       meta: {
+        fallbackLang: data.fallbackLang || langs[0],
         urlPath: data.urlPath.trim().replace(/^\/+|\/+$|\s/g, "").toLowerCase() || "my-adventure",
         title: "meta_title",
         author: {
