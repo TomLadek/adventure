@@ -6,7 +6,7 @@ export { onBeforeRender }
 async function onBeforeRender(pageContext) {
   console.log(`onBeforeRender (adventure) -- ${pageContext.urlPathname} -- ${pageContext.Page ? pageContext.Page.__name : ""}`)
 
-  const adventureUrlPath = isCmsView ? pageContext.urlPathname.replace(/^\/|\/$/g, "") : process.env.DEPLOYMENT_PATH,
+  const adventureUrlPath = (isCmsView ? pageContext.urlPathname : process.env.DEPLOYMENT_PATH).replace(/^\/+|\/+$/g, "").toLowerCase(),
         adventure = await findAdventure(adventureUrlPath) || {}
 
   return {

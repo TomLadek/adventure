@@ -1,5 +1,5 @@
 <script>
-import { defineEmits, onMounted, onUnmounted, ref, computed } from "vue";
+import { defineEmits, onMounted, onUnmounted, ref, computed, watch } from "vue";
 
 import CmsPopup from "./CmsPopup.vue";
 import CmsPopupActionButtons from "./CmsPopupActionButtons.vue";
@@ -109,6 +109,17 @@ onMounted(() => {
 
 onUnmounted(() => {
   removeEventListener("keyup", onKeyUp);
+})
+
+// Modify the entered urlPath
+watch(() => newAdventureData.value.urlPath, urlPathVal => {
+  // Don't allow slashes or spaces
+  if (/\/|\s/.test(urlPathVal))
+    newAdventureData.value.urlPath = urlPathVal.replace(/\/|\s/g, "");
+
+  // Don't allow uppercase characters
+  if (/\p{Uppercase}/gu.test(urlPathVal))
+    newAdventureData.value.urlPath = urlPathVal.toLowerCase();
 })
 </script>
 

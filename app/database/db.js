@@ -202,7 +202,7 @@ export async function insertOneAdventure(data) {
     const adventureDoc = {
       slides: [],
       meta: {
-        urlPath: data.urlPath || "my-adventure",
+        urlPath: data.urlPath.trim().replace(/^\/+|\/+$|\s/g, "").toLowerCase() || "my-adventure",
         title: "meta_title",
         author: {
           madeBy: "meta_author_madeBy",
