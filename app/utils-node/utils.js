@@ -35,7 +35,7 @@ export function getRandomId(length = 4) {
 
 export async function generateScaledImage(imgPath, originalDir, originalName, targetSize) {
   // TODO save directory contents and only generate scaled images if they don't already exist
-  function getSrcImageExtension(originalDir) {
+  function getSrcImageExtension() {
     return fs
             .readdirSync(path.resolve(imgPath, originalDir))
             .reduce((ext, imgFile) => {
@@ -70,7 +70,7 @@ export async function generateScaledImage(imgPath, originalDir, originalName, ta
     return { width, height };
   }
 
-  const srcImgExtension = getSrcImageExtension(imgPath, originalDir),
+  const srcImgExtension = getSrcImageExtension(),
         srcImgName = originalName,
         srcImgNameWithExtension = `${srcImgName}.${srcImgExtension}`,
         srcImgPath = path.resolve(imgPath, originalDir, srcImgNameWithExtension),
