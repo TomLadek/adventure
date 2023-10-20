@@ -218,6 +218,7 @@ async function editorAction(type) {
           }
 
           chainedCommands.run();
+          saveText(editor.value);
           return;
         }
 
@@ -259,6 +260,7 @@ async function editorAction(type) {
                       : undefined /* no -> keep default target (_blank) */
           })
           .run();
+        saveText(editor.value);
       });
 
       break;
