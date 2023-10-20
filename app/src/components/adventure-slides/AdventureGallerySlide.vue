@@ -397,7 +397,11 @@ watch(slideControlsExpanded, value => {
   border-radius: 24px;
   
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(10px) grayscale(0.5);
+  backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
+}
+
+.slide-gallery.slide-theme-dark .content-outer {
+  backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
 }
 
 .slide-gallery .content-outer .headline {

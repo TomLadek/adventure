@@ -173,7 +173,11 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
   padding: 1rem;
   border-radius: 20px;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);
-  backdrop-filter: blur(10px) grayscale(0.5);
+  backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
+}
+
+.slide-intro.slide-theme-dark .content-inner {
+  backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
 }
 
 .slide-intro .content-text {
