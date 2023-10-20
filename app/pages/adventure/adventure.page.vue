@@ -362,7 +362,7 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.DEL_SLIDE_GALLERY_IM
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMG_CAPTION, async ({ slideId, imageId, captionTextModule }, resolve, reject) => {
   const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-        galleryImgIndex = slideToChange.gallery && slideToChange.gallery.images && slideToChange.gallery.images.findIndex(galleryImg => new RegExp(escapeRegExp(imageId)).test(galleryImg.src)),
+        galleryImgIndex = slideToChange.gallery && slideToChange.gallery.images && slideToChange.gallery.images.findIndex(galleryImg => galleryImg.id === imageId),
         isMainImgCaption = galleryImgIndex < 0,
         formData = new FormData();
 
