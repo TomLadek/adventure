@@ -73,9 +73,44 @@ const cmsControlsStore = useCmsControlsStore(),
       undoAvailable = ref(false),
       redoAvailable = ref(false),
       translationAvailable = ref(false),
-      selectedText = ref("");
-
-realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value)
+      selectedText = ref(""),
+      editor = useEditor({
+        extensions: [
+          StarterKit,
+          Placeholder.configure({
+            placeholder: props.emptyPlaceholder || "Empty",
+          }),
+          Link.configure({
+            openOnClick: false,
+            HTMLAttributes: {
+              rel: "noreferrer",
+              external: "",
+            }
+          })
+        ],
+        content: translatedText.value,
+        onBeforeCreate() {
+          editorReady.value = true;
+        },
+        onCreate({ editor} ) {
+          checkHasContent(editor);
+        },
+        onUpdate({ editor }) {
+          checkHasContent(editor);
+          saveText(editor);
+        },
+        onFocus() {
+          emit("focus");
+          toggleEditorControls(true);
+        },
+        onBlur() {
+          emit("blur");
+          checkShouldHideControls();
+        },
+        onSelectionUpdate({ editor, transaction}) {
+          selectedText.value = editor.view.state.doc.textBetween(transaction.curSelection.$anchor.pos, transaction.curSelection.$head.pos);
+        }
+      });
 
 let cmsTextSyncTimeout = 0,
     statusVisibilityTimeout = 0,
@@ -121,44 +156,6 @@ function checkHasContent(editor) {
     translationAvailable.value = true;
   }
 }
-
-const editor = useEditor({
-  extensions: [
-    StarterKit,
-    Placeholder.configure({
-      placeholder: props.emptyPlaceholder || "Empty",
-    }),
-    Link.configure({
-      openOnClick: false,
-      HTMLAttributes: {
-        rel: "noreferrer",
-        external: "",
-      }
-    })
-  ],
-  content: translatedText.value,
-  onBeforeCreate() {
-    editorReady.value = true;
-  },
-  onCreate({ editor} ) {
-    checkHasContent(editor);
-  },
-  onUpdate({ editor }) {
-    checkHasContent(editor);
-    saveText(editor);
-  },
-  onFocus() {
-    emit("focus");
-    toggleEditorControls(true);
-  },
-  onBlur() {
-    emit("blur");
-    checkShouldHideControls();
-  },
-  onSelectionUpdate({ editor, transaction}) {
-    selectedText.value = editor.view.state.doc.textBetween(transaction.curSelection.$anchor.pos, transaction.curSelection.$head.pos);
-  }
-});
 
 function checkShouldHideControls() {
   if ([cmsTextSyncStatusValue.WRITING, cmsTextSyncStatusValue.SYNCING].indexOf(cmsTextSyncStatus.value) >= 0)
@@ -343,6 +340,8 @@ function toggleEditorControls(shown) {
     cmsTextEditor.value.rootEl.removeEventListeners("keyup");
   }
 }
+
+realTextDisplay = computed(() => !cmsControlsStore.editMode || !editorReady.value);
 
 watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
 watch(() => props.textModule, () => editor.value.commands.setContent(translatedText.value));
