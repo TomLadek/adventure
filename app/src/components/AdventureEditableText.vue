@@ -66,7 +66,6 @@ const cmsControlsStore = useCmsControlsStore(),
       linksStore = useLinksStore(),
       cmsTextEditor = ref(null),
       cmsTextEditorControls = ref(null),
-      cmsEditorControlsShown = ref(false),
       cmsTextSyncStatusValue = { WRITING: 0, SYNCING: 1, SYNCED: 2, ERROR: 3 },
       cmsTextSyncStatus = ref(cmsTextSyncStatusValue.SYNCED),
       statusVisible = ref(false),
@@ -150,7 +149,7 @@ const editor = useEditor({
   },
   onFocus() {
     emit("focus");
-    cmsEditorControlsShown.value = true;
+    toggleEditorControls(true);
   },
   onBlur() {
     emit("blur");
@@ -175,7 +174,7 @@ function checkShouldHideControls() {
     }
       
     if (!someHaveFocus)
-      cmsEditorControlsShown.value = false;
+      toggleEditorControls(false);
   }, 100);
 }
 
@@ -296,13 +295,7 @@ function processContent(htmlContent) {
   return newContent;
 }
 
-watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
-watch(() => props.textModule, () => editor.value.commands.setContent(translatedText.value));
-
-if (props.focusAction)
-  watch(props.focusAction, () => editor.value.commands.focus());
-
-watch(cmsEditorControlsShown, (shown) => {
+function toggleEditorControls(shown) {
   if (!cmsTextEditor.value)
     return;
 
@@ -334,6 +327,11 @@ watch(cmsEditorControlsShown, (shown) => {
 
       editorElementResizeObserver.observe(cmsTextEditor.value.rootEl);
     }
+
+    cmsTextEditor.value.rootEl.addEventListener("keyup", event => {
+      if (event.key === "Escape")
+        editor.value.commands.blur();
+    });
   } else {
     tippyInstance.hide();
 
@@ -341,8 +339,16 @@ watch(cmsEditorControlsShown, (shown) => {
       editorElementResizeObserver.disconnect();
       editorElementResizeObserver = null;
     }
+
+    cmsTextEditor.value.rootEl.removeEventListeners("keyup");
   }
-});
+}
+
+watch(() => props.i18n.locale, () => editor.value.commands.setContent(translatedText.value));
+watch(() => props.textModule, () => editor.value.commands.setContent(translatedText.value));
+
+if (props.focusAction)
+  watch(props.focusAction, () => editor.value.commands.focus());
 
 watch(realTextDisplay, (showRealText) => {
   if (showRealText && tippyInstance) {
