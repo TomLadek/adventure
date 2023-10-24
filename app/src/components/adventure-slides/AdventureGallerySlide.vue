@@ -228,6 +228,22 @@ function onChangeGalleryStyle(newStyle) {
   });
 }
 
+function addPhotoSwipeEvents() {
+  pswpInstance.dispatch("bindEvents");
+}
+
+/* 
+* Removes all events of PhotoSwipe that would prevent proper interaction with ProseMirror.
+* They can be later added again using addPhotoSwipeEvents().
+*/
+function removePhotoSwipeEvents() {
+  const scrollWrapElement = pswpInstance.pswp.element.querySelector(".pswp__scroll-wrap");
+
+  scrollWrapElement.removeEventListeners("click pointercancel pointerdown");      
+  document.removeEventListeners("focusin keydown");
+  window.removeEventListeners("pointermove pointerup");
+}
+
 function initEditableCaptions() {
   pswpInstance.on("dynamicCaptionMeasureSize", ({ captionEl, captionSize }) => {
     const captionText = captionEl.querySelector(".text-wrapper");
@@ -258,9 +274,8 @@ function initEditableCaptions() {
         {
           i18n: i18nBundle.value,
           textModule: captionTextModule,
-          onBlur: () => {
-            pswpInstance.dispatch("bindEvents");
-          },
+          onFocus: removePhotoSwipeEvents,
+          onBlur: addPhotoSwipeEvents,
           onSave: () => {
             if (captionExists)
               return;
@@ -282,16 +297,10 @@ function initEditableCaptions() {
       if (!cmsControlsStore.editMode)
         return;
 
-      const scrollWrapElement = pswpInstance.pswp.element.querySelector(".pswp__scroll-wrap");
-
-      // Remove all events of PhotoSwipe that would prevent proper interaction with ProseMirror.
-      // They can be later added again using pswp.dispatch('bindEvents')
-      scrollWrapElement.removeEventListeners("click pointercancel pointerdown");
-      document.removeEventListeners("focusin keydown");
-      window.removeEventListeners("pointermove pointerup");
+      removePhotoSwipeEvents();
 
       editableTextFocusAction.value = Math.random();
-    })
+    });
   });
 }
 

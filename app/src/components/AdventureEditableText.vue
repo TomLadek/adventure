@@ -60,7 +60,7 @@ const translatedText = computed(() => {
 let realTextDisplay = true;
 
 /* CMS */
-const emit = defineEmits(["blur", "save"]);
+const emit = defineEmits(["focus", "blur", "save"]);
 
 const cmsControlsStore = useCmsControlsStore(),
       linksStore = useLinksStore(),
@@ -149,6 +149,7 @@ const editor = useEditor({
     saveText(editor);
   },
   onFocus() {
+    emit("focus");
     cmsEditorControlsShown.value = true;
   },
   onBlur() {
