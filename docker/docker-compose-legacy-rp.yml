@@ -16,16 +16,15 @@ services:
     image: mongo:4.4.22
     restart: unless-stopped
     environment:
-      # TODO get these from environment variable
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PW}
     volumes:
       - adventure-cms-data:/data/db
     command: ["--logpath", "/var/log/mongodb/mongod.log"]
 
     # Only add port for debug purposes so that you can connect to MongoDB on localhost:8027
     ports:
-      - '8027:27017'
+      - '8027:${DB_PORT}'
 
 volumes:
   adventure-cms-data:

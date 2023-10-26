@@ -23,7 +23,7 @@ let client
 
 function getCollection(type) {
   if (!client)
-    client = new MongoClient("mongodb://root:1234@mongodb:27017") // TODO get user/PW/port from environment variables
+    client = new MongoClient(`mongodb://${process.env.DB_ROOT_USER}:${process.env.DB_ROOT_PW}@mongodb:${process.env.DB_PORT}`)
 
   return client
           .db("adventuredb")

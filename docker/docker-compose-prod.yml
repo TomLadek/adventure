@@ -19,9 +19,8 @@ services:
     image: mongo:5
     restart: unless-stopped
     environment:
-      # TODO get these from environment variable
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PW}
     volumes:
       - adventure-cms-data:/data/db
     command: ["--logpath", "/var/log/mongodb/mongod.log"]
