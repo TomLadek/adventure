@@ -1,5 +1,6 @@
 <script>
 import { ref, computed } from "vue";
+import { getImageUrl } from "../../src/utils.js";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
 import CmsAdventureItemButtonNew from "../../src/components/buttons/CmsAdventureItemButtonNew.vue";
 
@@ -33,6 +34,46 @@ function newAdventurePopupClosing() {
 function getAdventureLink(adventureUrlPath) {
   return `${import.meta.env.VITE_URL_BASE_CMS || ""}/${adventureUrlPath}`
 }
+
+function getAdventureListSrcSet(adventureId, slides) {
+  // Take the main image either of the intro slide or, if there's no intro slide, of the first slide
+  let listImage =  (slides.find(slide => slide.intro) || slides[0]).mainImg.src;
+
+  return ["320", "640", "960"]
+          .map((width, i) => `${getImageUrl(adventureId, listImage, width)} ${i + 1}x`)
+          .join(",");
+}
+
+function getAdventureFallbackLang(adventure) {
+  const adventureLangs = Object.keys(adventure.messages);
+
+  return adventure.meta.fallbackLang || (adventureLangs.length > 0 && adventureLangs[0]) || "en";
+}
+
+function getAdventureTitle(adventure) {
+  return getAdventureTitleInLang(adventure, getAdventureFallbackLang(adventure));
+}
+
+function getAdventureTitleInLang(adventure, lang) {
+  return adventure.messages[lang][adventure.meta.title];
+}
+
+function getAllAdventureTitles(adventure) {
+  const fallbackLang = getAdventureFallbackLang(adventure),
+        adventureTitleInFallbackLang = getAdventureTitleInLang(adventure, fallbackLang);
+
+  return Object.keys(adventure.messages).reduce((prev, curr) => {
+    const adventureTitleInCurrLang = getAdventureTitleInLang(adventure, curr);
+
+    if (curr === fallbackLang || !adventureTitleInCurrLang)
+      return prev;
+
+    if (prev)
+      prev += "\r\n";
+
+    return prev + `[${curr.toUpperCase()}] ${adventureTitleInCurrLang}`;
+  }, adventureTitleInFallbackLang ? `[${fallbackLang.toUpperCase()}] ${adventureTitleInFallbackLang}` : null);
+}
 </script>
 
 <template>
@@ -40,7 +81,17 @@ function getAdventureLink(adventureUrlPath) {
     <h1 class="cms-adventures-hdl">Adventures</h1>
     <ul class="cms-adventure-list">
       <li class="cms-adventure-list-item" v-for="adventure in displayedAdventures" :key="adventure.id">
-        <a :href="getAdventureLink(adventure.meta.urlPath)" class="cms-adventure-link" :data-adventure-id="adventure.id">{{ Object.values(adventure.messages)[0][adventure.meta.title] }}</a>
+        <a :href="getAdventureLink(adventure.meta.urlPath)" class="cms-adventure-link" :data-adventure-id="adventure.id">
+          <picture v-if="adventure.slides && adventure.slides.length">
+            <img class="cms-adventure-list-item-image" :srcset="getAdventureListSrcSet(adventure.id, adventure.slides)">
+          </picture>
+          <div class="cms-adventure-list-item-info">
+            <span class="cms-adventure-list-item-title" :title="getAllAdventureTitles(adventure)">{{ getAdventureTitle(adventure) }}</span>
+            <button class="cms-adventure-actions-trigger" @click.stop.prevent="">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><circle cx="6" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="18" cy="12" r="2"></circle></svg>
+            </button>
+          </div>
+        </a>
       </li>
       <li class="cms-adventure-list-item new-item">
         <CmsAdventureItemButtonNew @click="newAdventurePopupShowing = true" />
@@ -80,7 +131,7 @@ main#index {
   width: var(--adventure-list-item-width);
   height: var(--adventure-list-item-height);
   background-color: rgb(206, 206, 206);
-  border-radius: 10px;
+  border-radius: 0.7rem;
 }
 
 .cms-adventure-list-item.new-item {
@@ -93,13 +144,63 @@ main#index {
   align-items: center;
 }
 
-.cms-adventure-link {
-  display: flex;
+.cms-adventure-list-item .cms-adventure-link {
+  display: block;
+  position: relative;
   width: 100%;
   height: 100%;
   color: black;
   text-decoration: none;
-  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.7rem;
+}
+
+.cms-adventure-list-item .cms-adventure-list-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease-out;
+}
+
+.cms-adventure-list-item .cms-adventure-link:hover .cms-adventure-list-item-image {
+  transform: scale(1.04);
+}
+
+.cms-adventure-list-item .cms-adventure-list-item-info {
+  display: flex;
+  gap: 0.5rem;
   align-items: center;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(100% - 1.6rem + 1px);
+  min-height: 2rem;
+  backdrop-filter: blur(6px);
+  background-color: #ffffff96;
+  justify-content: space-between;
+  padding: 0 0.8rem;
+}
+
+.cms-adventure-list-item .cms-adventure-list-item-title {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.cms-adventure-list-item button.cms-adventure-actions-trigger {
+  background-color: #ffffff78;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  padding: 1px;
+  transition: background-color 0.15s ease;
+}
+
+.cms-adventure-list-item button.cms-adventure-actions-trigger:hover {
+  background-color: #ffffffb9;
+}
+
+.cms-adventure-list-item button.cms-adventure-actions-trigger svg {
+  fill: #454545;
 }
 </style>

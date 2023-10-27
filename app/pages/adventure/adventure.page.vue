@@ -17,7 +17,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { escapeRegExp, resourcePath, asyncTimeout } from "../../src/utils.js";
+import { escapeRegExp, asyncTimeout, getImageUrl } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -29,25 +29,6 @@ import { useConfirmationStore } from "../../src/stores/confirmation.js";
 import { useLinksStore } from "../../src/stores/links.js";
 import { useImageLoader } from "../../src/composables/imageLoader";
 /* /CMS */
-
-function imageUrl(adventureId, image, width = 0, height = 0) {
-  const imgMatch = image.match(/(?<imgName>.*?)(\.(?<imgExt>\w+))?$/),
-        imgExtension = imgMatch.groups.imgExt || "jpg",
-        isResized = width !== 0 || height !== 0,
-        sizeSuffix = isResized ? `_${width}x${height}` : "";
-  let fileExtension;
-
-  if (isResized) {
-    if (imgExtension === "png")
-      fileExtension = "png";
-    else
-      fileExtension = "webp";
-  } else {
-    fileExtension = imgExtension;
-  }
-
-  return `${resourcePath}/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
-}
 
 function srcToUrls(adventureId, image) {
   return [
@@ -61,12 +42,12 @@ function srcToUrls(adventureId, image) {
     {size: "xxxl", width: 1920},
     {size: "xxxxl", width: 2200}
   ].reduce((prev, curr) => {
-    prev[curr.size] = imageUrl(adventureId, image, curr.width); return prev;
+    prev[curr.size] = getImageUrl(adventureId, image, curr.width); return prev;
   }, {});
 }
 
 function gallerySrc(adventureId, image, height = 96) {
-  return imageUrl(adventureId, image, 0, height);
+  return getImageUrl(adventureId, image, 0, height);
 }
 
 function gallerySrcSet(adventureId, image, baseHeight = 96) {

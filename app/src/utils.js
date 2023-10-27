@@ -59,3 +59,22 @@ export function asyncTimeout(ms) {
     setTimeout(resolve, ms);
   });
 }
+
+export function getImageUrl(adventureId, imageFileName, width = 0, height = 0) {
+  const imgMatch = imageFileName.match(/(?<imgName>.*?)(\.(?<imgExt>\w+))?$/),
+        imgExtension = imgMatch.groups.imgExt || "jpg",
+        isResized = width !== 0 || height !== 0,
+        sizeSuffix = isResized ? `_${width}x${height}` : "";
+  let fileExtension;
+
+  if (isResized) {
+    if (imgExtension === "png")
+      fileExtension = "png";
+    else
+      fileExtension = "webp";
+  } else {
+    fileExtension = imgExtension;
+  }
+
+  return `${resourcePath}/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
+}

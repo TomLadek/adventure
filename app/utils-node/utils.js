@@ -50,7 +50,7 @@ export async function generateScaledImage(imgPath, originalDir, originalName, ta
 
   function parseSize(sizeStr) {
     const allowedSizes = {
-            widths: [576, 768, 992, 1200, 1400, 1600, 1920, 2200],
+            widths: [320, 576, 640, 768, 960, 992, 1200, 1400, 1600, 1920, 2200],
             heights: [96, 192, 288]
           },
           match = sizeStr.match(/^(?<width>\d+)x(?<height>\d+)$/);
