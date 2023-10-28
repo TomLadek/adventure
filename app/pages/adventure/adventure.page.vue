@@ -69,7 +69,7 @@ function updatePageTheme(theme) {
 export function getDocumentProps(pageProps) {
   const introSlide = pageProps.adventure.slides.find(slide => slide.intro),
         metaMainImg = (introSlide || pageProps.adventure.slides[0]).mainImg,
-        imageUrlPrefix = `${import.meta.env.VITE_DEPLOYMENT_HOST && import.meta.env.VITE_DEPLOYMENT_HOST !== 'localhost' ? `https://${import.meta.env.VITE_DEPLOYMENT_HOST}/` : ''}`;
+        imageUrlPrefix = `${import.meta.env.VITE_DEPLOYMENT_HOST && import.meta.env.VITE_DEPLOYMENT_HOST !== 'localhost' ? `https://${import.meta.env.VITE_DEPLOYMENT_HOST}` : ''}`;
 
   return {
     title: getTextInLanguage(pageProps.adventure, pageProps.adventure.meta.title, "", true),
