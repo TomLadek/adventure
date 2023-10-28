@@ -12,11 +12,24 @@ async function render(pageContext) {
   const app = createApp(pageContext)
   const appHtml = await renderToString(app)
   
-  const { documentProps } = pageContext.exports
-  const title = (documentProps && documentProps.title) || 'Adventure CMS'
+  const { getDocumentProps } = pageContext.exports
   const isPrivatePage = true // TODO get the value for this from a setting somewhere
   const robotsIndex = isPrivatePage ? "noindex" : ""
   const assetsResourcePath = `${(isCmsView ? process.env.BASE_ASSETS : "")}${resourcePath}`
+
+  let title, description, image
+
+  if (getDocumentProps) {
+    const documentProps = getDocumentProps(pageContext.pageProps);
+
+    title = documentProps.title
+    description = documentProps.description
+    image = documentProps.image
+  } else {
+    title = "Adventure CMS"
+    description = ""
+    image = null
+  }
 
   const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -27,8 +40,9 @@ async function render(pageContext) {
         <link rel="preload" href="${assetsResourcePath}/fonts/ubuntu-v20-latin-700.woff2" as="font" crossorigin />
         <link rel="icon" href="${assetsResourcePath}/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" />
+        <meta name="description" content="${description}" />
         <meta name="robots" content="${robotsIndex}" />
+        ${dangerouslySkipEscape(image ? `<meta name="og:image" content="${image}" /><meta name="og:image:secure_url" content="${image}" />` : "")}
         <title>${title}</title>
         <script src="${utilsSynchUrl}"></script>
       </head>

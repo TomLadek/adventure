@@ -1,6 +1,6 @@
 <script>
 import { ref, computed } from "vue";
-import { getImageUrl } from "../../src/utils.js";
+import { getImageUrl, getAdventureFallbackLanguage, getTextInLanguage } from "../../src/utils.js";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
 import CmsAdventureItemButtonNew from "../../src/components/buttons/CmsAdventureItemButtonNew.vue";
 
@@ -37,33 +37,19 @@ function getAdventureLink(adventureUrlPath) {
 
 function getAdventureListSrcSet(adventureId, slides) {
   // Take the main image either of the intro slide or, if there's no intro slide, of the first slide
-  let listImage =  (slides.find(slide => slide.intro) || slides[0]).mainImg.src;
+  let listImage = (slides.find(slide => slide.intro) || slides[0]).mainImg.src;
 
   return ["320", "640", "960"]
           .map((width, i) => `${getImageUrl(adventureId, listImage, width)} ${i + 1}x`)
           .join(",");
 }
 
-function getAdventureFallbackLang(adventure) {
-  const adventureLangs = Object.keys(adventure.messages);
-
-  return adventure.meta.fallbackLang || (adventureLangs.length > 0 && adventureLangs[0]) || "en";
-}
-
-function getAdventureTitle(adventure) {
-  return getAdventureTitleInLang(adventure, getAdventureFallbackLang(adventure));
-}
-
-function getAdventureTitleInLang(adventure, lang) {
-  return adventure.messages[lang][adventure.meta.title];
-}
-
 function getAllAdventureTitles(adventure) {
-  const fallbackLang = getAdventureFallbackLang(adventure),
-        adventureTitleInFallbackLang = getAdventureTitleInLang(adventure, fallbackLang);
+  const fallbackLang = getAdventureFallbackLanguage(adventure.meta, adventure.messages),
+        adventureTitleInFallbackLang = getTextInLanguage(adventure, adventure.meta.title, "", true);
 
   return Object.keys(adventure.messages).reduce((prev, curr) => {
-    const adventureTitleInCurrLang = getAdventureTitleInLang(adventure, curr);
+    const adventureTitleInCurrLang = getTextInLanguage(adventure, adventure.meta.title, curr);
 
     if (curr === fallbackLang || !adventureTitleInCurrLang)
       return prev;
@@ -86,7 +72,7 @@ function getAllAdventureTitles(adventure) {
             <img class="cms-adventure-list-item-image" :srcset="getAdventureListSrcSet(adventure.id, adventure.slides)">
           </picture>
           <div class="cms-adventure-list-item-info">
-            <span class="cms-adventure-list-item-title" :title="getAllAdventureTitles(adventure)">{{ getAdventureTitle(adventure) }}</span>
+            <span class="cms-adventure-list-item-title" :title="getAllAdventureTitles(adventure)">{{ getTextInLanguage(adventure, adventure.meta.title, "", true) }}</span>
             <button class="cms-adventure-actions-trigger" @click.stop.prevent="">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><circle cx="6" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="18" cy="12" r="2"></circle></svg>
             </button>

@@ -17,7 +17,7 @@ import "../../src/assets/gi-full-page-scroll.css";
 import { usePageContext } from "../../renderer/usePageContext.js";
 
 // Misc
-import { escapeRegExp, asyncTimeout, getImageUrl } from "../../src/utils.js";
+import { escapeRegExp, asyncTimeout, getImageUrl, getTextInLanguage } from "../../src/utils.js";
 
 /* CMS */
 import CmsControls from "../../src/components/CmsControls.vue";
@@ -61,20 +61,21 @@ function gallerySrcSet(adventureId, image, baseHeight = 96) {
           .join(",");
 }
 
-function updateAdventureMeta(titleGetter, descriptionGetter) {
-  const title = titleGetter(),
-    description = descriptionGetter();
-
-  if (title)
-    document.title = title;
-
-  if (description)
-    document.querySelector("meta[name=description]").setAttribute("content", description);
-}
-
 function updatePageTheme(theme) {
   document.documentElement.classList.remove("light", "dark");
   document.documentElement.classList.add(theme || "light");
+}
+
+export function getDocumentProps(pageProps) {
+  const introSlide = pageProps.adventure.slides.find(slide => slide.intro),
+        metaMainImg = (introSlide || pageProps.adventure.slides[0]).mainImg,
+        imageUrlPrefix = `${import.meta.env.VITE_DEPLOYMENT_HOST && import.meta.env.VITE_DEPLOYMENT_HOST !== 'localhost' ? `https://${import.meta.env.VITE_DEPLOYMENT_HOST}/` : ''}`;
+
+  return {
+    title: getTextInLanguage(pageProps.adventure, pageProps.adventure.meta.title, "", true),
+    description: introSlide && introSlide.content && introSlide.content.text ? getTextInLanguage(pageProps.adventure, introSlide.content.text, "", true) : null,
+    image: `${imageUrlPrefix}${getImageUrl(pageProps.adventure.meta.id, metaMainImg.id || metaMainImg.src, 992)}`
+  }
 }
 
 const getIdFromSrc = src => src.replace(/\..+?$/, "");
@@ -114,14 +115,6 @@ let getFullScrollSections = () => document.querySelectorAll("section"),
     getActivateFullScrollOnInit = () => true;
 
 onMounted(() => {
-  if (adventure.value.meta) {
-    const titleGetter = () => adventure.value.meta.title ? t(adventure.value.meta.title) : "",
-      descriptionGetter = () => adventure.value.meta.desc ? t(adventure.value.meta.desc) : "";
-
-    updateAdventureMeta(titleGetter, descriptionGetter);
-    watch(locale, async () => { updateAdventureMeta(titleGetter, descriptionGetter); });
-  }
-
   updatePageTheme(slides.value.length > 0 && slides.value[0].theme);
 
   window.gsap = gsap;

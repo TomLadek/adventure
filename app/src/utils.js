@@ -78,3 +78,22 @@ export function getImageUrl(adventureId, imageFileName, width = 0, height = 0) {
 
   return `${resourcePath}/img/${adventureId}/${imgMatch.groups.imgName}${sizeSuffix}.${fileExtension}`;
 }
+
+export function getAdventureFallbackLanguage(adventureMeta, messages) {
+  const adventureLangs = Object.keys(messages);
+
+  return adventureMeta.fallbackLang || (adventureLangs.length > 0 && adventureLangs[0]) || "en";
+}
+
+export function getTextInLanguage(adventure, textModule, language, useFallbackLanguage = false) {
+  if (useFallbackLanguage)
+    language = getAdventureFallbackLanguage(adventure.meta, adventure.messages);
+
+  try {
+    return adventure.messages[language][textModule];
+  } catch (ex) {
+    if (typeof console !== "undefined")
+      console.warn(`Cannot get text '${textModule}' in language '${fallbackLang}'`);
+    return "";
+  }
+}
