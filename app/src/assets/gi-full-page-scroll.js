@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2016 Matheus Almeida,
- * Copyright (c) 2021-2022 Tom Ladek
+ * Copyright (c) 2021-2023 Tom Ladek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,6 +170,85 @@
 			}
 
 			_self.defaults.dockedElements = _self.defaults.dockedElements.splice(0, 1).concat(_self.defaults.dockedElementsGetter());
+		}
+
+		if (!window.fullScrollAnimator) {
+			window.fullScrollAnimator = (function() {
+				/**
+				 * Function for inferring starting values for the "transform" property. Necessary for Safari?
+				 * @param {*} transformValue 
+				 * @param {*} axis 
+				 * @returns 
+				 */
+				function parseTransform(transformValue, axis) {
+					const valueMatch = transformValue.match(/translateX\((?<x_1d>\d+)px\)|translateY\((?<y_1d>\d+)px\)|translateZ\((?<z_1d>\d+)px\)|translate\((?<x_2d>\d+)px(, (?<y_2d>\d+)px)?\)|translate3d\((?<x_3d>\d+)px, (?<y_3d>\d+)px, (?<z_3d>\d+)px\)/);
+
+					switch (axis) {
+						case "x": return (valueMatch && (valueMatch.groups.x_1d || valueMatch.groups.x_2d || valueMatch.groups.x_3d)) || 0;
+						case "y": return (valueMatch && (valueMatch.groups.y_1d || valueMatch.groups.y_2d || valueMatch.groups.y_3d)) || 0;
+						case "z": return (valueMatch && (valueMatch.groups.z_1d || valueMatch.groups.z_3d)) || 0;
+					}
+				}
+
+				/**
+				 * Triggers an animation on the supplied element with the specified animation options.
+				 * @param {*} el The element to animate
+				 * @param {*} animationOptions Animation options. Supported: "y", "top", "opacity", "duration", "ease", "onStart", "onComplete".
+				 * Option "overwrite" is ignored since the Web Animation API automatically overrides animations of the same property.
+				 */
+				async function doAnimate(el, animationOptions) {
+					let keyframes, easing;
+
+					if (typeof animationOptions.y !== "undefined") {
+						keyframes = [{ transform: `translate3d(0px, ${animationOptions.y}px, 0px)` }];
+					} else if (typeof animationOptions.top !== "undefined") {
+						keyframes = [{ top: `${animationOptions.top}${/px/.test(animationOptions.top) ? "" : "px"}` }];
+					} else if (typeof animationOptions.opacity !== "undefined") {
+						keyframes = [{ opacity: animationOptions.opacity }];
+					}
+
+					if (typeof animationOptions.ease !== "undefined") {
+						switch (animationOptions.ease) {
+							case "power4.out": easing = "cubic-bezier(0.13, 0.63, 0.2, 1)"; break;
+							case "power4.inOut": easing = "cubic-bezier(0.85, 0, 0.15, 1)"; break;
+							default:
+							case "power1.inOut": easing = "ease-in-out"; break;
+						}
+					}
+
+					const animation = el.animate(keyframes, { duration: animationOptions.duration ? animationOptions.duration * 1000 : undefined, fill: "forwards", easing });
+
+					if (typeof animationOptions.onStart === "function")
+						animationOptions.onStart();
+
+					await animation.finished;
+
+					try {
+						animation.commitStyles();  	
+						animation.cancel();
+					} catch (ex) {
+						/* ignore */
+					}
+
+					if (typeof animationOptions.onComplete === "function")
+						animationOptions.onComplete();
+				}
+
+				return {
+					to: async function(el, options) {
+						await doAnimate(el, options);
+					},
+					set: async function(el, options) {
+						delete options.duration;
+						await doAnimate(el, options);
+					},
+					killTweensOf: function(el, options) {
+						/*
+							TODO Ideally cancel/remove all animations of the properties specified in options.
+						*/
+					}
+				}
+			})();
 		}
 
 		if (_self.defaults.activateOnInit)
@@ -700,8 +779,9 @@
 						_self.defaults.oversizeSectionScroll = true;
 					} else {
 						_self.defaults.oversizeSectionScroll = false;
-						_self.addEvents();
 					}
+
+					_self.addEvents();
 
 					location.hash = _self.defaults.sectionFragmentIdentifier + nextIndex;
 
@@ -743,7 +823,7 @@
 			toggleBackground(currentSection, false);
 			toggleBackground(nextSection, false);
 
-			window.gsap.to(opacityAnimatedBackgroundElement, {
+			window.fullScrollAnimator.to(opacityAnimatedBackgroundElement, {
 				opacity: opacityAnimateValue,
 				duration: _self.defaults.animateTime,
 				ease: _self.defaults.animateFunction,
@@ -777,7 +857,7 @@
 			toggleBackground(currentSection, false);
 			toggleBackground(nextSection, false);
 
-			window.gsap.to(opacityAnimatedBackgroundElement, {
+			window.fullScrollAnimator.to(opacityAnimatedBackgroundElement, {
 				top: topDestination,
 				duration: _self.defaults.animateTime,
 				ease: _self.defaults.animateFunction,
@@ -813,12 +893,12 @@
 					if (i < _self.defaults.dockedElements.length - 1 && finalOptions.onComplete)
 						delete finalOptions.onComplete;
 
-					window.gsap.to(el, finalOptions);
+					window.fullScrollAnimator.to(el, finalOptions);
 				});
 			} else {
 				_self.defaults.dockedElements.forEach(function(el) {
-					window.gsap.killTweensOf(el, "y");
-					window.gsap.set(el, options);
+					window.fullScrollAnimator.killTweensOf(el, "y");
+					window.fullScrollAnimator.set(el, options);
 				});
 			}
 		}

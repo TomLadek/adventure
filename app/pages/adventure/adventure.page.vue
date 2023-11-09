@@ -10,7 +10,6 @@ import AdventureLanguageSwitcher from "../../src/components/AdventureLanguageSwi
 import AdventureNavigation from "../../src/components/AdventureNavigation.vue";
 
 // Custom libraries
-import { gsap } from "gsap";
 import "../../src/assets/gi-full-page-scroll.css";
 
 // SSR
@@ -116,8 +115,6 @@ let getFullScrollSections = () => document.querySelectorAll("section"),
 
 onMounted(() => {
   updatePageTheme(slides.value.length > 0 && slides.value[0].theme);
-
-  window.gsap = gsap;
 
   import("../../src/assets/gi-full-page-scroll.js").then(() => {
     // Init full page scroll

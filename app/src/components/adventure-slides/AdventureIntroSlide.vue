@@ -1,6 +1,5 @@
 <script>
 import { ref, computed, onMounted, watch } from "vue";
-import { gsap } from "gsap";
 import { useI18nBundle } from "../../composables/i18nBundle.js";
 import AdventureEditableText from "../AdventureEditableText.vue";
 
@@ -49,14 +48,16 @@ function checkStartLinkSpace() {
 }
 
 onMounted(() => {
-  let startLinkAnimation = gsap.timeline({
-    delay: 3,
-    repeat: -1,
-    repeatDelay: 2
+  let startLinkAnimation = startLink.value.animate([
+    { transform: 'translateY(0)', easing: "linear" },
+    { transform: 'translateY(-4px)', easing: "cubic-bezier(0.15, 0.4, 0.68, 1.55)", offset: 0.1 },
+    { transform: 'translateY(15px)', easing: "cubic-bezier(0.15, 0.4, 0.68, 1.55)", offset: 0.25 },
+    { transform: 'translateY(0)', offset: 0.4 }
+  ], {
+    duration: 4200,
+    iterations: Infinity,
+    delay: 3000
   });
-
-  startLinkAnimation.to(startLink.value, { y: "-10" });
-  startLinkAnimation.to(startLink.value, { y: "0", ease: "elastic", duration: 1.7 });
 
   startLinkHasSpace.value = checkStartLinkSpace();
 
@@ -70,7 +71,7 @@ onMounted(() => {
       slideSwitched.value = true;
 
       if (startLinkAnimation) {
-        startLinkAnimation.revert();
+        startLinkAnimation.cancel();
         startLinkAnimation = null;
       }
     }
