@@ -175,10 +175,12 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
   border-radius: 20px;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);
   backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
+  -webkit-backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
 }
 
 .slide-intro.slide-theme-dark .content-inner {
   backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
+  -webkit-backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
 }
 
 .slide-intro .content-text {
@@ -237,6 +239,7 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
   border-radius: 20px 20px 20px 0;
   box-shadow: 0 0 3px 0 rgb(0 0 0 / 70%);
   backdrop-filter: blur(4px) grayscale(0.5) brightness(0.8);
+  -webkit-backdrop-filter: blur(4px) grayscale(0.5) brightness(0.8);
 }
 
 .slide-intro .adventure-info-content a {
@@ -247,7 +250,7 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  padding-bottom: 2px;
+  padding: 0;
   font-family: monospace;
   font-weight: bold;
   font-size: 18pt;
@@ -255,6 +258,7 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
   border: none;
   box-shadow: 0 0 5px 0 rgb(0 0 0 / 45%);
   backdrop-filter: blur(10px) grayscale(0.5);
+  -webkit-backdrop-filter: blur(10px) grayscale(0.5);
   text-shadow: 0px 0px 4px rgb(0 0 0 / 45%);
   position: absolute;
   bottom: 0;

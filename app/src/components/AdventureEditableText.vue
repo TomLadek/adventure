@@ -458,6 +458,7 @@ watch(realTextDisplay, (showRealText) => {
   background: rgba(0, 0, 0, 0.68);
   border-radius: 0.4rem;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .cms-text-editor-controls .editor-actions-container li {

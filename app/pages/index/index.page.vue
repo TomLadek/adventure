@@ -162,6 +162,7 @@ main#index {
   width: calc(100% - 1.6rem + 1px);
   min-height: 2rem;
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   background-color: #ffffff96;
   justify-content: space-between;
   padding: 0 0.8rem;

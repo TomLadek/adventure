@@ -604,7 +604,7 @@ body {
 }
 
 .slide-themed, .slide-themed button {
-  transition-property: color, backdrop-filter;
+  transition-property: color, backdrop-filter, -webkit-backdrop-filter;
   transition-duration: var(--default-anim-time);
   transition-timing-function: ease;
 }

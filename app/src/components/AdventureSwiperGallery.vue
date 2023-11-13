@@ -283,6 +283,7 @@ onBeforeLeave = element => {
   background: rgba(0, 0, 0, 0.68);
   color: white;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   padding: 0.2rem;
   display: flex;
   border-top-left-radius: 0.5rem;
@@ -414,12 +415,15 @@ onBeforeLeave = element => {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  transition: backdrop-filter 0.3s ease;
+  transition-property: backdrop-filter, -webkit-backdrop-filter;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
   pointer-events: none;
 }
 
 .gallery-thumbs .gallery-img-overlay.active {
   backdrop-filter: saturate(0) brightness(1.5) blur(1px);
+  -webkit-backdrop-filter: saturate(0) brightness(1.5) blur(1px);
 }
 
 .image-list-move,

@@ -172,6 +172,7 @@ onMounted(async () => {
   border-radius: 1.5rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   transition: all v-bind(cmsControlsAnimTime) ease-out;
 }
 

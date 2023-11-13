@@ -407,10 +407,12 @@ watch(slideControlsExpanded, value => {
   
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
+  -webkit-backdrop-filter: blur(10px) grayscale(0.25) brightness(0.95);
 }
 
 .slide-gallery.slide-theme-dark .content-outer {
   backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
+  -webkit-backdrop-filter: blur(10px) grayscale(0.25) brightness(1.05);
 }
 
 .slide-gallery .content-outer .headline {
@@ -577,6 +579,7 @@ watch(slideControlsExpanded, value => {
   border-radius: 1.5rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   overflow: hidden;
   transition-property: width, height, top, bottom, left, right;
   transition-duration: 0.15s;

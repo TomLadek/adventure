@@ -58,9 +58,11 @@ function setLang(lang) {
 
 .lang-switcher button.active {
   backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
 }
 
 .dark .lang-switcher button.active {
   backdrop-filter: brightness(0.92);
+  -webkit-backdrop-filter: brightness(0.92);
 }
 </style>

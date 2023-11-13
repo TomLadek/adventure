@@ -309,7 +309,7 @@ function onSubmenuExpandClick(submenu) {
   background-position: center center;
 }
 
-@media (max-resolution: 149dpi) {
+@media (-webkit-max-device-pixel-ratio: 1), (max-resolution: 149dpi) {
   @media (orientation: landscape) and (max-width: 575px) {
     .slide { background-image: v-bind(mainImgUrlXs); }
   }
@@ -358,7 +358,7 @@ function onSubmenuExpandClick(submenu) {
   }
 }
 
-@media (min-resolution: 150dpi) {
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 150dpi) {
   @media (orientation: landscape) and (max-width: 575px) {
     .slide { background-image: v-bind(mainImgUrlMd); }
   }
@@ -447,6 +447,7 @@ html:not(.fps-enabled) .slide {
   border-bottom-left-radius: 1rem;
   background: rgba(0, 0, 0, 0.68);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   transition-duration: 0.15s;
   transition-timing-function: ease-out;
   transition-property: height, width;
@@ -534,6 +535,7 @@ html:not(.fps-enabled) .slide {
   z-index: 1;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   border-radius: 0.5rem;
 }
 
@@ -619,12 +621,15 @@ html:not(.fps-enabled) .slide {
 }
 
 .slide .image-change-container .image-change-overlay {
-  transition: backdrop-filter 0.6s ease;
+  transition-property: backdrop-filter, -webkit-backdrop-filter;
+  transition-duration: 0.6s;
+  transition-timing-function: ease;
   pointer-events: none;
 }
 
 .slide .image-change-container .image-change-overlay.active {
   backdrop-filter: grayscale(1) brightness(1.5) blur(6px);
+  -webkit-backdrop-filter: grayscale(1) brightness(1.5) blur(6px);
 }
 /* /CMS */
 </style>

@@ -46,6 +46,7 @@ function onAnimationEnd() {
   border-radius: 32px;
   background: #0000008a;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(4px);
   color: white;
   border: none;
   padding: 0;
