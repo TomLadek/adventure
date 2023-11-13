@@ -59,7 +59,7 @@ Even the texts of built-in components like the PhotoSwipe gallery can be transla
 
 This project is licensed under the MIT license.
 
-It contains software that is also MIT licensed: the [PhotoSwipe](https://github.com/dimsemenov/PhotoSwipe) gallery and a modified and extendended version of the [fullPageScrollPureJS](https://github.com/amendoa/fullPageScrollPureJS) library.
+It contains software that is also MIT licensed: [PhotoSwipe](https://github.com/dimsemenov/PhotoSwipe), [Tippy.js](https://github.com/atomiks/tippyjs) and [Tiptap](https://github.com/ueberdosis/tiptap). Full page scrolling is building on code originally published as [fullPageScrollPureJS](https://github.com/amendoa/fullPageScrollPureJS).
 
 
 ----------
