@@ -31,25 +31,28 @@ const startLinkClass = computed(() => {
 });
 
 let startLinkElement,
-  infoShowing = ref(false),
-
-startLinkAnimation = gsap.timeline({
-  delay: 3,
-  repeat: -1,
-  repeatDelay: 2
-});
+  startLinkAnimation,
+  infoShowing = ref(false);
 
 onMounted(() => {
   startLinkElement = document.querySelector(".slide-intro .start-link");
+
+  startLinkAnimation = startLinkElement.animate([
+    { transform: 'translateY(0)', easing: "linear" },
+    { transform: 'translateY(-4px)', easing: "cubic-bezier(0.15, 0.4, 0.68, 1.55)", offset: 0.1 },
+    { transform: 'translateY(15px)', easing: "cubic-bezier(0.15, 0.4, 0.68, 1.55)", offset: 0.25 },
+    { transform: 'translateY(0)', offset: 0.4 }
+  ], {
+    duration: 4200,
+    iterations: Infinity,
+    delay: 3000
+  });
 
   const contentOuterElement = document.querySelector(".slide-intro .content-outer"),
     checkStartLinkSpace = () => 0 <
       (window.innerHeight - contentOuterElement.clientHeight) / 2 /* remaining space below the actual slide content */
       - (matchMedia("(orientation: landscape) and (max-height: 500px)").matches ? 16 : 48) /* link's distance from the bottom */
       - (startLinkElement.clientHeight) /* height of the link */;
-
-  startLinkAnimation.to(startLinkElement, { y: "-10" });
-  startLinkAnimation.to(startLinkElement, { y: "0", ease: "elastic", duration: 1.7 });
 
   startLinkHasSpace.value = checkStartLinkSpace();
 
@@ -62,7 +65,7 @@ watch(() => props.showing, (showing) => {
   // perform one time actions when this slide stops showing
   if (!showing) {
     if (startLinkAnimation) {
-      startLinkAnimation.revert();
+      startLinkAnimation.cancel();
       startLinkAnimation = null;
     }
 

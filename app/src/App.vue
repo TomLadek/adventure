@@ -9,11 +9,8 @@ import AdventureLanguageSwitcher from "./components/AdventureLanguageSwitcher.vu
 import AdventureNavigation from "./components/AdventureNavigation.vue";
 
 // Custom libraries
-import { gsap } from "gsap";
 import "./assets/gi-full-page-scroll.js";
 import "./assets/gi-full-page-scroll.css";
-
-window.gsap = gsap;
 
 function imageUrl(image, width = 0, height = 0) {
   const imgMatch = image.match(/(.*?)(\.(\w+))?$/),
