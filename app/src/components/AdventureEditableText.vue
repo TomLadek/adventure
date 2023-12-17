@@ -533,7 +533,8 @@ watch(realTextDisplay, (showRealText) => {
   transition-timing-function: ease-out;
 }
 
-[data-tippy-root] {
+/* TODO Is this still necessary? */
+.cms-text-editor-container [data-tippy-root] {
   visibility: visible !important;
 }
 
