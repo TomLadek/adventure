@@ -528,7 +528,7 @@ watch(realTextDisplay, (showRealText) => {
   fill: #ff9400;
 }
 
-.tippy-box {
+.cms-text-editor-container .tippy-box {
   transition-duration: 0.15s !important;
   transition-timing-function: ease-out;
 }
