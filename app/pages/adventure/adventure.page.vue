@@ -67,13 +67,13 @@ function updatePageTheme(theme) {
 
 export function getDocumentProps(pageProps) {
   const introSlide = pageProps.adventure.slides.find(slide => slide.intro),
-        metaMainImg = (introSlide || pageProps.adventure.slides[0]).mainImg,
+        metaMainImg = (introSlide || pageProps.adventure.slides[0] || {}).mainImg,
         imageUrlPrefix = `${import.meta.env.VITE_DEPLOYMENT_HOST && import.meta.env.VITE_DEPLOYMENT_HOST !== 'localhost' ? `https://${import.meta.env.VITE_DEPLOYMENT_HOST}` : ''}`;
 
   return {
     title: getTextInLanguage(pageProps.adventure, pageProps.adventure.meta.title, "", true),
     description: introSlide && introSlide.content && introSlide.content.text ? getTextInLanguage(pageProps.adventure, introSlide.content.text, "", true) : null,
-    image: `${imageUrlPrefix}${getImageUrl(pageProps.adventure.meta.id, metaMainImg.id || metaMainImg.src, 992)}`
+    image: metaMainImg ? `${imageUrlPrefix}${getImageUrl(pageProps.adventure.meta.id, metaMainImg.id || metaMainImg.src, 992)}` : ""
   }
 }
 
