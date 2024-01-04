@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId } from "mongodb"
-import { escapeRegExp, getPrimitiveValues, getRandomId } from "../utils-node/utils.js"
+import { escapeRegExp, getPrimitiveValues, getRandomId, sanitizeUrlPath } from "../utils-node/utils.js"
 
 const slideContentTextModuleFields = [
   "slides.headline",
@@ -203,7 +203,7 @@ export async function insertOneAdventure(data) {
       slides: [],
       meta: {
         fallbackLang: data.fallbackLang || langs[0],
-        urlPath: data.urlPath.trim().replace(/^\/+|\/+$|\s/g, "").toLowerCase() || "my-adventure",
+        urlPath: sanitizeUrlPath(data.urlPath),
         title: "meta_title",
         author: {
           madeBy: "meta_author_madeBy",
@@ -235,14 +235,10 @@ export async function insertOneAdventure(data) {
   }
 }
 
-export async function updateOneAdventure(adventureId, props) {
-  const adventuresColl = getCollection("adventures"),
-        updateDocument = { $set: {}, $unset: {} }
-
-  for (const prop of Object.keys(props)) {
-    const propValue = props[prop]
+export async function updateOneAdventure(adventureId, props, isFullAdventure) {
+  function getPropDbValue(propValue) {
     let propDbValue;
-
+  
     if (/true|false/i.test(propValue))
       propDbValue = propValue.toLowerCase() === "true"
     else if (/^[0-9.]+$/.test(propValue))
@@ -250,7 +246,37 @@ export async function updateOneAdventure(adventureId, props) {
     else
       propDbValue = propValue
 
-    updateDocument.$set[prop] =  propDbValue
+    return propDbValue
+  }
+  
+  const adventuresColl = getCollection("adventures"),
+        updateDocument = { $set: {}, $unset: {} }  
+
+  if (isFullAdventure) {
+    const langs = [props.activeLang || "en"]
+
+    langs.push(...Object.keys(props.multiLangData))
+
+    updateDocument.$set["meta.fallbackLang"] = getPropDbValue(props.fallbackLang || langs[0]);
+    updateDocument.$set["meta.urlPath"] = getPropDbValue(sanitizeUrlPath(props.urlPath));
+    updateDocument.$set["meta.title"] = "meta_title";
+    updateDocument.$set["meta.author.madeBy"] = "meta_author_madeBy";
+    updateDocument.$set["meta.author.content"] = "meta_author_content";
+
+    for (const lang of langs) {
+      const langData = lang === props.activeLang 
+                          || Object.keys(props.multiLangData).length < 1 
+                          ? props
+                          : props.multiLangData[lang]
+
+      updateDocument.$set[`messages.${lang}.meta_title`] = getPropDbValue(langData.title || "Adventure");
+      updateDocument.$set[`messages.${lang}.meta_author_madeBy`] = getPropDbValue(langData.author || "");
+      updateDocument.$set[`messages.${lang}.meta_author_content`] = getPropDbValue(langData.authorText || "");
+    }
+  } else {
+    for (const prop of Object.keys(props)) {
+      updateDocument.$set[prop] = getPropDbValue(props[prop])
+    }
   }
 
   try {

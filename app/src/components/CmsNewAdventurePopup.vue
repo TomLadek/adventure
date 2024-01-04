@@ -8,11 +8,15 @@ import languages from "../languages.js";
 
 <script setup>
 const props = defineProps({
+  adventure: {
+    required: false,
+    type: Object
+  },
   popupShowing: {
     required: true,
     type: Boolean
   }
-})
+});
 const emit = defineEmits(["closing"]);
 
 function closePopup() {
@@ -20,6 +24,7 @@ function closePopup() {
 }
 
 function confirm() {
+  // Not using FormData here because multiLangData is an object and the serialization into JSON POST/PUT data doesn't seem to work automatically
   const data = {
     urlPath: newAdventureData.value.urlPath,
     title: newAdventureData.value.title,
@@ -35,16 +40,24 @@ function confirm() {
     }, {})
   };
 
-  fetch("/rest/adventure/create", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  }).then(closePopup);
+  if (props.adventure && props.adventure.id) {
+    fetch(`/rest/adventure/${props.adventure.id}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(closePopup)
+  } else {
+    fetch("/rest/adventure/create", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(closePopup);
+  }
 }
 
 function onKeyUp(e) {
   if (e.key === "Escape")
-    closePopup()
+    closePopup();
 }
 
 function addLanguage(lang) {
@@ -84,7 +97,54 @@ function switchActiveLang(lang) {
   newAdventureData.value.authorText = newAdventureDataMultilang[lang] ? newAdventureDataMultilang[lang].authorText : "";
 }
 
-const isLongLang = (lang) => /zh-/.test(lang)
+function existingAdventureToNewAdventureData(adventure) {
+  function getTranslatedText(messages, module, lang) {
+    if (messages[lang] && typeof messages[lang][module] !== "undefined")
+      return messages[lang][module];
+    else
+      return module;
+  }
+
+  const langs = adventure && adventure.messages && Object.keys(adventure.messages) || [];
+  
+  newAdventureData.value.langs = langs;
+  newAdventureData.value.urlPath = adventure && adventure.meta.urlPath || "";
+
+  if (adventure && adventure.meta.fallbackLang) {
+    const fallbackLang = adventure.meta.fallbackLang;
+
+    langs.sort((langA, langB) => {
+      if (langA === fallbackLang)
+        return -1;
+      if (langB === fallbackLang)
+        return 1;
+      return 0;
+    });
+  }
+
+  if (langs.length > 0) {
+    for (let i = langs.length - 1; i >= 0; i--) {
+      const lang = langs[i];
+  
+      newAdventureData.value.title = adventure && adventure.meta.title && getTranslatedText(adventure.messages, adventure.meta.title, lang) || "";
+      newAdventureData.value.author = adventure && adventure.meta.author.madeBy && getTranslatedText(adventure.messages, adventure.meta.author.madeBy, lang) || "";
+      newAdventureData.value.authorText = adventure && adventure.meta.author.content && getTranslatedText(adventure.messages, adventure.meta.author.content, lang) || "";
+      activeLang.value = lang;
+  
+      switchActiveLang(lang);
+    }
+  } else {
+    newAdventureData.value.title = "";
+    newAdventureData.value.author = "";
+    newAdventureData.value.authorText = "";
+    activeLang.value = "";
+  }
+
+}
+
+function isLongLang(lang){
+  return /zh-/.test(lang);
+} 
 
 const newAdventureData = ref({
     langs: [],
@@ -101,16 +161,16 @@ const multilingualClass = computed(() => {
   return {
     multilingual: newAdventureData.value.langs.length > 1,
     long: isLongLang(activeLang.value)
-  }
-})
+  };
+});
 
 onMounted(() => {
   addEventListener("keyup", onKeyUp);
-})
+});
 
 onUnmounted(() => {
   removeEventListener("keyup", onKeyUp);
-})
+});
 
 // Modify the entered urlPath
 watch(() => newAdventureData.value.urlPath, urlPathVal => {
@@ -121,13 +181,15 @@ watch(() => newAdventureData.value.urlPath, urlPathVal => {
   // Don't allow uppercase characters
   if (/\p{Uppercase}/gu.test(urlPathVal))
     newAdventureData.value.urlPath = urlPathVal.toLowerCase();
-})
+});
+
+watch(() => props.adventure, existingAdventureToNewAdventureData);
 </script>
 
 <template>
   <CmsPopup :popupShowing="popupShowing">
     <div class="cms-new-adventure-header">
-      <h2>New Adventure</h2>
+      <h2>{{ adventure ? 'Edit' : 'New' }} Adventure</h2>
 
       <select
         v-if="newAdventureData.langs.length > 3"

@@ -118,3 +118,12 @@ export function getPrimitiveValues(obj) {
     return typeof item !== 'object';
   });
 }
+
+export function sanitizeUrlPath(dirtyUrlPath, defaultUrlPath = "my-adventure") {
+  const res = dirtyUrlPath.trim().replace(/^\/+|\/+$|\s/g, "").toLowerCase();
+
+  if (!res)
+    return defaultUrlPath;
+
+  return res;
+}

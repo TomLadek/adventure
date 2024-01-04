@@ -196,6 +196,20 @@ async function startServer() {
     }
   })
 
+  // Update existing adventure
+  app.post('/rest/adventure/:adventureId/update', async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId
+
+      await updateOneAdventure(adventureId, req.body, true)
+
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
   // Delete slide
   app.delete('/rest/adventure/:adventureId/slide/:slideId', async (req, res) => {
     try {

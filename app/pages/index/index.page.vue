@@ -8,6 +8,7 @@ import CmsOptionsButton from "../../src/components/buttons/CmsOptionsButton.vue"
 import CmsButtonDelete from "../../src/components/buttons/CmsButtonDelete.vue";
 import CmsButtonProperties from "../../src/components/buttons/CmsButtonProperties.vue";
 import IconBackgroundImage from "../../src/components/icons/IconBackgroundImage.vue";
+import { ANIMATION_TIME_POPUP_MS } from "../../src/constants.js";
 
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
@@ -17,6 +18,7 @@ import { usePageContext } from "../../renderer/usePageContext.js";
 const pageContext = usePageContext(),
       adventures = ref(pageContext.pageProps.adventureList),
       newAdventurePopupShowing = ref(false),
+      editAdventure = ref(null),
       actionsShowing = ref({}),
       timeouts = {};
 
@@ -33,9 +35,20 @@ function updateAdventuresList() {
   });
 }
 
-function newAdventurePopupClosing() {
-  newAdventurePopupShowing.value = false;  
+function closeAdventurePropertiesPopup() {
+  newAdventurePopupShowing.value = false;
+
+  // Delay here so that the Adventure that we're editing isn't cleared before the popup disappears completely
+  setTimeout(() => {
+    editAdventure.value = null;
+  }, ANIMATION_TIME_POPUP_MS);
+
   updateAdventuresList();
+}
+
+function openAdventurePropertiesPopup(adventure) {
+  editAdventure.value = adventure;
+  newAdventurePopupShowing.value = true;
 }
 
 function getAdventureLink(adventureUrlPath) {
@@ -93,18 +106,18 @@ function onActionsMouseLeave(id) {
               <CmsOptionsButton v-if="!actionsShowing[adventure.id]" class="cms-adventure-actions-button" @click.stop.prevent="actionsShowing[adventure.id] = true"/>
               <CmsButtonClose v-else class="cms-adventure-actions-button" @click.stop.prevent="actionsShowing[adventure.id] = false"/>
               <CmsButtonDelete v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" delete-what-text="adventure" @click.stop.prevent />
-              <CmsButtonProperties v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" what-properties="Adventure" @click.stop.prevent />
+              <CmsButtonProperties v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" what-properties="Adventure" @click.stop.prevent="openAdventurePropertiesPopup(adventure)" />
             </div>
           </div>
         </a>
       </li>
       <li class="cms-adventure-list-item new-item">
-        <CmsAdventureItemButtonNew @click="newAdventurePopupShowing = true" />
+        <CmsAdventureItemButtonNew @click="openAdventurePropertiesPopup(null)" />
       </li>
     </ul>
   </main>
 
-  <CmsNewAdventurePopup :popupShowing="newAdventurePopupShowing" @closing="newAdventurePopupClosing" />
+  <CmsNewAdventurePopup :adventure="editAdventure" :popupShowing="newAdventurePopupShowing" @closing="closeAdventurePropertiesPopup" />
 </template>
 
 <style>

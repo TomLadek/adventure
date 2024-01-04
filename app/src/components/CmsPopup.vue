@@ -14,10 +14,11 @@ const props = defineProps({
 const dialog = ref(null),
       closing = ref(false);
 
-watch(() => props.popupShowing, (showing) => {
-    if (showing)
+watch(() => props.popupShowing, showing => {
+    if (showing) {
       dialog.value.showModal();
-    else {
+      closing.value = false;
+    } else {
       closing.value = true;
     }
 })
@@ -31,7 +32,7 @@ function onAnimationEnd() {
 </script>
 
 <template>
-  <dialog class="cms-adventure-popup" :class="{ closing }" ref="dialog" @animationend="onAnimationEnd">
+  <dialog class="cms-adventure-popup" :class="{ closing }" ref="dialog" @animationend="onAnimationEnd" @keydown.esc.prevent>
     <!-- <ButtonClose class="popup-button-close" @close-click="closePopup" /> -->
 
     <div class="cms-adventure-popup-fields-container">
@@ -50,14 +51,14 @@ function onAnimationEnd() {
   color: white;
   border: none;
   padding: 0;
-  box-shadow: 0px 0px 32px 0px #000000b5;  
+  box-shadow: 0px 0px 32px 0px #000000b5;
 }
 
 .cms-adventure-popup[open],
 .cms-adventure-popup[open]::backdrop,
 .cms-adventure-popup[open].closing,
 .cms-adventure-popup[open].closing::backdrop {
-  animation-duration: 0.15s;
+  animation-duration: 0.15s; /* can't use variables here because the actual modal element is outside of the DOM (I think) */
   animation-timing-function: ease;
   animation-fill-mode: forwards;
 }
