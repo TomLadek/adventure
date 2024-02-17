@@ -335,7 +335,7 @@ watch(slideControlsExpanded, value => {
 
     <div v-if="slide.headline || slide.content" class="content-outer" :class="slideContentClass">
       <h2 class="headline">
-        <AdventureEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" />
+        <AdventureEditableText :i18n="i18nBundle" :text-module="slide.headline" emptyPlaceholder="Empty headline" :headlineToolsOnlyEditor="true"/>
       </h2>
 
       <div class="content-inner">

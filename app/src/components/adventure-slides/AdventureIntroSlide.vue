@@ -93,8 +93,8 @@ shouldShowInnerContent = computed(() => editMode.value || innerContentHasText.va
 
     <div v-if="slide.headline || slide.content" class="content-outer" ref="contentOuter">
       <h1 class="headline-container">
-        <AdventureEditableText class="headline" :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Headline" />
-        <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Subheadline" />
+        <AdventureEditableText class="headline" :i18n="i18nBundle" :textModule="slide.headline" emptyPlaceholder="Headline" :headlineToolsOnlyEditor="true" />
+        <AdventureEditableText class="subheadline" :i18n="i18nBundle" :textModule="slide.subheadline" emptyPlaceholder="Subheadline" :headlineToolsOnlyEditor="true" />
       </h1>
 
       <div v-if="shouldShowInnerContent" class="content-inner">
