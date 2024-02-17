@@ -154,14 +154,6 @@ div[data-empty-text]::after {
 }
 
 @media (min-width: 800px) {
-  div {
-    scrollbar-color: rgba(250, 250, 250, 0.8) transparent; /* Firefox */
-  }
-
-  .dark div {
-    scrollbar-color: rgba(110, 110, 110, 0.8) transparent; /* Firefox */
-  }
-
   div::-webkit-scrollbar {
     width: 5px;
     height: 5px;
