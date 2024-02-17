@@ -89,6 +89,7 @@ async function startServer() {
     updateOneRemoveSlideContent,
     updateOneText,
     updateOneAdventure,
+    removeOneAdventure,
     closeDb
   } = await import('../database/db.js')
   const { generateScaledImage, getRandomId, resourcePath } = await import("../utils-node/utils.js")
@@ -202,6 +203,24 @@ async function startServer() {
       const adventureId = req.params.adventureId
 
       await updateOneAdventure(adventureId, req.body, true)
+
+      res.status(200).json({ok: true})
+    } catch (ex) {
+      console.error(ex)
+      res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
+    }
+  })
+
+  // Delete adventure
+  app.delete('/rest/adventure/:adventureId', async (req, res) => {
+    try {
+      const adventureId = req.params.adventureId,
+            adventureImgDir = path.resolve(imgPath, adventureId)
+
+      await removeOneAdventure(adventureId)
+
+      execSync(`rm -rf ${adventureImgDir}`)
+      console.log(`removed directory ${adventureImgDir} and all its contents`)
 
       res.status(200).json({ok: true})
     } catch (ex) {

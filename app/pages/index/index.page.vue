@@ -1,6 +1,7 @@
 <script>
 import { ref, computed } from "vue";
 import { getImageUrl, getAdventureFallbackLanguage, getTextInLanguage } from "../../src/utils.js";
+import CmsConfirmActionPopup from "../../src/components/CmsConfirmActionPopup.vue";
 import CmsNewAdventurePopup from "../../src/components/CmsNewAdventurePopup.vue"
 import CmsAdventureItemButtonNew from "../../src/components/buttons/CmsAdventureItemButtonNew.vue";
 import CmsButtonClose from "../../src/components/buttons/CmsButtonClose.vue";
@@ -9,6 +10,7 @@ import CmsButtonDelete from "../../src/components/buttons/CmsButtonDelete.vue";
 import CmsButtonProperties from "../../src/components/buttons/CmsButtonProperties.vue";
 import IconBackgroundImage from "../../src/components/icons/IconBackgroundImage.vue";
 import { ANIMATION_TIME_POPUP_MS } from "../../src/constants.js";
+import { useConfirmationStore } from "../../src/stores/confirmation.js";
 
 // SSR
 import { usePageContext } from "../../renderer/usePageContext.js";
@@ -16,6 +18,7 @@ import { usePageContext } from "../../renderer/usePageContext.js";
 
 <script setup>
 const pageContext = usePageContext(),
+      confirmationStore = useConfirmationStore(),
       adventures = ref(pageContext.pageProps.adventureList),
       newAdventurePopupShowing = ref(false),
       editAdventure = ref(null),
@@ -49,6 +52,23 @@ function closeAdventurePropertiesPopup() {
 function openAdventurePropertiesPopup(adventure) {
   editAdventure.value = adventure;
   newAdventurePopupShowing.value = true;
+}
+
+function onDeleteAdventureClick(adventure) {
+  confirmationStore.getConfirmation(
+    `Delete Adventure`,
+    `
+      <p>Be careful! Deleting an adventure will delete all its data including all images
+      and texts. This action cannot be undone.</p>
+      <p>Are you sure you want to remove the adventure <b style="white-space: nowrap;">${getTextInLanguage(adventure, adventure.meta.title, "", true)}</b>?</p>
+      <p style="color:red">THIS CANNOT BE UNDONE!</p>
+    `,
+    () => {
+      fetch(`/rest/adventure/${adventure.id}`, {
+        method: "DELETE"
+      }).then(updateAdventuresList);
+    }
+  )
 }
 
 function getAdventureLink(adventureUrlPath) {
@@ -105,7 +125,7 @@ function onActionsMouseLeave(id) {
             <div class="cms-adventure-actions-container" :aria-expanded="actionsShowing[adventure.id]" @mouseenter="onActionsMouseEnter(adventure.id)" @mouseleave="onActionsMouseLeave(adventure.id)">
               <CmsOptionsButton v-if="!actionsShowing[adventure.id]" class="cms-adventure-actions-button" @click.stop.prevent="actionsShowing[adventure.id] = true"/>
               <CmsButtonClose v-else class="cms-adventure-actions-button" @click.stop.prevent="actionsShowing[adventure.id] = false"/>
-              <CmsButtonDelete v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" delete-what-text="adventure" @click.stop.prevent />
+              <CmsButtonDelete v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" delete-what-text="adventure" @click.stop.prevent="onDeleteAdventureClick(adventure)" />
               <CmsButtonProperties v-if="actionsShowing[adventure.id]" class="cms-adventure-actions-button" what-properties="Adventure" @click.stop.prevent="openAdventurePropertiesPopup(adventure)" />
             </div>
           </div>
@@ -118,6 +138,7 @@ function onActionsMouseLeave(id) {
   </main>
 
   <CmsNewAdventurePopup :adventure="editAdventure" :popupShowing="newAdventurePopupShowing" @closing="closeAdventurePropertiesPopup" />
+  <CmsConfirmActionPopup :confirmPopupShowing="confirmationStore.pending" />
 </template>
 
 <style>

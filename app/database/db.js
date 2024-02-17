@@ -292,6 +292,21 @@ export async function updateOneAdventure(adventureId, props, isFullAdventure) {
   }
 }
 
+export async function removeOneAdventure(adventureId) {
+  const adventuresColl = getCollection("adventures")
+
+  try {
+    await adventuresColl.deleteOne({
+       _id: new ObjectId(adventureId)
+    })
+
+    console.log(`Removed adventure ${adventureId}`)
+  } catch (ex) {
+    console.error(ex)
+    throw ex
+  }
+}
+
 export async function updateOneSlideContent(adventureId, slideId, slideContent, locale) {
   const updateDocument = { $set: {} }
 
