@@ -520,6 +520,7 @@ watch(slideControlsExpanded, value => {
   gap: 1rem;
   padding: 0 5px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .slide-gallery .content-outer .content-inner p {
