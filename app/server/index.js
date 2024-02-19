@@ -17,7 +17,8 @@ const upload = multer({ dest: 'server/uploads/' })
 
 const isProduction = process.env.NODE_ENV === 'production',
       port = process.env.PORT || 3000,
-      root = path.resolve(__dirname, '..')
+      root = path.resolve(__dirname, '..'),
+      deletedAdventuresPath = path.resolve(root, "deleted_adventures", "img")
 
 const canDoDeepLTranslations = typeof process.env.DEEPL_API_KEY !== 'undefined',
       translator = canDoDeepLTranslations ? new deepl.Translator(process.env.DEEPL_API_KEY) : null
@@ -28,6 +29,8 @@ function init(resourcePath) {
 
   if (fs.existsSync(imgPath))
     fs.chmodSync(imgPath, 0o2755)
+
+  execSync(`install -o node -m 00755 -d ${deletedAdventuresPath}`)
 
   return { imgPath }
 }
@@ -43,7 +46,7 @@ function moveImgFile(fileExt, srcPath, imgPath, targetImgDir, targetName) {
 
   // Create a new img directory for this adventure and set its owner to the parent's owner (usually 'node')
   // TODO get the parent owner dynamically instead of setting this hardcoded
-  execSync(`install -d -o node -m 00755 ${targetDir}`)
+  execSync(`install -o node -m 00755 -d ${targetDir}`)
   
   // TODO check file for viruses before moving it to the img directory
   fs.renameSync(srcPath, targetPath)
@@ -89,7 +92,7 @@ async function startServer() {
     updateOneRemoveSlideContent,
     updateOneText,
     updateOneAdventure,
-    removeOneAdventure,
+    deleteOneAdventure,
     closeDb
   } = await import('../database/db.js')
   const { generateScaledImage, getRandomId, resourcePath } = await import("../utils-node/utils.js")
@@ -215,12 +218,13 @@ async function startServer() {
   app.delete('/rest/adventure/:adventureId', async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
-            adventureImgDir = path.resolve(imgPath, adventureId)
+            adventureImgDir = path.resolve(imgPath, adventureId),
+            deletedAdventuresImgDir = path.resolve(deletedAdventuresPath, adventureId)
 
-      await removeOneAdventure(adventureId)
+      await deleteOneAdventure(adventureId)
 
-      execSync(`rm -rf ${adventureImgDir}`)
-      console.log(`removed directory ${adventureImgDir} and all its contents`)
+      execSync(`mv ${adventureImgDir} ${deletedAdventuresImgDir}`)
+      console.log(`moved adventure directory. old=${adventureImgDir} new=${deletedAdventuresImgDir}`)
 
       res.status(200).json({ok: true})
     } catch (ex) {

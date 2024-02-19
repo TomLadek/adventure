@@ -292,15 +292,21 @@ export async function updateOneAdventure(adventureId, props, isFullAdventure) {
   }
 }
 
-export async function removeOneAdventure(adventureId) {
-  const adventuresColl = getCollection("adventures")
+export async function deleteOneAdventure(adventureId) {
+  const adventuresColl = getCollection("adventures"),
+        deletedAdventuresColl = getCollection("deleted_adventures"),
+        adventureDoc = {
+          _id: new ObjectId(adventureId)
+       }
 
   try {
-    await adventuresColl.deleteOne({
-       _id: new ObjectId(adventureId)
-    })
+    const existingAdventure = await adventuresColl.findOne(adventureDoc)
 
-    console.log(`Removed adventure ${adventureId}`)
+    await deletedAdventuresColl.insertOne(existingAdventure)
+    console.log(`Moved adventure ${adventureId} to deleted_adventures collection`)
+
+    await adventuresColl.deleteOne(adventureDoc)
+    console.log(`Deleted adventure ${adventureId} from adventures collection`)
   } catch (ex) {
     console.error(ex)
     throw ex

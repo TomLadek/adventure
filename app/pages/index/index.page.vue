@@ -59,9 +59,9 @@ function onDeleteAdventureClick(adventure) {
     `Delete Adventure`,
     `
       <p>Be careful! Deleting an adventure will delete all its data including all images
-      and texts. This action cannot be undone.</p>
+      and texts.</p>
       <p>Are you sure you want to remove the adventure <b style="white-space: nowrap;">${getTextInLanguage(adventure, adventure.meta.title, "", true)}</b>?</p>
-      <p style="color:red">THIS CANNOT BE UNDONE!</p>
+      <p style="color:red"><i>This can be undone only by the server admin.</i></p>
     `,
     () => {
       fetch(`/rest/adventure/${adventure.id}`, {
