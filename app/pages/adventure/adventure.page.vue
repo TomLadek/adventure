@@ -231,25 +231,25 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.REMOVE_SLIDE, slideI
   });
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, ({ textModule, locale, newText }, resolve, reject) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, async ({ textModule, locale, newText }, resolve, reject) => {
   const formData = new FormData();
 
   formData.append("textModule", textModule);
   formData.append("locale", locale);
   formData.append("newText", newText);
 
-  fetch(`/rest/adventure/${adventure.value.meta.id}/edit/text`, {
+  let res = await fetch(`/rest/adventure/${adventure.value.meta.id}/edit/text`, {
     method: "POST",
     body: formData
-  }).then((res) => {
-    if (res.status === 200) {
-      messages.value[locale][textModule] = newText;
-
-      resolve();
-    } else {
-      res.json().then(error => reject(error.message))
-    }
   });
+  
+  if (res.status === 200) {
+    messages.value[locale][textModule] = newText;
+
+    resolve();
+  } else {
+    reject(await res.json());
+  }
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, async ({ slideId, files }) => {

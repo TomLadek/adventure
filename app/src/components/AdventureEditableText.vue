@@ -143,26 +143,28 @@ function saveText(editor) {
   clearTimeout(cmsTextSyncTimeout);
   clearTimeout(statusVisibilityTimeout);
 
-  cmsTextSyncTimeout = setTimeout(() => {
+  cmsTextSyncTimeout = setTimeout(async () => {
     emit("save");
 
     cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCING;
 
-    cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
-      textModule: props.textModule,
-      locale: props.i18n.locale,
-      newText: processContent(editor.getHTML())
-    }).then(() => {
+    try {
+      await cmsControlsStore.actionWithResult(cmsControlsStore.actions.EDIT_TEXT, {
+        textModule: props.textModule,
+        locale: props.i18n.locale,
+        newText: processContent(editor.getHTML())
+      });
+
       cmsTextSyncStatus.value = cmsTextSyncStatusValue.SYNCED;
       statusVisibilityTimeout = setTimeout(() => statusVisible.value = false, 1500);
-    }).catch(reason => {
+    } catch (reason) {
       console.error(reason)
       cmsTextSyncStatus.value = cmsTextSyncStatusValue.ERROR;
       statusVisible.value = true;
-    }).finally(() => {
+    } finally {
       checkShouldHideControls();
-      cmsTextSyncTimeout = 0;        
-    });
+      cmsTextSyncTimeout = 0;
+    }
   }, 1000);
 }
 
