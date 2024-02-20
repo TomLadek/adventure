@@ -2,15 +2,13 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useConfirmationStore = defineStore("confirmation", () => {
-  let onConfirm, onCancel
   const pending = ref(false),
         headline = ref(""),
         content = ref("")
+  let onConfirm, onCancel
 
   function reset() {
     pending.value = false
-    headline.value = ""
-    content.value = ""
   }
 
   function getConfirmation(headlineValue, contentValue, onConfirmCallback, onCancelCallback) {
