@@ -21,7 +21,7 @@
 
 export function useVI18nHtml(t) {
   function getTranslatedHtml(binding) {
-    const { textModule, isMultiline } = binding;
+    const { textModule } = binding;
 
     if (!textModule)
       return "";
@@ -31,7 +31,7 @@ export function useVI18nHtml(t) {
     if (!translation || translation === textModule)
       return "";
 
-    return !isMultiline || /<p>.*<\/p>/.test(translation) ? translation : `<p>${translation}</p>`
+    return /<p>.*<\/p>/.test(translation) ? translation : `<p>${translation}</p>`
   }
 
   return {

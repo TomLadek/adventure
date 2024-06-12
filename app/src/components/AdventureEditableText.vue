@@ -378,7 +378,7 @@ watch(realTextDisplay, (showRealText) => {
 </script>
 
 <template>
-  <div v-if="realTextDisplay" class="text-wrapper" :class="class" v-i18n-html:[i18n.locale]="{ textModule: textModule, isMultiline: isMultiline }"></div>
+  <div v-if="realTextDisplay" class="text-wrapper" :class="class" v-i18n-html:[i18n.locale]="{ textModule: textModule }"></div>
 
   <!-- CMS -->
   <div v-else class="cms-text-editor-container" :class="class">
