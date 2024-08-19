@@ -74,6 +74,7 @@ function initGallery() {
       gallery: `#slide_${props.slide.id}`,
       children: "a:not([external])",
       wheelToZoom: true,
+      loop: false,
       preload: [1, 1], // One before, one after - PhotSwipe minimum
       preloaderDelay: 500,
       closeTitle: t("misc.close"),
