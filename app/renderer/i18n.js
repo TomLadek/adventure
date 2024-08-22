@@ -8,28 +8,36 @@ const defaultMessages = {
     "misc.close": "Zavřít",
     "misc.previous": "Předchozí",
     "misc.next": "Další",
-    "misc.error.imageunloadable": "Tento obrázek nebylo možné zobrazit."
+    "misc.error.imageunloadable": "Tento obrázek nebylo možné zobrazit.",
+    "misc.switchtolanguage": "Změnit jazyk na",
+    "misc.activelanguage": "Aktuální jazyk"
   },
   de: {
     "misc.zoom": "Zoom",
     "misc.close": "Schließen",
     "misc.previous": "Vorheriges",
     "misc.next": "Nächstes",
-    "misc.error.imageunloadable": "Dieses Bild konnte nicht geladen werden."
+    "misc.error.imageunloadable": "Dieses Bild konnte nicht geladen werden.",
+    "misc.switchtolanguage": "Sprache ändern auf",
+    "misc.activelanguage": "Aktive Sprache"
   },
   en: {
     "misc.zoom": "Zoom",
     "misc.close": "Close",
     "misc.previous": "Previous",
     "misc.next": "Next",
-    "misc.error.imageunloadable": "The image cannot be loaded."
+    "misc.error.imageunloadable": "The image cannot be loaded.",
+    "misc.switchtolanguage": "Switch language to",
+    "misc.activelanguage": "Active language"
   },
   fr: {
     "misc.zoom": "Zoom",
     "misc.close": "Fermer",
     "misc.previous": "Précédente",
     "misc.next": "Suivante",
-    "misc.error.imageunloadable": "Cette image n'a pas pu être chargée."
+    "misc.error.imageunloadable": "Cette image n'a pas pu être chargée.",
+    "misc.switchtolanguage": "Changer la langue en",
+    "misc.activelanguage": "Langage actif"
   }
 };
 
