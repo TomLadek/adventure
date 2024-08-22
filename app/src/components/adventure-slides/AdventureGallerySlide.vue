@@ -4,7 +4,6 @@ import { useI18n } from "vue-i18n";
 import { isCmsView } from "../../utils.js";
 import { useI18nBundle } from "../../composables/i18nBundle.js";
 import { useVI18nAttr } from "../../composables/vI18nAttr.js";
-import { useLanguageStore } from "../../stores/language.js";
 
 import AdventureEditableText from "../AdventureEditableText.vue";
 import AdventureSwiperGallery from "../AdventureSwiperGallery.vue";
@@ -19,6 +18,7 @@ import "../../assets/photoswipe-dynamic-caption-plugin-custom.css";
 import { ref, h, render } from "vue";
 import { useCmsControlsStore } from "../../stores/cmscontrols.js";
 import { useConfirmationStore } from "../../stores/confirmation";
+import { useLanguageStore } from "../../stores/language.js";
 import CmsOptionsButton from "../buttons/CmsOptionsButton.vue";
 import CmsButtonClose from "../buttons/CmsButtonClose.vue";
 import CmsButtonDelete from "../buttons/CmsButtonDelete.vue";
@@ -47,12 +47,15 @@ const slideContentClass = computed(() => {
   return baseClass;
 });
 
-const { t, locale, availableLocales } = useI18n(),
+const { t, locale } = useI18n(),
       { i18nBundle } = useI18nBundle(),
-      { vI18nAttr } = useVI18nAttr(),
-      languageStore = useLanguageStore();
+      { vI18nAttr } = useVI18nAttr();
 
 const languages = computed(() => { return availableLocales.sort() });
+
+let initGalleryLanguageSwitcher = () => {
+  /* do nothing - only add language switcher when in CMS view and in edit mode */
+}
 
 function closeAllPhotoSwipes() {
   for (let slideId in window.photoSwipes) {
@@ -105,46 +108,7 @@ function initGallery() {
       window.fs.addEvents();
   });
 
-  if (languages.value.length > 1) {
-    pswpInstance.on('uiRegister', () => {
-      // Add language switching buttons
-      const pswpLangSwitches = {},
-            getLangSwitcherTitle = (lang, isActive) => isActive ? `${t("misc.activelanguage")}: ${lang}` : `${t("misc.switchtolanguage")} "${lang}"`;
-
-      for (const i in languages.value) {
-        const lang = languages.value[i];
-
-        pswpInstance.pswp.ui.registerElement({
-          className: `pswp-lang-switch ${locale.value === lang ? "active" : ""}`,
-          ariaLabel: getLangSwitcherTitle(lang, lang === locale.value),
-          title: getLangSwitcherTitle(lang, lang === locale.value),
-          order: 9 - (languages.value.length - i),
-          isButton: true,
-          html: lang,
-          onInit: (el) => pswpLangSwitches[lang] = el,
-          onClick: () => {
-            locale.value = lang;
-            languageStore.setLanguage(lang);
-
-            for (const pswpLangSwitch of Object.entries(pswpLangSwitches)) {
-              const pswpLangSwitchLanguage = pswpLangSwitch[0],
-                    pswpLangSwitchElement = pswpLangSwitch[1];
-
-              if (lang === pswpLangSwitchLanguage) {
-                pswpLangSwitchElement.classList.add("active");
-                pswpLangSwitchElement.title = getLangSwitcherTitle(pswpLangSwitchLanguage, true);
-                pswpLangSwitchElement.ariaLabel = getLangSwitcherTitle(pswpLangSwitchLanguage, true);
-              } else {
-                pswpLangSwitchElement.classList.remove("active");
-                pswpLangSwitchElement.title = getLangSwitcherTitle(pswpLangSwitchLanguage, false);
-                pswpLangSwitchElement.ariaLabel = getLangSwitcherTitle(pswpLangSwitchLanguage, false);
-              }
-            }
-          }
-        });
-      }
-    });
-  }
+  pswpInstance.on('uiRegister', initGalleryLanguageSwitcher);
 
   pswpInstance.init();
 
@@ -193,8 +157,10 @@ function initGallery() {
 onMounted(initGallery);
 
 /* CMS */
-const cmsControlsStore = useCmsControlsStore(),
+const { availableLocales } = useI18n(),
+      cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
+      languageStore = useLanguageStore(),
       slideControlsExpanded = ref(false),
       submenuExpanded = ref({
         position: false,
@@ -223,6 +189,46 @@ const galleryStyleButtonSelection = computed(() => {
     row: style === "row"
   }
 });
+
+initGalleryLanguageSwitcher = () => {
+  if (cmsControlsStore.editMode && languages.value.length > 1) {
+    const pswpLangSwitches = {},
+          getLangSwitcherTitle = (lang, isActive) => isActive ? `${t("misc.activelanguage")}: ${lang}` : `${t("misc.switchtolanguage")} "${lang}"`;
+  
+    for (const i in languages.value) {
+      const lang = languages.value[i];
+  
+      pswpInstance.pswp.ui.registerElement({
+        className: `pswp-lang-switch ${locale.value === lang ? "active" : ""}`,
+        ariaLabel: getLangSwitcherTitle(lang, lang === locale.value),
+        title: getLangSwitcherTitle(lang, lang === locale.value),
+        order: 9 - (languages.value.length - i),
+        isButton: true,
+        html: lang,
+        onInit: (el) => pswpLangSwitches[lang] = el,
+        onClick: () => {
+          locale.value = lang;
+          languageStore.setLanguage(lang);
+  
+          for (const pswpLangSwitch of Object.entries(pswpLangSwitches)) {
+            const pswpLangSwitchLanguage = pswpLangSwitch[0],
+                  pswpLangSwitchElement = pswpLangSwitch[1];
+  
+            if (lang === pswpLangSwitchLanguage) {
+              pswpLangSwitchElement.classList.add("active");
+              pswpLangSwitchElement.title = getLangSwitcherTitle(pswpLangSwitchLanguage, true);
+              pswpLangSwitchElement.ariaLabel = getLangSwitcherTitle(pswpLangSwitchLanguage, true);
+            } else {
+              pswpLangSwitchElement.classList.remove("active");
+              pswpLangSwitchElement.title = getLangSwitcherTitle(pswpLangSwitchLanguage, false);
+              pswpLangSwitchElement.ariaLabel = getLangSwitcherTitle(pswpLangSwitchLanguage, false);
+            }
+          }
+        }
+      });
+    }
+  }
+}
 
 function onSlideControlsMouseEnter() {
   clearTimeout(slideControlsExpandedTimeout)
@@ -593,17 +599,6 @@ watch(slideControlsExpanded, value => {
   }
 }
 
-.pswp-lang-switch {
-  color: rgb(185, 185, 185);
-  font-weight: bold;
-  font-size: medium;
-  text-transform: uppercase;
-}
-
-.pswp-lang-switch.active {
-  color: rgb(255, 255, 255);
-}
-
 /* CMS */
 .slide .cms-new-gallery-outer .cms-new-gallery-button {
   background: rgba(0, 0, 0, 0.2);
@@ -826,6 +821,17 @@ watch(slideControlsExpanded, value => {
   width: 0;
   height: 0;
   opacity: 0;
+}
+
+.pswp-lang-switch {
+  color: rgb(185, 185, 185);
+  font-weight: bold;
+  font-size: medium;
+  text-transform: uppercase;
+}
+
+.pswp-lang-switch.active {
+  color: rgb(255, 255, 255);
 }
 /* /CMS */
 </style>
