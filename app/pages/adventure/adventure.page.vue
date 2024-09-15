@@ -253,9 +253,11 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.EDIT_TEXT, async ({ 
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, async ({ slideId, files }) => {
-  const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-        selectedImages = [],
+  const imageCountLimit = 20,
+        slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
         imagesToUpload = [];
+  let newImageCountLimit,
+      selectedImages = [];
 
   if (!slideToChange.gallery)
     slideToChange.gallery = {};
@@ -266,8 +268,27 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IM
   for (const file of files)
     selectedImages.push(file);
 
-  // First, sort the selected images by their lastModified date
-  selectedImages.sort((a, b) => a.lastModified - b.lastModified);
+  // First, sort the selected images
+  if (Date.now() - 3600000 < selectedImages.reduce((sum, file) => sum + file.lastModified, 0) / selectedImages.length) {
+    // When the average lastModified time of all selected images was not more than 1 hour ago,
+    // sort by the original file name (case for upload from Google Photos)
+    selectedImages.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    // Otherwise sort by lastModified time
+    selectedImages.sort((a, b) => a.lastModified - b.lastModified);
+  }
+
+  newImageCountLimit = imageCountLimit /* total image count limit */
+                      - 1 /* one intro image */
+                      - slideToChange.gallery.images.length; /* number of existing images */
+
+  if (newImageCountLimit < 1) {
+    alert(`Can't upload any more images. Maxium number of images per slide is ${imageCountLimit}.`);
+    return;
+  } else if (newImageCountLimit < files.length) {
+    alert(`Too many images selected. Maxium number of images per slide is ${imageCountLimit}. Only the first ${newImageCountLimit > 1 ? `${newImageCountLimit} images` : "image"} will be uploaded.`);
+    selectedImages = selectedImages.slice(0, newImageCountLimit);
+  }
 
   // Second, load the selected images to get their other data (widths, heights) and add them to this slide
   for (const selectedImage of selectedImages) {
