@@ -58,7 +58,7 @@ const showNewGalleryImgButton = computed(() => {
   if (props.gallery.style === "grid" && props.gallery.images && props.gallery.images.length >= 4)
     return false;
 
-  if (props.gallery.images.length >= 19) /* Limit upload to 19 gallery images (makes 20 with the intro image) */
+  if (props.gallery.images && props.gallery.images.length >= 19) /* Limit upload to 19 gallery images (makes 20 with the intro image) */
     return false;
 
   return true;
