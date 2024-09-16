@@ -81,19 +81,14 @@ export async function insertOneSlide(adventureId, imgExt, width, height) {
           transition: 0
         }
 
-  try {
-    await adventuresColl.updateOne(
-      { _id: new ObjectId(adventureId) },
-      { $push: { slides: newSlide } }
-    )
+  await adventuresColl.updateOne(
+    { _id: new ObjectId(adventureId) },
+    { $push: { slides: newSlide } }
+  )
 
-    console.log(`Inserted slide '${newSlideId}' into adventure ${adventureId}`)
+  console.log(`Inserted slide '${newSlideId}' into adventure ${adventureId}`)
 
-    return { newSlideId, mainImg: mainImgSrc }
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  return { newSlideId, mainImg: mainImgSrc }
 }
 
 export async function removeOneSlide(adventureId, slideId) {
@@ -101,57 +96,52 @@ export async function removeOneSlide(adventureId, slideId) {
         adventureIdObj = new ObjectId(adventureId),
         orphanedImages = []
   
-  try {
-    // Find the adventure doc by its ID and return only the slide with the specified ID
-    const foundAdventure = await adventuresColl.findOne(
-      { _id: adventureIdObj, "slides.id": slideId },
-      { projection: { "slides.$": 1 } }
-    )
+  // Find the adventure doc by its ID and return only the slide with the specified ID
+  const foundAdventure = await adventuresColl.findOne(
+    { _id: adventureIdObj, "slides.id": slideId },
+    { projection: { "slides.$": 1 } }
+  )
 
-    const slideTextsAggregate = await adventuresColl.aggregate([
-      { $match: { _id: adventureIdObj } },
-      { $unwind: "$slides" },
-      { $match: { "slides.id": slideId } },
-      { 
-        $project: slideTextModuleFields.reduce((projectDoc, textModuleField) => {
-          projectDoc[textModuleField] = 1
-          return projectDoc
-        }, { "_id": 0 })
-      }
-    ]).next()
+  const slideTextsAggregate = await adventuresColl.aggregate([
+    { $match: { _id: adventureIdObj } },
+    { $unwind: "$slides" },
+    { $match: { "slides.id": slideId } },
+    { 
+      $project: slideTextModuleFields.reduce((projectDoc, textModuleField) => {
+        projectDoc[textModuleField] = 1
+        return projectDoc
+      }, { "_id": 0 })
+    }
+  ]).next()
 
-    if (slideTextsAggregate)
-      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideTextsAggregate))
+  if (slideTextsAggregate)
+    await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideTextsAggregate))
 
-    // Collect all images that are referenced in the slide to be removed
-    if (foundAdventure.slides && foundAdventure.slides.length > 0) {
-      const oldSlide = foundAdventure.slides[0]
+  // Collect all images that are referenced in the slide to be removed
+  if (foundAdventure.slides && foundAdventure.slides.length > 0) {
+    const oldSlide = foundAdventure.slides[0]
 
-      if (oldSlide.mainImg && oldSlide.mainImg.src)
-        orphanedImages.push(oldSlide.mainImg.src)
+    if (oldSlide.mainImg && oldSlide.mainImg.src)
+      orphanedImages.push(oldSlide.mainImg.src)
 
-      if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
-        for (let galleryImg of oldSlide.gallery.images) {
-          if (galleryImg.src)
-            orphanedImages.push(galleryImg.src)
-        }
+    if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
+      for (let galleryImg of oldSlide.gallery.images) {
+        if (galleryImg.src)
+          orphanedImages.push(galleryImg.src)
       }
     }
-
-    // Do the actual doc update
-    await adventuresColl.updateOne(
-      { _id: adventureIdObj },
-      {
-        $pull: { slides: { id: slideId } } // Remove the slide with the specified ID
-      }
-    )
-
-    console.log(`Removed slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
-    return orphanedImages
-  } catch (ex) {
-    console.error(ex)
-    throw ex
   }
+
+  // Do the actual doc update
+  await adventuresColl.updateOne(
+    { _id: adventureIdObj },
+    {
+      $pull: { slides: { id: slideId } } // Remove the slide with the specified ID
+    }
+  )
+
+  console.log(`Removed slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
+  return orphanedImages
 }
 
 export async function updateOneSlide(adventureId, slideId, props) {
@@ -165,7 +155,7 @@ export async function updateOneSlide(adventureId, slideId, props) {
 
   for (const prop of Object.keys(props)) {
     const propValue = props[prop]
-    let propDbValue;
+    let propDbValue
 
     if (/true|false/i.test(propValue))
       propDbValue = propValue.toLowerCase() === "true"
@@ -177,67 +167,56 @@ export async function updateOneSlide(adventureId, slideId, props) {
     updateDocument.$set[`slides.$.${prop}`] =  propDbValue
   }
 
-  try {
-    await adventuresColl.updateOne(
-      {
-        _id: new ObjectId(adventureId),
-        "slides.id": slideId
-      },
-      updateDocument
-    )
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  await adventuresColl.updateOne(
+    {
+      _id: new ObjectId(adventureId),
+      "slides.id": slideId
+    },
+    updateDocument
+  )
 }
 
 export async function insertOneAdventure(data) {
-  const adventuresColl = getCollection("adventures")
+  const adventuresColl = getCollection("adventures"),
+        langs = [data.activeLang || "en"]
 
-  try {
-    const langs = [data.activeLang || "en"]
+  langs.push(...Object.keys(data.multiLangData))
 
-    langs.push(...Object.keys(data.multiLangData))
+  const adventureDoc = {
+    slides: [],
+    meta: {
+      fallbackLang: data.fallbackLang || langs[0],
+      urlPath: sanitizeUrlPath(data.urlPath),
+      title: "meta_title",
+      author: {
+        madeBy: "meta_author_madeBy",
+        content: "meta_author_content"
+      }
+    },
+    messages: langs.reduce((msgs, lang) => {
+      const langData = lang === data.activeLang 
+                        || Object.keys(data.multiLangData).length < 1 
+                        ? data
+                        : data.multiLangData[lang]
 
-    const adventureDoc = {
-      slides: [],
-      meta: {
-        fallbackLang: data.fallbackLang || langs[0],
-        urlPath: sanitizeUrlPath(data.urlPath),
-        title: "meta_title",
-        author: {
-          madeBy: "meta_author_madeBy",
-          content: "meta_author_content"
-        }
-      },
-      messages: langs.reduce((msgs, lang) => {
-        const langData = lang === data.activeLang 
-                          || Object.keys(data.multiLangData).length < 1 
-                          ? data
-                          : data.multiLangData[lang]
+      msgs[lang] = {
+        "meta_title": langData.title || "Adventure",
+        "meta_author_madeBy": langData.author || "",
+        "meta_author_content": langData.authorText || ""
+      }
 
-        msgs[lang] = {
-          "meta_title": langData.title || "Adventure",
-          "meta_author_madeBy": langData.author || "",
-          "meta_author_content": langData.authorText || ""
-        }
-
-        return msgs
-      }, {})
-    }
-
-    const res = await adventuresColl.insertOne(adventureDoc)
-
-    console.log(`An adventure was inserted with the _id: ${res.insertedId}`)
-  } catch (ex) {
-    console.error(ex)
-    throw ex
+      return msgs
+    }, {})
   }
+
+  const res = await adventuresColl.insertOne(adventureDoc)
+
+  console.log(`An adventure was inserted with the _id: ${res.insertedId}`)
 }
 
 export async function updateOneAdventure(adventureId, props, isFullAdventure) {
   function getPropDbValue(propValue) {
-    let propDbValue;
+    let propDbValue
   
     if (/true|false/i.test(propValue))
       propDbValue = propValue.toLowerCase() === "true"
@@ -257,11 +236,11 @@ export async function updateOneAdventure(adventureId, props, isFullAdventure) {
 
     langs.push(...Object.keys(props.multiLangData))
 
-    updateDocument.$set["meta.fallbackLang"] = getPropDbValue(props.fallbackLang || langs[0]);
-    updateDocument.$set["meta.urlPath"] = getPropDbValue(sanitizeUrlPath(props.urlPath));
-    updateDocument.$set["meta.title"] = "meta_title";
-    updateDocument.$set["meta.author.madeBy"] = "meta_author_madeBy";
-    updateDocument.$set["meta.author.content"] = "meta_author_content";
+    updateDocument.$set["meta.fallbackLang"] = getPropDbValue(props.fallbackLang || langs[0])
+    updateDocument.$set["meta.urlPath"] = getPropDbValue(sanitizeUrlPath(props.urlPath))
+    updateDocument.$set["meta.title"] = "meta_title"
+    updateDocument.$set["meta.author.madeBy"] = "meta_author_madeBy"
+    updateDocument.$set["meta.author.content"] = "meta_author_content"
 
     for (const lang of langs) {
       const langData = lang === props.activeLang 
@@ -269,9 +248,9 @@ export async function updateOneAdventure(adventureId, props, isFullAdventure) {
                           ? props
                           : props.multiLangData[lang]
 
-      updateDocument.$set[`messages.${lang}.meta_title`] = getPropDbValue(langData.title || "Adventure");
-      updateDocument.$set[`messages.${lang}.meta_author_madeBy`] = getPropDbValue(langData.author || "");
-      updateDocument.$set[`messages.${lang}.meta_author_content`] = getPropDbValue(langData.authorText || "");
+      updateDocument.$set[`messages.${lang}.meta_title`] = getPropDbValue(langData.title || "Adventure")
+      updateDocument.$set[`messages.${lang}.meta_author_madeBy`] = getPropDbValue(langData.author || "")
+      updateDocument.$set[`messages.${lang}.meta_author_content`] = getPropDbValue(langData.authorText || "")
     }
   } else {
     for (const prop of Object.keys(props)) {
@@ -279,17 +258,12 @@ export async function updateOneAdventure(adventureId, props, isFullAdventure) {
     }
   }
 
-  try {
-    await adventuresColl.updateOne(
-      {
-        _id: new ObjectId(adventureId)
-      },
-      updateDocument
-    )
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  await adventuresColl.updateOne(
+    {
+      _id: new ObjectId(adventureId)
+    },
+    updateDocument
+  )
 }
 
 export async function deleteOneAdventure(adventureId) {
@@ -299,18 +273,13 @@ export async function deleteOneAdventure(adventureId) {
           _id: new ObjectId(adventureId)
        }
 
-  try {
-    const existingAdventure = await adventuresColl.findOne(adventureDoc)
+  const existingAdventure = await adventuresColl.findOne(adventureDoc)
 
-    await deletedAdventuresColl.insertOne(existingAdventure)
-    console.log(`Moved adventure ${adventureId} to deleted_adventures collection`)
+  await deletedAdventuresColl.insertOne(existingAdventure)
+  console.log(`Moved adventure ${adventureId} to deleted_adventures collection`)
 
-    await adventuresColl.deleteOne(adventureDoc)
-    console.log(`Deleted adventure ${adventureId} from adventures collection`)
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  await adventuresColl.deleteOne(adventureDoc)
+  console.log(`Deleted adventure ${adventureId} from adventures collection`)
 }
 
 export async function updateOneSlideContent(adventureId, slideId, slideContent, locale) {
@@ -341,22 +310,17 @@ export async function updateOneSlideContent(adventureId, slideId, slideContent, 
   if (Object.keys(updateDocument.$set).length < 1)
     return
 
-  try {
-    const adventuresColl = getCollection("adventures"),
-          res = await adventuresColl.updateOne(
-            {
-              _id: new ObjectId(adventureId),
-              "slides.id": slideId
-            },
-            updateDocument
-          )
+  const adventuresColl = getCollection("adventures"),
+        res = await adventuresColl.updateOne(
+          {
+            _id: new ObjectId(adventureId),
+            "slides.id": slideId
+          },
+          updateDocument
+        )
 
-    if (res.matchedCount !== 1)
-      throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  if (res.matchedCount !== 1)
+    throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
 }
 
 export async function updateOneRemoveSlideContent(adventureId, slideId) {
@@ -364,61 +328,56 @@ export async function updateOneRemoveSlideContent(adventureId, slideId) {
         adventureIdObj = new ObjectId(adventureId),
         orphanedImages = []
   
-  try {
-    // Find the adventure doc by its ID and return only the slide with the specified ID
-    const foundAdventure = await adventuresColl.findOne(
-      { _id: adventureIdObj, "slides.id": slideId },
-      { projection: { "slides.$": 1 } }
-    )
+  // Find the adventure doc by its ID and return only the slide with the specified ID
+  const foundAdventure = await adventuresColl.findOne(
+    { _id: adventureIdObj, "slides.id": slideId },
+    { projection: { "slides.$": 1 } }
+  )
 
-    const slideContentTextsAggregate = await adventuresColl.aggregate([
-      { $match: { _id: adventureIdObj } },
-      { $unwind: "$slides" },
-      { $match: { "slides.id": slideId } },
-      { 
-        $project: slideContentTextModuleFields.reduce((projectDoc, textModuleField) => {
-          projectDoc[textModuleField] = 1
-          return projectDoc
-        }, { "_id": 0 })
-      }
-    ]).next()
+  const slideContentTextsAggregate = await adventuresColl.aggregate([
+    { $match: { _id: adventureIdObj } },
+    { $unwind: "$slides" },
+    { $match: { "slides.id": slideId } },
+    { 
+      $project: slideContentTextModuleFields.reduce((projectDoc, textModuleField) => {
+        projectDoc[textModuleField] = 1
+        return projectDoc
+      }, { "_id": 0 })
+    }
+  ]).next()
 
-    if (slideContentTextsAggregate)
-      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideContentTextsAggregate))
+  if (slideContentTextsAggregate)
+    await removeTexts(adventuresColl, adventureId, getPrimitiveValues(slideContentTextsAggregate))
 
-    // Collect all gallery images that are referenced in the slide
-    if (foundAdventure.slides && foundAdventure.slides.length > 0) {
-      const oldSlide = foundAdventure.slides[0]
+  // Collect all gallery images that are referenced in the slide
+  if (foundAdventure.slides && foundAdventure.slides.length > 0) {
+    const oldSlide = foundAdventure.slides[0]
 
-      if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
-        for (let galleryImg of oldSlide.gallery.images) {
-          if (galleryImg.src)
-            orphanedImages.push(galleryImg.src)
-        }
+    if (oldSlide.gallery && Array.isArray(oldSlide.gallery.images)) {
+      for (let galleryImg of oldSlide.gallery.images) {
+        if (galleryImg.src)
+          orphanedImages.push(galleryImg.src)
       }
     }
-
-    // Do the actual doc update
-    await adventuresColl.updateOne(
-      {
-        _id: adventureIdObj,
-        "slides.id": slideId
-      },
-      {
-        $unset: {
-          "slides.$.headline": "",
-          "slides.$.content": "",
-          "slides.$.gallery": ""
-        }
-      }
-    )
-
-    console.log(`Removed content of slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
-    return orphanedImages
-  } catch (ex) {
-    console.error(ex)
-    throw ex
   }
+
+  // Do the actual doc update
+  await adventuresColl.updateOne(
+    {
+      _id: adventureIdObj,
+      "slides.id": slideId
+    },
+    {
+      $unset: {
+        "slides.$.headline": "",
+        "slides.$.content": "",
+        "slides.$.gallery": ""
+      }
+    }
+  )
+
+  console.log(`Removed content of slide '${slideId}' from adventure ${adventureId}${orphanedImages.length > 0 ? ` -- orphaned images: ${orphanedImages.join(", ")}` : ""}`)
+  return orphanedImages
 }
 
 export async function updateOneSlideGallery(adventureId, slideId, galleryProps) {
@@ -432,268 +391,218 @@ export async function updateOneSlideGallery(adventureId, slideId, galleryProps) 
   if (Object.keys(updateDocument.$set).length < 1)
     return
 
-  try {
-    const adventuresColl = getCollection("adventures"),
-          res = await adventuresColl.updateOne({
-      _id: new ObjectId(adventureId),
-      "slides.id": slideId
-    }, updateDocument)
+  const adventuresColl = getCollection("adventures"),
+        res = await adventuresColl.updateOne({
+    _id: new ObjectId(adventureId),
+    "slides.id": slideId
+  }, updateDocument)
 
-    if (res.matchedCount !== 1)
-      throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  if (res.matchedCount !== 1)
+    throw new Error(`no slide '${slideId}' in adventure '${adventureId}' to update`)
 }
 
 export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, imgWidth, imgHeight) {
-  try {
-    const adventuresColl = getCollection("adventures"),
-          galleryImgSrc = `${slideId}_gallery-${getRandomId()}${imgExt}`,
-          adventureIdObj = new ObjectId(adventureId),
-          adventure = await adventuresColl.findOne({
-            _id: adventureIdObj,
-            "slides.id": slideId
-          }, {
-            projection: { "slides.$": 1 }
-          }),
-          images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
+  const adventuresColl = getCollection("adventures"),
+        galleryImgSrc = `${slideId}_gallery-${getRandomId()}${imgExt}`,
+        adventureIdObj = new ObjectId(adventureId),
+        adventure = await adventuresColl.findOne({
+          _id: adventureIdObj,
+          "slides.id": slideId
+        }, {
+          projection: { "slides.$": 1 }
+        }),
+        images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
 
-    if (images && images.length >= 19)
-      throw new Error(`Gallery is already full (${images.length} images)`)
+  if (images && images.length >= 19)
+    throw new Error(`Gallery is already full (${images.length} images)`)
 
-    await adventuresColl.updateOne({
-      _id: adventureIdObj,
-      "slides.id": slideId
-    }, {
-      $push: {
-        "slides.$.gallery.images": {
-          src: galleryImgSrc,
-          width: imgWidth,
-          height: imgHeight
-        }
+  await adventuresColl.updateOne({
+    _id: adventureIdObj,
+    "slides.id": slideId
+  }, {
+    $push: {
+      "slides.$.gallery.images": {
+        src: galleryImgSrc,
+        width: imgWidth,
+        height: imgHeight
       }
-    })
+    }
+  })
 
-    return galleryImgSrc
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  return galleryImgSrc
 }
 
 export async function updateOneSlideGalleryAddImgCaption(adventureId, slideId, imgId, captionTextModule) {
-  try {
-    const adventuresColl = getCollection("adventures"),
-          adventureIdObj = new ObjectId(adventureId)
+  const adventuresColl = getCollection("adventures"),
+        adventureIdObj = new ObjectId(adventureId)
 
-    if (imgId === null) {
-      // Main image caption
-      await adventuresColl.updateOne({ 
-        _id: adventureIdObj,
-        "slides.id": slideId
-      }, {
-        $set: {
-          "slides.$.mainImg.caption": captionTextModule
-        }
-      })
-    } else {
-      // Gallery image caption
-      const imgIdRegex = { $regex: new RegExp(escapeRegExp(imgId)) }
+  if (imgId === null) {
+    // Main image caption
+    await adventuresColl.updateOne({ 
+      _id: adventureIdObj,
+      "slides.id": slideId
+    }, {
+      $set: {
+        "slides.$.mainImg.caption": captionTextModule
+      }
+    })
+  } else {
+    // Gallery image caption
+    const imgIdRegex = { $regex: new RegExp(escapeRegExp(imgId)) }
 
-      await adventuresColl.updateOne({ 
-        _id: adventureIdObj,
-        "slides.id": slideId,
-        "slides.gallery.images.src": imgIdRegex
-      }, {
-        $set: {
-          "slides.$[slideElem].gallery.images.$[imageElem].caption": captionTextModule
-        }
-      }, {
-        arrayFilters: [
-          { "slideElem.id": slideId},
-          { "imageElem.src": imgIdRegex }
-        ]
-      })
-    }
-  } catch (ex) {
-    console.error(ex)
-    throw ex
+    await adventuresColl.updateOne({ 
+      _id: adventureIdObj,
+      "slides.id": slideId,
+      "slides.gallery.images.src": imgIdRegex
+    }, {
+      $set: {
+        "slides.$[slideElem].gallery.images.$[imageElem].caption": captionTextModule
+      }
+    }, {
+      arrayFilters: [
+        { "slideElem.id": slideId},
+        { "imageElem.src": imgIdRegex }
+      ]
+    })
   }
 }
 
 export async function updateOneSlideGalleryRemoveImg(adventureId, slideId, img) {
-  try {
-    const adventuresColl = getCollection("adventures"),
-          adventureIdObj = new ObjectId(adventureId),
-          imgRegex = new RegExp(escapeRegExp(img)),
-          captionTextsAggregate = await adventuresColl.aggregate([
-            { $match: { _id: adventureIdObj } },
-            { $unwind: "$slides" },
-            { $match: { "slides.id": slideId }},
-            { $unwind: "$slides.gallery.images" },
-            { $match: { "slides.gallery.images.src": { $regex: imgRegex } } },
-            { $project: { _id: 0, "slides.gallery.images.caption": 1 } }
-          ]).next()
+  const adventuresColl = getCollection("adventures"),
+        adventureIdObj = new ObjectId(adventureId),
+        imgRegex = new RegExp(escapeRegExp(img)),
+        captionTextsAggregate = await adventuresColl.aggregate([
+          { $match: { _id: adventureIdObj } },
+          { $unwind: "$slides" },
+          { $match: { "slides.id": slideId }},
+          { $unwind: "$slides.gallery.images" },
+          { $match: { "slides.gallery.images.src": { $regex: imgRegex } } },
+          { $project: { _id: 0, "slides.gallery.images.caption": 1 } }
+        ]).next()
 
-    if (captionTextsAggregate)
-      await removeTexts(adventuresColl, adventureId, getPrimitiveValues(captionTextsAggregate))
+  if (captionTextsAggregate)
+    await removeTexts(adventuresColl, adventureId, getPrimitiveValues(captionTextsAggregate))
 
-    await adventuresColl.updateOne({
-      _id: adventureIdObj,
-      "slides.id": slideId
-    }, {
-      $pull: {
-        "slides.$.gallery.images": {
-          src: {
-            $regex: imgRegex
-          }
+  await adventuresColl.updateOne({
+    _id: adventureIdObj,
+    "slides.id": slideId
+  }, {
+    $pull: {
+      "slides.$.gallery.images": {
+        src: {
+          $regex: imgRegex
         }
       }
-    })
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+    }
+  })
 }
 
 export async function updateOneSlideGalleryMoveImg(adventureId, slideId, imageId, direction) {
-  try {
-    const adventuresColl = getCollection("adventures"),
-          adventureIdObj = new ObjectId(adventureId),
-          adventure = await adventuresColl.findOne({ 
-            _id: adventureIdObj,
-            "slides.id": slideId
-          }, {
-            projection: { "slides.$": 1 }
-          }),
-          images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
-
-    if (images) {
-      const imgToMoveRegex = new RegExp(escapeRegExp(imageId)),
-            imgToMoveIdx = images.findIndex(img => imgToMoveRegex.test(img.src)),
-            neighborimgIdx = imgToMoveIdx + (direction === "prev" ? -1 : 1),
-            neighborImg = neighborimgIdx >= 0 && neighborimgIdx < images.length && images[neighborimgIdx]      
-
-      if (neighborImg) {
-        images.sort((a, b) => {
-          if (a.src === neighborImg.src && imgToMoveRegex.test(b.src))
-              return direction === "prev" ? 1 : -1;
-
-          if (b.src === neighborImg.src && imgToMoveRegex.test(a.src))
-            return direction === "prev" ? -1 : 1;
-
-          return 0;
-        });
-
-        await adventuresColl.updateOne({
+  const adventuresColl = getCollection("adventures"),
+        adventureIdObj = new ObjectId(adventureId),
+        adventure = await adventuresColl.findOne({ 
           _id: adventureIdObj,
           "slides.id": slideId
         }, {
-          $set: {
-            "slides.$.gallery.images": images
-          }
-        })
+          projection: { "slides.$": 1 }
+        }),
+        images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
 
-        console.log(`moved ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
-      } else {
-        throw new Error(`can't move ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
-      }
+  if (images) {
+    const imgToMoveRegex = new RegExp(escapeRegExp(imageId)),
+          imgToMoveIdx = images.findIndex(img => imgToMoveRegex.test(img.src)),
+          neighborimgIdx = imgToMoveIdx + (direction === "prev" ? -1 : 1),
+          neighborImg = neighborimgIdx >= 0 && neighborimgIdx < images.length && images[neighborimgIdx]      
+
+    if (neighborImg) {
+      images.sort((a, b) => {
+        if (a.src === neighborImg.src && imgToMoveRegex.test(b.src))
+            return direction === "prev" ? 1 : -1
+
+        if (b.src === neighborImg.src && imgToMoveRegex.test(a.src))
+          return direction === "prev" ? -1 : 1
+
+        return 0
+      })
+
+      await adventuresColl.updateOne({
+        _id: adventureIdObj,
+        "slides.id": slideId
+      }, {
+        $set: {
+          "slides.$.gallery.images": images
+        }
+      })
+
+      console.log(`moved ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
+    } else {
+      throw new Error(`can't move ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.src})`)
     }
-  } catch (ex) {
-    console.error(ex)
-    throw ex
   }
 }
 
 export async function updateOneText(adventureId, textModule, locale, newText) {
-  try {
-    const adventuresColl = getCollection("adventures"),
-          res = await adventuresColl.updateOne({
-            _id: new ObjectId(adventureId)
-          }, {
-            [newText === "" ? "$unset" : "$set"]: {
-              [`messages.${locale}.${textModule}`]: newText
-            }
-          })
+  const adventuresColl = getCollection("adventures"),
+        res = await adventuresColl.updateOne({
+          _id: new ObjectId(adventureId)
+        }, {
+          [newText === "" ? "$unset" : "$set"]: {
+            [`messages.${locale}.${textModule}`]: newText
+          }
+        })
 
-    return res.matchedCount > 0
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  return res.matchedCount > 0
 }
 
 export async function findAdventures() {
   const adventuresColl = getCollection("adventures"),
-        adventuresCursor = adventuresColl.find()
+        adventuresCursor = adventuresColl.find(),
+        adventureList = await adventuresCursor.toArray()
 
-  try {
-    const adventureList = await adventuresCursor.toArray()
-    // console.log(`Adventures: ${JSON.stringify(res)}`)
-    return adventureList.map(adventure => {
-      adventure.id = adventure._id.toHexString()
-      delete adventure._id
-      return adventure
-    });
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  // console.log(`Adventures: ${JSON.stringify(res)}`)
+
+  return adventureList.map(adventure => {
+    adventure.id = adventure._id.toHexString()
+    delete adventure._id
+    return adventure
+  })
 }
 
 export async function findAdventure(urlPath) {
-  const adventuresColl = getCollection("adventures")
+  const adventuresColl = getCollection("adventures"),
+        adventure = await adventuresColl.findOne({ "meta.urlPath": urlPath } )
 
-  try {
-    const adventure = await adventuresColl.findOne({ "meta.urlPath": urlPath } )
+  if (adventure == null)
+    return null
 
-    if (adventure == null)
-      return null
-
-    adventure.meta.id = adventure._id.toHexString()
-    delete adventure._id
-    return adventure
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  adventure.meta.id = adventure._id.toHexString()
+  delete adventure._id
+  return adventure
 }
 
 export async function findAdventureDeploymentPath(adventureId) {
   const adventuresColl = getCollection("adventures")
 
-  try {
-    const res = await adventuresColl.findOne(
-      { _id: new ObjectId(adventureId) },
-      { projection: { "meta.urlPath": 1, _id: 0 } }
-    )
+  const res = await adventuresColl.findOne(
+    { _id: new ObjectId(adventureId) },
+    { projection: { "meta.urlPath": 1, _id: 0 } }
+  )
 
-    if (res && res.meta && res.meta.urlPath)
-      return res.meta.urlPath
+  if (res && res.meta && res.meta.urlPath)
+    return res.meta.urlPath
 
-    throw new Error(`adventure with ID ${adventureId} not found or it doesn't contain meta.urlPath`)
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+  throw new Error(`adventure with ID ${adventureId} not found or it doesn't contain meta.urlPath`)
 }
 
 export async function findImgReference(adventureId, imgName) {
   const adventuresColl = getCollection("adventures"),
         imgRegex = new RegExp(`^${escapeRegExp(imgName)}(\\.(jpg|png|gif))?$`)
-        
-  try {
-    return await adventuresColl.countDocuments({
-      _id: new ObjectId(adventureId), 
-      $or: [
-        { "slides.mainImg.src": { $regex: imgRegex } },
-        { "slides.gallery.images.src": { $regex: imgRegex } }
-      ]
-    }) > 0
-  } catch (ex) {
-    console.error(ex)
-    throw ex
-  }
+
+  return await adventuresColl.countDocuments({
+    _id: new ObjectId(adventureId), 
+    $or: [
+      { "slides.mainImg.src": { $regex: imgRegex } },
+      { "slides.gallery.images.src": { $regex: imgRegex } }
+    ]
+  }) > 0
 }

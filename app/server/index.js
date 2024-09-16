@@ -328,7 +328,7 @@ async function startServer() {
     try {
       const adventureId = req.params.adventureId,
             slideId = req.params.slideId,
-            galleryImgSrc = req.body.galleryImg.replace(".jpg", "");
+            galleryImgSrc = req.body.galleryImg.replace(".jpg", "")
 
       await updateOneSlideGalleryRemoveImg(adventureId, slideId, galleryImgSrc)
 
@@ -495,7 +495,7 @@ async function startServer() {
             targetLocale = req.params.targetLocale,
             result = await translator.translateText(req.body.text, sourceLocale, targetLocale)
 
-      res.status(200).json({ok: true, translation: result.text});
+      res.status(200).json({ok: true, translation: result.text})
     } catch (ex) {
       console.error(ex)
       res.status(500).json({ok: false, message: `${ex.name}: ${ex.message}`})
