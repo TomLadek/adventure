@@ -201,15 +201,12 @@ onBeforeLeave = element => {
 
 @media (orientation: landscape) {
   .gallery-thumbs.grid {
-    display: grid;
-    overflow: visible;
-    grid-template-columns: repeat(2, 4rem);
-    grid-template-rows: repeat(2, 4rem);
-    row-gap: 0.5rem;
-    column-gap: 0.5rem;
-    align-self: start;
-    margin-top: 5px;
-    overflow: visible;
+    display: flex;
+    max-width: 8.5rem;
+    overflow: hidden;
+    align-self: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   @media (min-height: 501px) {
@@ -224,8 +221,7 @@ onBeforeLeave = element => {
     }
 
     .gallery-thumbs.grid {
-      grid-template-columns: repeat(2, 6rem);
-      grid-template-rows: repeat(2, 6rem);
+      max-width: 12.5rem;
     }
   
     .gallery-thumbs.grid .gallery-img {
@@ -247,13 +243,12 @@ onBeforeLeave = element => {
   
   @media (min-height: 768px) {
     .gallery-thumbs.grid {
-      display: grid;
-      overflow: visible;
-      grid-template-columns: repeat(2, 6rem);
-      grid-template-rows: repeat(2, 6rem);
-      row-gap: 0.5rem;
-      column-gap: 0.5rem;
+      display: flex;
+      overflow: hidden;
       align-self: center;
+      max-width: 12.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     
     .gallery-thumbs.row {
