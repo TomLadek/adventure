@@ -450,10 +450,21 @@ export async function updateOneSlideGallery(adventureId, slideId, galleryProps) 
 export async function updateOneSlideGalleryAddImg(adventureId, slideId, imgExt, imgWidth, imgHeight) {
   try {
     const adventuresColl = getCollection("adventures"),
-          galleryImgSrc = `${slideId}_gallery-${getRandomId()}${imgExt}`
+          galleryImgSrc = `${slideId}_gallery-${getRandomId()}${imgExt}`,
+          adventureIdObj = new ObjectId(adventureId),
+          adventure = await adventuresColl.findOne({
+            _id: adventureIdObj,
+            "slides.id": slideId
+          }, {
+            projection: { "slides.$": 1 }
+          }),
+          images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
+
+    if (images && images.length >= 19)
+      throw new Error(`Gallery is already full (${images.length} images)`)
 
     await adventuresColl.updateOne({
-      _id: new ObjectId(adventureId),
+      _id: adventureIdObj,
       "slides.id": slideId
     }, {
       $push: {
@@ -552,12 +563,11 @@ export async function updateOneSlideGalleryMoveImg(adventureId, slideId, imageId
     const adventuresColl = getCollection("adventures"),
           adventureIdObj = new ObjectId(adventureId),
           adventure = await adventuresColl.findOne({ 
-                        _id: adventureIdObj,
-                        "slides.id": slideId
-                      },
-                      {
-                        projection: { "slides.$": 1 }
-                      }),
+            _id: adventureIdObj,
+            "slides.id": slideId
+          }, {
+            projection: { "slides.$": 1 }
+          }),
           images = adventure.slides[0] && adventure.slides[0].gallery && adventure.slides[0].gallery.images
 
     if (images) {
