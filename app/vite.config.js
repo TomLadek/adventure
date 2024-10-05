@@ -41,6 +41,11 @@ export default defineConfig((configEnv) => {
           "$R": resourcePath
         },
       },
+      server: {
+        watch: {
+          ignored: ['**/resources/adventure/img/**']
+        }
+      },
       build: {
         reportCompressedSize: false
       },
