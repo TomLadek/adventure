@@ -42,14 +42,17 @@ const galleryThumbsClass = computed(() => {
 
 let showGalleryContainer = computed(() => props.gallery.images && props.gallery.images.length)
 
-let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}
+let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}, onDraggableElementMouseDown = () => {}, onDraggableElementTouchStart = () => {};
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
       confirmationStore = useConfirmationStore(),
       nextGalleryImgInput = ref(null),
       imgControlsExpanded = ref({}),
-      timeouts = {};
+      timeouts = {},
+      imgContainerClass = [],
+      draggableElements = ref([]),
+      draggableParent = ref(null);
 
 const showNewGalleryImgButton = computed(() => {
   if (!cmsControlsStore.editMode)
@@ -65,6 +68,8 @@ const showNewGalleryImgButton = computed(() => {
 });
 
 showGalleryContainer = computed(() => (props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
+
+let originalPointerX = 0, originalPointerY = 0, clone = null;
 
 function onChooseNextGalleryImages(files) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
@@ -101,13 +106,141 @@ onBeforeLeave = element => {
   element.style.left = `${element.offsetLeft}px`;
   element.style.top = `${element.offsetTop}px`;
 };
+
+onDraggableElementMouseDown = (i, event) => {
+  // console.log("onDraggableElementMouseDown", i, "|", event.clientX, event.clientY);
+  const element = draggableElements.value[i];
+  originalPointerX = event.clientX;
+  originalPointerY = event.clientY;
+  let mouseMoveListener;
+  let mouseUpListener;
+  const links = element.querySelectorAll("a");
+
+  mouseUpListener = (ev2) => {
+    document.removeEventListener("mouseup", mouseUpListener);
+    document.removeEventListener("mousemove", mouseMoveListener);
+    
+    if (element.viewIsDragged) {
+      console.log("drag finished");
+      element.viewIsDragged = false;
+      element.classList.remove("dragging");
+      document.documentElement.style.userSelect = null;
+      links.forEach(l => l.style.pointerEvents = null);
+
+      discardClone();
+    }
+  }
+  mouseMoveListener = (ev) => {
+    if (Math.abs(ev.clientX - originalPointerX) > 10 || Math.abs(ev.clientY - originalPointerY) > 10) {
+      if (!element.viewIsDragged) {
+        console.log("drag started");
+        element.viewIsDragged = true;
+        element.classList.add("dragging");
+        document.documentElement.style.userSelect = "none";
+        links.forEach(l => l.style.pointerEvents = "none");
+        initializeClone(element);        
+      }
+
+      moveClone(ev.clientX, ev.clientY);
+    }
+  };
+  document.addEventListener("mousemove", mouseMoveListener);
+  document.addEventListener("mouseup", mouseUpListener);
+};
+
+onDraggableElementTouchStart = (i, event) => {
+  // console.log("onDraggableElementTouchStart", i, "|", event.touches[0].clientX, event.touches[0].clientY);
+  const element = draggableElements.value[i];
+  originalPointerX = event.touches[0].clientX;
+  originalPointerY = event.touches[0].clientY;
+  let touchMoveListener;
+  let touchEndListener;
+  const links = element.querySelectorAll("a");
+
+  const touchTimeout = setTimeout(() => {
+    console.log("drag started (touch)")
+    element.viewIsDragged = true;
+    element.classList.add("dragging");
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.userSelect = "none";
+    links.forEach(l => l.style.pointerEvents = "none");
+    initializeClone(element);
+  }, 667);
+
+  touchEndListener = (ev2) => {
+    clearTimeout(touchTimeout);
+    
+    if (element.viewIsDragged) {
+      console.log("drag finished (touch)");
+      element.viewIsDragged = false;
+      element.classList.remove("dragging");
+      document.documentElement.style.userSelect = null;
+      document.body.style.overflow = null;
+      links.forEach(l => l.style.pointerEvents = null);
+      discardClone();
+    }
+  }
+  touchMoveListener = (ev) => {
+    if (!element.viewIsDragged) {
+      // console.log("touchmove", ev.touches[0].clientX, ev.touches[0].clientY);
+      clearTimeout(touchTimeout);
+      document.removeEventListener("touchmove", touchMoveListener);
+      document.removeEventListener("touchend", touchEndListener);
+    }
+
+    if (element.viewIsDragged) {
+      // console.log("dragging!", ev.touches[0].clientX, ev.touches[0].clientY);
+      moveClone(ev.touches[0].clientX, ev.touches[0].clientY);
+    }
+  };
+  document.addEventListener("touchmove", touchMoveListener);
+  document.addEventListener("touchend", touchEndListener);
+};
+
+function initializeClone(element) {
+  clone = element.cloneNode(true);
+  clone.style.position = "absolute";
+  clone.style.zIndex = 1000;
+  clone.classList.add("draggable-clone");
+  clone.style.top = `${element.offsetTop + element.parentElement.offsetTop - element.parentElement.scrollTop}px`;
+  clone.style.left = `${element.offsetLeft + element.parentElement.offsetLeft - element.parentElement.scrollLeft}px`;
+  draggableParent.value.parentElement.appendChild(clone);
+}
+
+function moveClone(currentX, currentY) {
+  if (clone) {
+    clone.style.transform = `translate(${currentX - originalPointerX}px, ${currentY - originalPointerY}px)`;
+  }
+}
+
+function discardClone() {
+  if (clone) {
+    clone.remove();
+    clone = null;
+  }
+}
+
+function switchIt() {
+  const tmp = props.gallery.images[2]
+  props.gallery.images[2] = props.gallery.images[3]
+  props.gallery.images[3] = tmp
+}
 /* /CMS */
 </script>
 
 <template>
-<div v-if="showGalleryContainer" class="gallery-thumbs" :class="galleryThumbsClass">
+<div v-if="showGalleryContainer" class="gallery-thumbs" :class="galleryThumbsClass" ref="draggableParent">
   <TransitionGroup name="image-list" @before-leave="onBeforeLeave">
-    <div class="gallery-img-container" v-for="image, i in gallery.images" @mouseenter="onImgMouseEnter(image.src)" @mouseleave="onImgMouseLeave(image.src)" :key="image.originalName ? image.originalName : image.id">
+    <div
+      v-for="image, i in gallery.images"
+      :key="image.originalName ? image.originalName : image.id"
+      class="gallery-img-container"
+      ref="draggableElements"
+      @mouseenter="onImgMouseEnter(image.src)"
+      @mouseleave="onImgMouseLeave(image.src)"
+      @mousedown="onDraggableElementMouseDown(i, $event)"
+      @touchstart="onDraggableElementTouchStart(i, $event)"
+      >
       <a
         v-bind:key="image.src"
         :href="image.src"
@@ -118,6 +251,7 @@ onBeforeLeave = element => {
         data-cropped="true"
         target="_blank"
         class="gallery-original-link"
+        draggable="false"
         >
         <img
           :src="image.src"
@@ -128,6 +262,7 @@ onBeforeLeave = element => {
           v-i18n-attr:[locale].alt="image.caption"
           class="gallery-img"
           loading="lazy"
+          draggable="false"
         />
       </a>
 
@@ -174,22 +309,26 @@ onBeforeLeave = element => {
     transform: scale(1.04);
 }
 
-.gallery-thumbs .gallery-img {
+.gallery-thumbs .gallery-img,
+.draggable-clone .gallery-img {
     transition: transform 0.3s ease-out;
 }
 
-.gallery-thumbs .gallery-original-link {
+.gallery-thumbs .gallery-original-link,
+.draggable-clone .gallery-original-link {
     overflow: hidden;
     display: block;
     border-radius: 8px;
 }
 
-.gallery-thumbs img {
+.gallery-thumbs img,
+.draggable-clone img {
   display: block;
   object-fit: cover;
 }
 
-.gallery-thumbs.row .gallery-img {
+.gallery-thumbs.row .gallery-img,
+.draggable-clone .gallery-img {
   width: auto;
   height: 4rem;
 }
@@ -229,14 +368,16 @@ onBeforeLeave = element => {
       height: 6rem;
     }    
 
-    .gallery-thumbs.row .gallery-img {
+    .gallery-thumbs.row .gallery-img,
+    .draggable-clone .gallery-img {
       height: 6rem;
     }  
   }
 }
 
 @media (orientation: portrait) {
-  .gallery-thumbs.grid .gallery-img {
+  .gallery-thumbs.grid .gallery-img,
+  .draggable-clone .gallery-img {
     width: auto;
     height: 4rem;
   }
@@ -260,7 +401,8 @@ onBeforeLeave = element => {
       height: 6rem;
     }
 
-    .gallery-thumbs.row .gallery-img {
+    .gallery-thumbs.row .gallery-img,
+    .draggable-clone .gallery-img {
       height: 6rem;
     }    
   }
@@ -268,11 +410,16 @@ onBeforeLeave = element => {
 
 
 /* CMS */
-.gallery-thumbs .gallery-img-container {
+.gallery-thumbs .gallery-img-container,
+.draggable-clone .gallery-img-container {
   position: relative;
 }
+.gallery-thumbs .gallery-img-container.dragging {
+  opacity: 0.01;
+}
 
-.gallery-thumbs .gallery-img-controls {
+.gallery-thumbs .gallery-img-controls,
+.draggable-clone .gallery-img-controls {
   position: absolute;
   top: 0;
   left: 0;
@@ -298,7 +445,8 @@ onBeforeLeave = element => {
   border-bottom-right-radius: 0;
 }
 
-.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions {
+.gallery-thumbs .gallery-img-controls .gallery-img-controls-actions,
+.draggable-clone .gallery-img-controls .gallery-img-controls-actions {
   width: max-content;
   display: flex;
   gap: 0.2rem;
@@ -316,7 +464,8 @@ onBeforeLeave = element => {
   width: 0;
 }
 
-.gallery-thumbs .gallery-img-controls button {
+.gallery-thumbs .gallery-img-controls button,
+.draggable-clone .gallery-img-controls button {
   width: 1.5rem;
   background: none;
   border: none;
@@ -326,7 +475,8 @@ onBeforeLeave = element => {
   justify-content: center;
 }
 
-.gallery-thumbs .gallery-img-controls button svg {
+.gallery-thumbs .gallery-img-controls button svg,
+.draggable-clone .gallery-img-controls button svg {
   fill: white;
 }
 
@@ -334,7 +484,8 @@ onBeforeLeave = element => {
   transition: width, 0.15s ease-out;
 }
 
-.gallery-thumbs .gallery-img-controls .button-close-container {
+.gallery-thumbs .gallery-img-controls .button-close-container,
+.draggable-clone .gallery-img-controls .button-close-container {
   display: flex;
   width: 100%;
   justify-content: flex-end;
