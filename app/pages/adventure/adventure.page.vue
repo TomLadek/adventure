@@ -484,12 +484,12 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_PROPS, 
   resolve();
 });
 
-cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMG_POSITION, async ({ slideId, imageId, direction }) => {
+cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, async ({ slideId, newOrder, ignoreModel }) => {
   const formData = new FormData();
 
-  formData.append("direction", direction);
+  formData.append("newOrder", newOrder);
 
-  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/${imageId}/move`, {
+  const res = await fetch(`/rest/adventure/${adventure.value.meta.id}/slide/${slideId}/gallery/sort`, {
     method: "POST",
     body: formData
   });
@@ -500,24 +500,16 @@ cmsControlsStore.subscribeToAction(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY
     return;
   }
 
+  if (ignoreModel)
+    return;
+
   const slideToChange = adventure.value.slides.find(slide => slide.id === slideId),
-        imgToMoveIdx = slideToChange.gallery.images.findIndex(img => img.id === imageId),
-        neighborimgIdx = imgToMoveIdx + (direction === "prev" ? -1 : 1),
-        neighborImg = neighborimgIdx >= 0 && neighborimgIdx < slideToChange.gallery.images.length && slideToChange.gallery.images[neighborimgIdx]
+        newImages = [];
 
-  // console.log(`moving ${imageId} from index ${imgToMoveIdx} to index ${neighborimgIdx} (neighbor image: ${neighborImg && neighborImg.id})`)
+  for (const idx of newOrder)
+    newImages.push(slideToChange.gallery.images[idx]);
 
-  if (neighborImg) {
-    slideToChange.gallery.images.sort((a, b) => {
-      if (a.id === neighborImg.id && b.id === imageId)
-          return direction === "prev" ? 1 : -1;
-
-      if (b.id === neighborImg.id && a.id === imageId)
-        return direction === "prev" ? -1 : 1;
-
-      return 0;
-    });
-  }
+  slideToChange.gallery.images = newImages;
 });
 
 cmsControlsStore.subscribeToAction(cmsControlsStore.actions.PUBLISH, async (_, resolve, reject) => {

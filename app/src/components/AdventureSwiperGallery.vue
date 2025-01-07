@@ -50,7 +50,7 @@ const cmsControlsStore = useCmsControlsStore(),
       nextGalleryImgInput = ref(null),
       imgControlsExpanded = ref({}),
       timeouts = {},
-      imgContainerClass = [],
+      reorderState = [],
       draggableElements = ref([]),
       draggableParent = ref(null);
 
@@ -79,10 +79,20 @@ function onChooseNextGalleryImages(files) {
 }
 
 function onMoveImage(imageId, direction) {
-  cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMG_POSITION, {
+  const imgIdx = props.gallery.images.findIndex(img => img.id === imageId),
+    newOrder = [];
+
+  for (let i = 0; i < props.gallery.images.length; i++)
+    newOrder.push(i);
+
+  newOrder.splice(imgIdx, 1);
+  newOrder.splice(direction === "prev" ? imgIdx - 1 : imgIdx + 1, 0, imgIdx);
+
+  console.log("newOrder", newOrder);
+
+  cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, {
     slideId: props.slideId,
-    imageId,
-    direction
+    newOrder
   });
 }
 
@@ -109,12 +119,16 @@ onBeforeLeave = element => {
 
 onDraggableElementMouseDown = (i, event) => {
   // console.log("onDraggableElementMouseDown", i, "|", event.clientX, event.clientY);
-  const element = draggableElements.value[i];
+  const element = draggableElements.value[i],
+    links = element.querySelectorAll("a");
+  let draggedIdx = i,
+    mouseMoveListener, mouseUpListener;
+
   originalPointerX = event.clientX;
   originalPointerY = event.clientY;
-  let mouseMoveListener;
-  let mouseUpListener;
-  const links = element.querySelectorAll("a");
+  
+  for (const i in props.gallery.images)
+    reorderState[i] = i;
 
   mouseUpListener = (ev2) => {
     document.removeEventListener("mouseup", mouseUpListener);
@@ -128,8 +142,15 @@ onDraggableElementMouseDown = (i, event) => {
       links.forEach(l => l.style.pointerEvents = null);
 
       discardClone();
+
+      cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, {
+        slideId: props.slideId,
+        newOrder: reorderState,
+        ignoreModel: true
+      });
     }
-  }
+  };
+
   mouseMoveListener = (ev) => {
     if (Math.abs(ev.clientX - originalPointerX) > 10 || Math.abs(ev.clientY - originalPointerY) > 10) {
       if (!element.viewIsDragged) {
@@ -142,20 +163,40 @@ onDraggableElementMouseDown = (i, event) => {
       }
 
       moveClone(ev.clientX, ev.clientY);
+
+      for (const elIdx in draggableElements.value) {
+        const el = draggableElements.value[elIdx];
+
+        if (el.classList.contains("dragging"))
+          continue;
+
+        const rect = el.getBoundingClientRect();
+
+        if (elIdx < draggedIdx && rect.left + window.scrollX + (rect.width / 2) > ev.clientX
+              || elIdx > draggedIdx && rect.left + window.scrollX + (rect.width / 2) < ev.clientX) {
+          switchDraggable(draggedIdx, elIdx);
+          draggedIdx = elIdx;
+        }
+      }  
     }
   };
+
   document.addEventListener("mousemove", mouseMoveListener);
   document.addEventListener("mouseup", mouseUpListener);
 };
 
 onDraggableElementTouchStart = (i, event) => {
   // console.log("onDraggableElementTouchStart", i, "|", event.touches[0].clientX, event.touches[0].clientY);
-  const element = draggableElements.value[i];
+  const element = draggableElements.value[i],
+    links = element.querySelectorAll("a");
+  let draggedIdx = i,
+    touchMoveListener, touchEndListener;
+
   originalPointerX = event.touches[0].clientX;
   originalPointerY = event.touches[0].clientY;
-  let touchMoveListener;
-  let touchEndListener;
-  const links = element.querySelectorAll("a");
+
+  for (const i in props.gallery.images)
+    reorderState[i] = i;
 
   const touchTimeout = setTimeout(() => {
     console.log("drag started (touch)")
@@ -167,7 +208,7 @@ onDraggableElementTouchStart = (i, event) => {
     initializeClone(element);
   }, 667);
 
-  touchEndListener = (ev2) => {
+  touchEndListener = () => {
     clearTimeout(touchTimeout);
     
     if (element.viewIsDragged) {
@@ -178,21 +219,43 @@ onDraggableElementTouchStart = (i, event) => {
       document.body.style.overflow = null;
       links.forEach(l => l.style.pointerEvents = null);
       discardClone();
+
+      cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, {
+        slideId: props.slideId,
+        newOrder: reorderState,
+        ignoreModel: true
+      });
     }
-  }
-  touchMoveListener = (ev) => {
-    if (!element.viewIsDragged) {
-      // console.log("touchmove", ev.touches[0].clientX, ev.touches[0].clientY);
+  };
+
+  touchMoveListener = (e) => {
+    if (element.viewIsDragged) {
+      // console.log("dragging!", e.touches[0].clientX, e.touches[0].clientY);
+      moveClone(e.touches[0].clientX, e.touches[0].clientY);
+
+      // console.log(draggableElements.value)
+      for (const elIdx in draggableElements.value) {
+        const el = draggableElements.value[elIdx];
+
+        if (el.classList.contains("dragging"))
+          continue;
+
+        const rect = el.getBoundingClientRect();
+
+        if (elIdx < draggedIdx && rect.left + window.scrollX + (rect.width / 2) > e.touches[0].clientX
+              || elIdx > draggedIdx && rect.left + window.scrollX + (rect.width / 2) < e.touches[0].clientX) {
+          switchDraggable(draggedIdx, elIdx);
+          draggedIdx = elIdx;
+        }
+      }
+    } else {
+      // console.log("touchmove", e.touches[0].clientX, e.touches[0].clientY);
       clearTimeout(touchTimeout);
       document.removeEventListener("touchmove", touchMoveListener);
       document.removeEventListener("touchend", touchEndListener);
     }
-
-    if (element.viewIsDragged) {
-      // console.log("dragging!", ev.touches[0].clientX, ev.touches[0].clientY);
-      moveClone(ev.touches[0].clientX, ev.touches[0].clientY);
-    }
   };
+
   document.addEventListener("touchmove", touchMoveListener);
   document.addEventListener("touchend", touchEndListener);
 };
@@ -220,10 +283,18 @@ function discardClone() {
   }
 }
 
-function switchIt() {
-  const tmp = props.gallery.images[2]
-  props.gallery.images[2] = props.gallery.images[3]
-  props.gallery.images[3] = tmp
+function switchDraggable(draggable1Idx, draggable2Idx) {
+  let tmp = props.gallery.images[draggable1Idx];
+  props.gallery.images[draggable1Idx] = props.gallery.images[draggable2Idx];
+  props.gallery.images[draggable2Idx] = tmp;
+
+  tmp = draggableElements.value[draggable1Idx];
+  draggableElements.value[draggable1Idx] = draggableElements.value[draggable2Idx];
+  draggableElements.value[draggable2Idx] = tmp;
+
+  tmp = reorderState[draggable1Idx];
+  reorderState[draggable1Idx] = reorderState[draggable2Idx];
+  reorderState[draggable2Idx] = tmp;
 }
 /* /CMS */
 </script>
@@ -356,7 +427,7 @@ function switchIt() {
   
   @media (min-height: 600px) {
     .gallery-thumbs.row {
-      min-height: calc(6rem + 10px);
+      padding-bottom: 5px;
     }
 
     .gallery-thumbs.grid {
@@ -393,7 +464,7 @@ function switchIt() {
     }
     
     .gallery-thumbs.row {
-      min-height: calc(6rem + 10px);
+      padding-bottom: 10px;
     }
 
     .gallery-thumbs.grid .gallery-img {

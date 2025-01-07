@@ -87,7 +87,7 @@ async function startServer() {
     updateOneSlideGallery,
     updateOneSlideGalleryAddImg,
     updateOneSlideGalleryRemoveImg,
-    updateOneSlideGalleryMoveImg,
+    updateOneSlideGallerySort,
     updateOneSlideGalleryAddImgCaption,
     updateOneRemoveSlideContent,
     updateOneText,
@@ -396,14 +396,13 @@ async function startServer() {
     }
   })
 
-  // Move gallery image to prev/next position
-  app.post('/rest/adventure/:adventureId/slide/:slideId/gallery/:imageId/move', upload.fields(["direction"]), async (req, res) => {
+  // Sort gallery images into a new order
+  app.post('/rest/adventure/:adventureId/slide/:slideId/gallery/sort', upload.fields(["newOrder"]), async (req, res) => {
     try {
       const adventureId = req.params.adventureId,
-            slideId = req.params.slideId,
-            imageId = req.params.imageId
+            slideId = req.params.slideId
 
-      await updateOneSlideGalleryMoveImg(adventureId, slideId, imageId, req.body.direction)
+      await updateOneSlideGallerySort(adventureId, slideId, req.body.newOrder.split(","))
 
       res.status(200).json({ok: true})
     } catch (ex) {

@@ -39,7 +39,7 @@ export const useCmsControlsStore = defineStore("cmsControls", () => {
           CHANGE_SLIDE_MAIN_IMG: "changeSlideMainImg",
           CHANGE_SLIDE_CONTENT_POSITION: "changeSlideContentPosition",
           CHANGE_SLIDE_GALLERY_STYLE: "changeSlideGalleryStyle",
-          CHANGE_SLIDE_GALLERY_IMG_POSITION: "changeSlideGalleryImgPosition",
+          CHANGE_SLIDE_GALLERY_IMAGE_ORDER: "changeSlideGalleryImgOrder",
           CHANGE_SLIDE_PROPS: "changeSlideProps",
           DEL_SLIDE_CONTENT: "removeSlideContent",
           PUBLISH: "publish",
