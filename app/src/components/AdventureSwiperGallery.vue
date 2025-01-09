@@ -42,7 +42,12 @@ const galleryThumbsClass = computed(() => {
 
 let showGalleryContainer = computed(() => props.gallery.images && props.gallery.images.length)
 
-let onImgMouseEnter = () => {}, onImgMouseLeave = () => {}, onBeforeLeave = () => {}, onDraggableElementMouseDown = () => {}, onDraggableElementTouchStart = () => {};
+let draggableClass = undefined,
+  onImgMouseEnter = () => {},
+  onImgMouseLeave = () => {},
+  onBeforeLeave = () => {},
+  onDraggableElementMouseDown = () => {},
+  onDraggableElementTouchStart = () => {};
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
@@ -116,6 +121,13 @@ onBeforeLeave = element => {
   element.style.left = `${element.offsetLeft}px`;
   element.style.top = `${element.offsetTop}px`;
 };
+
+draggableClass = computed(() => {
+  if (typeof props.gallery.style === "undefined")
+    return 'draggable-row-item';
+  else
+    return `draggable-${props.gallery.style}-item`;
+});
 
 onDraggableElementMouseDown = (i, event) => {
   // console.log("onDraggableElementMouseDown", i, "|", event.clientX, event.clientY);
@@ -265,6 +277,7 @@ function initializeClone(element) {
   clone.style.position = "absolute";
   clone.style.zIndex = 1000;
   clone.classList.add("draggable-clone");
+  clone.classList.add(element.dataset.draggableClass);
   clone.style.top = `${element.offsetTop + element.parentElement.offsetTop - element.parentElement.scrollTop}px`;
   clone.style.left = `${element.offsetLeft + element.parentElement.offsetLeft - element.parentElement.scrollLeft}px`;
   draggableParent.value.parentElement.appendChild(clone);
@@ -306,6 +319,7 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
       v-for="image, i in gallery.images"
       :key="image.originalName ? image.originalName : image.id"
       class="gallery-img-container"
+      :data-draggable-class="draggableClass"
       ref="draggableElements"
       @mouseenter="onImgMouseEnter(image.src)"
       @mouseleave="onImgMouseLeave(image.src)"
@@ -399,12 +413,13 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
 }
 
 .gallery-thumbs.row .gallery-img,
-.draggable-clone .gallery-img {
+.draggable-clone.draggable-row-item .gallery-img {
   width: auto;
   height: 4rem;
 }
 
-.gallery-thumbs.grid .gallery-img {
+.gallery-thumbs.grid .gallery-img,
+.draggable-clone.draggable-grid-item .gallery-img {
   width: 4rem;
   height: 4rem;
 }
@@ -434,13 +449,14 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
       max-width: 12.5rem;
     }
   
-    .gallery-thumbs.grid .gallery-img {
+    .gallery-thumbs.grid .gallery-img,
+    .draggable-clone.draggable-grid-item .gallery-img {
       width: 6rem;
       height: 6rem;
     }    
 
     .gallery-thumbs.row .gallery-img,
-    .draggable-clone .gallery-img {
+    .draggable-clone.draggable-row-item .gallery-img {
       height: 6rem;
     }  
   }
@@ -448,7 +464,7 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
 
 @media (orientation: portrait) {
   .gallery-thumbs.grid .gallery-img,
-  .draggable-clone .gallery-img {
+  .draggable-clone.draggable-grid-item .gallery-img {
     width: auto;
     height: 4rem;
   }
@@ -467,13 +483,14 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
       padding-bottom: 10px;
     }
 
-    .gallery-thumbs.grid .gallery-img {
+    .gallery-thumbs.grid .gallery-img,
+    .draggable-clone.draggable-grid-item .gallery-img {
       width: 6rem;
       height: 6rem;
     }
 
     .gallery-thumbs.row .gallery-img,
-    .draggable-clone .gallery-img {
+    .draggable-clone.draggable-row-item .gallery-img {
       height: 6rem;
     }    
   }
