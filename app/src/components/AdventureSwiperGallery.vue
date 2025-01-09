@@ -130,6 +130,9 @@ draggableClass = computed(() => {
 });
 
 onDraggableElementMouseDown = (i, event) => {
+  if (!cmsControlsStore.editMode)
+    return;
+
   // console.log("onDraggableElementMouseDown", i, "|", event.clientX, event.clientY);
   const element = draggableElements.value[i],
     links = element.querySelectorAll("a");
@@ -198,6 +201,9 @@ onDraggableElementMouseDown = (i, event) => {
 };
 
 onDraggableElementTouchStart = (i, event) => {
+  if (!cmsControlsStore.editMode)
+    return;
+
   // console.log("onDraggableElementTouchStart", i, "|", event.touches[0].clientX, event.touches[0].clientY);
   const element = draggableElements.value[i],
     links = element.querySelectorAll("a");
