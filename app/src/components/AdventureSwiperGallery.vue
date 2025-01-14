@@ -57,7 +57,8 @@ const cmsControlsStore = useCmsControlsStore(),
       timeouts = {},
       reorderState = [],
       draggableElements = ref([]),
-      draggableParent = ref(null);
+      draggableParent = ref(null),
+      movingImageClass = "image-list-move";
 
 const showNewGalleryImgButton = computed(() => {
   if (!cmsControlsStore.editMode)
@@ -179,20 +180,34 @@ onDraggableElementMouseDown = (i, event) => {
 
       moveClone(ev.clientX, ev.clientY);
 
+      let switchCandidate = null;
+
       for (const elIdx in draggableElements.value) {
         const el = draggableElements.value[elIdx];
 
-        if (el.classList.contains("dragging"))
+        // skip elements having "dragging" class and class denoted by movingImageClass
+        if (el.classList.contains("dragging") || el.classList.contains(movingImageClass))
           continue;
 
-        const rect = el.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect(),
+          elX1 = elRect.left + window.scrollX,
+          elX2 = elRect.left + window.scrollX + elRect.width,
+          elY1 = elRect.top,
+          elY2 = elRect.top + elRect.height,
+          pointerInsideMarginBox = ev.clientX > elX1 + 0.1 * elRect.width && ev.clientX < elX2 - 0.1 * elRect.width
+            && ev.clientY > elY1 + 0.1 * elRect.height && ev.clientY < elY2 - 0.1 * elRect.height;
 
-        if (elIdx < draggedIdx && rect.left + window.scrollX + (rect.width / 2) > ev.clientX
-              || elIdx > draggedIdx && rect.left + window.scrollX + (rect.width / 2) < ev.clientX) {
-          switchDraggable(draggedIdx, elIdx);
-          draggedIdx = elIdx;
+        //console.log(elIdx, `${elX1}/${elY1}`, `${elX2}/${elY2}`, pointerInsideMarginBox);
+        
+        if (elIdx != draggedIdx && pointerInsideMarginBox) {
+          switchCandidate = elIdx;
         }
-      }  
+      }
+
+      if (switchCandidate) {
+        switchDraggable(draggedIdx, switchCandidate);
+        draggedIdx = switchCandidate;
+      }
     }
   };
 
@@ -251,20 +266,33 @@ onDraggableElementTouchStart = (i, event) => {
       // console.log("dragging!", e.touches[0].clientX, e.touches[0].clientY);
       moveClone(e.touches[0].clientX, e.touches[0].clientY);
 
-      // console.log(draggableElements.value)
+      let switchCandidate = null;
+
       for (const elIdx in draggableElements.value) {
         const el = draggableElements.value[elIdx];
 
-        if (el.classList.contains("dragging"))
+        // skip elements having "dragging" class and class denoted by movingImageClass
+        if (el.classList.contains("dragging") || el.classList.contains(movingImageClass))
           continue;
 
-        const rect = el.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect(),
+            elX1 = elRect.left + window.scrollX,
+            elX2 = elRect.left + window.scrollX + elRect.width,
+            elY1 = elRect.top,
+            elY2 = elRect.top + elRect.height,
+            pointerInsideMarginBox = e.touches[0].clientX > elX1 + 0.1 * elRect.width && e.touches[0].clientX < elX2 - 0.1 * elRect.width
+              && e.touches[0].clientY > elY1 + 0.1 * elRect.height && e.touches[0].clientY < elY2 - 0.1 * elRect.height;
 
-        if (elIdx < draggedIdx && rect.left + window.scrollX + (rect.width / 2) > e.touches[0].clientX
-              || elIdx > draggedIdx && rect.left + window.scrollX + (rect.width / 2) < e.touches[0].clientX) {
-          switchDraggable(draggedIdx, elIdx);
-          draggedIdx = elIdx;
+        //console.log(elIdx, `${elX1}/${elY1}`, `${elX2}/${elY2}`, pointerInsideMarginBox);
+
+        if (elIdx != draggedIdx && pointerInsideMarginBox) {
+          switchCandidate = elIdx;
         }
+      }
+
+      if (switchCandidate) {
+        switchDraggable(draggedIdx, switchCandidate);
+        draggedIdx = switchCandidate;
       }
     } else {
       // console.log("touchmove", e.touches[0].clientX, e.touches[0].clientY);
