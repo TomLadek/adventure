@@ -304,16 +304,16 @@ function discardClone() {
 
 function switchDraggable(draggable1Idx, draggable2Idx) {
   let tmp = props.gallery.images[draggable1Idx];
-  props.gallery.images[draggable1Idx] = props.gallery.images[draggable2Idx];
-  props.gallery.images[draggable2Idx] = tmp;
+  props.gallery.images.splice(draggable1Idx, 1);
+  props.gallery.images.splice(draggable2Idx, 0, tmp);
 
   tmp = draggableElements.value[draggable1Idx];
-  draggableElements.value[draggable1Idx] = draggableElements.value[draggable2Idx];
-  draggableElements.value[draggable2Idx] = tmp;
+  draggableElements.value.splice(draggable1Idx, 1);
+  draggableElements.value.splice(draggable2Idx, 0, tmp);
 
   tmp = reorderState[draggable1Idx];
-  reorderState[draggable1Idx] = reorderState[draggable2Idx];
-  reorderState[draggable2Idx] = tmp;
+  reorderState.splice(draggable1Idx, 1);
+  reorderState.splice(draggable2Idx, 0, tmp);
 }
 /* /CMS */
 </script>
