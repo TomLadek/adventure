@@ -47,7 +47,8 @@ let draggableClass = undefined,
   onImgMouseLeave = () => {},
   onBeforeLeave = () => {},
   onDraggableElementMouseDown = () => {},
-  onDraggableElementTouchStart = () => {};
+  onDraggableElementTouchStart = () => {},
+  onContextmenu = () => {};
 
 /* CMS */
 const cmsControlsStore = useCmsControlsStore(),
@@ -130,6 +131,11 @@ draggableClass = computed(() => {
     return `draggable-${props.gallery.style}-item`;
 });
 
+onContextmenu = (event) => {
+  if (cmsControlsStore.editMode)
+    event.preventDefault();
+};
+
 onDraggableElementMouseDown = (i, event) => {
   if (!cmsControlsStore.editMode)
     return;
@@ -146,8 +152,6 @@ onDraggableElementMouseDown = (i, event) => {
   for (const i in props.gallery.images)
     reorderState[i] = i;
 
-  toggleContainerScroll(true);
-
   mouseUpListener = () => {
     document.removeEventListener("mouseup", mouseUpListener);
     document.removeEventListener("mousemove", mouseMoveListener);
@@ -156,6 +160,7 @@ onDraggableElementMouseDown = (i, event) => {
       console.log("drag finished");
       element.viewIsDragged = false;
       element.classList.remove("dragging");
+      document.documentElement.style.overflowX = null;
       document.documentElement.style.userSelect = null;
       links.forEach(l => l.style.pointerEvents = null);
 
@@ -176,9 +181,12 @@ onDraggableElementMouseDown = (i, event) => {
         console.log("drag started");
         element.viewIsDragged = true;
         element.classList.add("dragging");
+        document.documentElement.style.overflowX = "hidden";
         document.documentElement.style.userSelect = "none";
         links.forEach(l => l.style.pointerEvents = "none");
+
         initializeClone(element);        
+        toggleContainerScroll(true);
       }
 
       currentPointerX = ev.clientX;
@@ -244,6 +252,7 @@ onDraggableElementTouchStart = (i, event) => {
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     document.documentElement.style.userSelect = "none";
+    document.documentElement.style.scrollbarGutter = null;
     links.forEach(l => l.style.pointerEvents = "none");
 
     initializeClone(element);
@@ -418,7 +427,7 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
       @mouseleave="onImgMouseLeave(image.src)"
       @mousedown="onDraggableElementMouseDown(i, $event)"
       @touchstart="onDraggableElementTouchStart(i, $event)"
-      @contextmenu.prevent
+      @contextmenu="onContextmenu($event)"
       >
       <a
         v-bind:key="image.src"
