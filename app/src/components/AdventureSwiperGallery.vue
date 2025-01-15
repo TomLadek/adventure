@@ -75,7 +75,7 @@ const showNewGalleryImgButton = computed(() => {
 
 showGalleryContainer = computed(() => (props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
 
-let originalPointerX = 0, originalPointerY = 0, clone = null;
+let originalPointerX = 0, originalPointerY = 0, currentPointerX = null, currentPointerY = null, clone = null, containerScrollTimeout = null;
 
 function onChooseNextGalleryImages(files) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
@@ -146,7 +146,9 @@ onDraggableElementMouseDown = (i, event) => {
   for (const i in props.gallery.images)
     reorderState[i] = i;
 
-  mouseUpListener = (ev2) => {
+  toggleContainerScroll(true);
+
+  mouseUpListener = () => {
     document.removeEventListener("mouseup", mouseUpListener);
     document.removeEventListener("mousemove", mouseMoveListener);
     
@@ -157,6 +159,7 @@ onDraggableElementMouseDown = (i, event) => {
       document.documentElement.style.userSelect = null;
       links.forEach(l => l.style.pointerEvents = null);
 
+      toggleContainerScroll(false);
       discardClone();
 
       cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, {
@@ -177,6 +180,9 @@ onDraggableElementMouseDown = (i, event) => {
         links.forEach(l => l.style.pointerEvents = "none");
         initializeClone(element);        
       }
+
+      currentPointerX = ev.clientX;
+      currentPointerY = ev.clientY;
 
       moveClone(ev.clientX, ev.clientY);
 
@@ -231,6 +237,8 @@ onDraggableElementTouchStart = (i, event) => {
   for (const i in props.gallery.images)
     reorderState[i] = i;
 
+  toggleContainerScroll(true);
+
   const touchTimeout = setTimeout(() => {
     console.log("drag started (touch)")
     element.viewIsDragged = true;
@@ -251,6 +259,8 @@ onDraggableElementTouchStart = (i, event) => {
       document.documentElement.style.userSelect = null;
       document.body.style.overflow = null;
       links.forEach(l => l.style.pointerEvents = null);
+
+      toggleContainerScroll(false);
       discardClone();
 
       cmsControlsStore.action(cmsControlsStore.actions.CHANGE_SLIDE_GALLERY_IMAGE_ORDER, {
@@ -264,6 +274,10 @@ onDraggableElementTouchStart = (i, event) => {
   touchMoveListener = (e) => {
     if (element.viewIsDragged) {
       // console.log("dragging!", e.touches[0].clientX, e.touches[0].clientY);
+
+      currentPointerX = e.touches[0].clientX;
+      currentPointerY = e.touches[0].clientY;
+
       moveClone(e.touches[0].clientX, e.touches[0].clientY);
 
       let switchCandidate = null;
@@ -315,6 +329,49 @@ function initializeClone(element) {
   clone.style.top = `${element.offsetTop + element.parentElement.offsetTop - element.parentElement.scrollTop}px`;
   clone.style.left = `${element.offsetLeft + element.parentElement.offsetLeft - element.parentElement.scrollLeft}px`;
   draggableParent.value.parentElement.appendChild(clone);
+}
+
+function toggleContainerScroll(enable) {
+  if (enable) {
+    containerScrollTimeout = setInterval(() => {
+      if (currentPointerX === null || currentPointerY === null)
+        return;
+
+      const container = draggableParent.value,
+        containerRect = container.getBoundingClientRect(),
+        containerX1 = containerRect.left + window.scrollX,
+        containerX2 = containerRect.left + window.scrollX + containerRect.width,
+        containerY1 = containerRect.top,
+        containerY2 = containerRect.top + containerRect.height,
+        horizontalScrollDirection = currentPointerX < containerX1 + 0.1 * containerRect.width ? "left" : currentPointerX > containerX2 - 0.1 * containerRect.width ? "right" : null,
+        verticalScrollDirection = currentPointerY < containerY1 + 0.1 * containerRect.height ? "up" : currentPointerY > containerY2 - 0.1 * containerRect.height ? "down" : null;
+
+      if (!horizontalScrollDirection && !verticalScrollDirection
+          || horizontalScrollDirection === "left" && container.scrollLeft < 1
+            || horizontalScrollDirection === "right" && container.scrollLeft >= container.scrollWidth - containerRect.width
+            || verticalScrollDirection === "up" && container.scrollTop < 1
+            || verticalScrollDirection === "down" && container.scrollTop >= container.scrollHeight - containerRect.height)
+        return;
+
+      const scrollSpeedX = Math.round(Math.pow(1 + Math.abs(containerX1 + containerRect.width / 2 - currentPointerX) / 300, 3)),
+        scrollSpeedY = Math.round(Math.pow(1 + Math.abs(containerY1 + containerRect.height / 2 - currentPointerY) / 300, 3));
+
+      if (horizontalScrollDirection === "left") {
+        container.scrollLeft -= scrollSpeedX;
+      } else if (horizontalScrollDirection === "right") {
+        container.scrollLeft += scrollSpeedX;
+      }
+
+      if (verticalScrollDirection === "up") {
+        container.scrollTop -= scrollSpeedY;
+      } else if (verticalScrollDirection === "down") {
+        container.scrollTop += scrollSpeedY;
+      }      
+    }, 16.67);
+  } else {
+    clearInterval(containerScrollTimeout);
+    currentPointerX = currentPointerY = null;
+  }
 }
 
 function moveClone(currentX, currentY) {
