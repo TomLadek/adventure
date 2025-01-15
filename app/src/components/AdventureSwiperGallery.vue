@@ -237,17 +237,18 @@ onDraggableElementTouchStart = (i, event) => {
   for (const i in props.gallery.images)
     reorderState[i] = i;
 
-  toggleContainerScroll(true);
-
   const touchTimeout = setTimeout(() => {
-    console.log("drag started (touch)")
+    console.log("drag started (touch)");
     element.viewIsDragged = true;
     element.classList.add("dragging");
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     document.documentElement.style.userSelect = "none";
     links.forEach(l => l.style.pointerEvents = "none");
+
     initializeClone(element);
-  }, 667);
+    toggleContainerScroll(true);
+  }, 500);
 
   touchEndListener = () => {
     clearTimeout(touchTimeout);
@@ -258,6 +259,7 @@ onDraggableElementTouchStart = (i, event) => {
       element.classList.remove("dragging");
       document.documentElement.style.userSelect = null;
       document.body.style.overflow = null;
+      document.documentElement.style.overflow = null;
       links.forEach(l => l.style.pointerEvents = null);
 
       toggleContainerScroll(false);
@@ -343,8 +345,8 @@ function toggleContainerScroll(enable) {
         containerX2 = containerRect.left + window.scrollX + containerRect.width,
         containerY1 = containerRect.top,
         containerY2 = containerRect.top + containerRect.height,
-        horizontalScrollDirection = currentPointerX < containerX1 + 0.1 * containerRect.width ? "left" : currentPointerX > containerX2 - 0.1 * containerRect.width ? "right" : null,
-        verticalScrollDirection = currentPointerY < containerY1 + 0.1 * containerRect.height ? "up" : currentPointerY > containerY2 - 0.1 * containerRect.height ? "down" : null;
+        horizontalScrollDirection = currentPointerX < containerX1 + 0.15 * containerRect.width ? "left" : currentPointerX > containerX2 - 0.15 * containerRect.width ? "right" : null,
+        verticalScrollDirection = currentPointerY < containerY1 + 0.15 * containerRect.height ? "up" : currentPointerY > containerY2 - 0.15 * containerRect.height ? "down" : null;
 
       if (!horizontalScrollDirection && !verticalScrollDirection
           || horizontalScrollDirection === "left" && container.scrollLeft < 1
@@ -353,8 +355,8 @@ function toggleContainerScroll(enable) {
             || verticalScrollDirection === "down" && container.scrollTop >= container.scrollHeight - containerRect.height)
         return;
 
-      const scrollSpeedX = Math.round(Math.pow(1 + Math.abs(containerX1 + containerRect.width / 2 - currentPointerX) / 300, 3)),
-        scrollSpeedY = Math.round(Math.pow(1 + Math.abs(containerY1 + containerRect.height / 2 - currentPointerY) / 300, 3));
+      const scrollSpeedX = Math.round(Math.pow(1 + Math.abs(containerX1 + containerRect.width / 2 - currentPointerX) / 250, 5)),
+        scrollSpeedY = Math.round(Math.pow(1 + Math.abs(containerY1 + containerRect.height / 2 - currentPointerY) / 250, 5));
 
       if (horizontalScrollDirection === "left") {
         container.scrollLeft -= scrollSpeedX;
@@ -376,7 +378,7 @@ function toggleContainerScroll(enable) {
 
 function moveClone(currentX, currentY) {
   if (clone) {
-    clone.style.transform = `translate(${currentX - originalPointerX}px, ${currentY - originalPointerY}px)`;
+    clone.style.transform = `translate3d(${currentX - originalPointerX}px, ${currentY - originalPointerY}px, 0) scale3d(1.05, 1.05, 1)`;
   }
 }
 
@@ -416,6 +418,7 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
       @mouseleave="onImgMouseLeave(image.src)"
       @mousedown="onDraggableElementMouseDown(i, $event)"
       @touchstart="onDraggableElementTouchStart(i, $event)"
+      @contextmenu.prevent
       >
       <a
         v-bind:key="image.src"
@@ -483,6 +486,11 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
 
 .gallery-thumbs .gallery-original-link:hover .gallery-img, .gallery-thumbs .gallery-original-link:focus-visible .gallery-img {
     transform: scale(1.04);
+}
+
+.gallery-thumbs .gallery-img-container,
+.draggable-clone .gallery-img-container {
+  position: relative;
 }
 
 .gallery-thumbs .gallery-img,
@@ -589,10 +597,11 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
 
 
 /* CMS */
-.gallery-thumbs .gallery-img-container,
-.draggable-clone .gallery-img-container {
+.draggable-clone .gallery-original-link {
   position: relative;
+  box-shadow: 0px 0px 10px 1px #000000ab;
 }
+
 .gallery-thumbs .gallery-img-container.dragging {
   opacity: 0.01;
 }
