@@ -249,10 +249,10 @@ onDraggableElementTouchStart = (i, event) => {
     console.log("drag started (touch)");
     element.viewIsDragged = true;
     element.classList.add("dragging");
+    document.documentElement.style.scrollbarGutter = "stable";
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     document.documentElement.style.userSelect = "none";
-    document.documentElement.style.scrollbarGutter = null;
     links.forEach(l => l.style.pointerEvents = "none");
 
     initializeClone(element);
@@ -266,8 +266,9 @@ onDraggableElementTouchStart = (i, event) => {
       console.log("drag finished (touch)");
       element.viewIsDragged = false;
       element.classList.remove("dragging");
-      document.documentElement.style.userSelect = null;
+      document.documentElement.style.scrollbarGutter = null;
       document.body.style.overflow = null;
+      document.documentElement.style.userSelect = null;
       document.documentElement.style.overflow = null;
       links.forEach(l => l.style.pointerEvents = null);
 
