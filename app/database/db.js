@@ -512,7 +512,8 @@ export async function updateOneSlideGallerySort(adventureId, slideId, newOrder) 
     const newImages = []
 
     for (const i of newOrder) {
-      newImages.push(images[i])
+      if (images[i])
+        newImages.push(images[i])
     }
     
     await adventuresColl.updateOne({
