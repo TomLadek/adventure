@@ -56,7 +56,6 @@ const cmsControlsStore = useCmsControlsStore(),
       nextGalleryImgInput = ref(null),
       imgControlsExpanded = ref({}),
       timeouts = {},
-      reorderState = [],
       draggableElements = ref([]),
       draggableParent = ref(null),
       movingImageClass = "image-list-move";
@@ -76,7 +75,7 @@ const showNewGalleryImgButton = computed(() => {
 
 showGalleryContainer = computed(() => (props.gallery.images && props.gallery.images.length) || cmsControlsStore.editMode)
 
-let originalPointerX = 0, originalPointerY = 0, currentPointerX = null, currentPointerY = null, clone = null, containerScrollTimeout = null;
+let originalPointerX = 0, originalPointerY = 0, currentPointerX = null, currentPointerY = null, clone = null, containerScrollTimeout = null, reorderState;
 
 function onChooseNextGalleryImages(files) {
   cmsControlsStore.action(cmsControlsStore.actions.ADD_SLIDE_GALLERY_IMGS, {
@@ -148,6 +147,7 @@ onDraggableElementMouseDown = (i, event) => {
 
   originalPointerX = event.clientX;
   originalPointerY = event.clientY;
+  reorderState = [];
   
   for (const i in props.gallery.images)
     reorderState[i] = i;
@@ -241,6 +241,7 @@ onDraggableElementTouchStart = (i, event) => {
 
   originalPointerX = event.touches[0].clientX;
   originalPointerY = event.touches[0].clientY;
+  reorderState = [];
 
   for (const i in props.gallery.images)
     reorderState[i] = i;
@@ -409,8 +410,10 @@ function switchDraggable(draggable1Idx, draggable2Idx) {
   draggableElements.value.splice(draggable2Idx, 0, tmp);
 
   tmp = reorderState[draggable1Idx];
-  reorderState.splice(draggable1Idx, 1);
-  reorderState.splice(draggable2Idx, 0, tmp);
+  if (tmp) {
+    reorderState.splice(draggable1Idx, 1);
+    reorderState.splice(draggable2Idx, 0, tmp);
+  }
 }
 /* /CMS */
 </script>
