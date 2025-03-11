@@ -356,8 +356,9 @@ function toggleContainerScroll(enable) {
         containerX2 = containerRect.left + window.scrollX + containerRect.width,
         containerY1 = containerRect.top,
         containerY2 = containerRect.top + containerRect.height,
-        horizontalScrollDirection = currentPointerX < containerX1 + 0.15 * containerRect.width ? "left" : currentPointerX > containerX2 - 0.15 * containerRect.width ? "right" : null,
-        verticalScrollDirection = currentPointerY < containerY1 + 0.15 * containerRect.height ? "up" : currentPointerY > containerY2 - 0.15 * containerRect.height ? "down" : null;
+        containerScrollThreshold = 0.33, // portion of the container that is sensitive for scrolling
+        horizontalScrollDirection = currentPointerX < containerX1 + containerScrollThreshold * containerRect.width ? "left" : currentPointerX > containerX2 - containerScrollThreshold * containerRect.width ? "right" : null,
+        verticalScrollDirection = currentPointerY < containerY1 + containerScrollThreshold * containerRect.height ? "up" : currentPointerY > containerY2 - containerScrollThreshold * containerRect.height ? "down" : null;
 
       if (!horizontalScrollDirection && !verticalScrollDirection
           || horizontalScrollDirection === "left" && container.scrollLeft < 1
@@ -366,8 +367,10 @@ function toggleContainerScroll(enable) {
             || verticalScrollDirection === "down" && container.scrollTop >= container.scrollHeight - containerRect.height)
         return;
 
-      const scrollSpeedX = Math.round(Math.pow(1 + Math.abs(containerX1 + containerRect.width / 2 - currentPointerX) / 250, 5)),
-        scrollSpeedY = Math.round(Math.pow(1 + Math.abs(containerY1 + containerRect.height / 2 - currentPointerY) / 250, 5));
+      const xFactor = horizontalScrollDirection === "left" ? containerScrollThreshold : horizontalScrollDirection === "right" ? 1 - containerScrollThreshold : 0.5,
+        yFactor = verticalScrollDirection === "up" ? containerScrollThreshold : verticalScrollDirection === "down" ? 1 - containerScrollThreshold : 0.5,
+        scrollSpeedX = Math.round(Math.pow(1 + Math.abs(containerX1 + xFactor * containerRect.width - currentPointerX) / 250, 5)),
+        scrollSpeedY = Math.round(Math.pow(1 + Math.abs(containerY1 + yFactor * containerRect.height - currentPointerY) / 250, 5));
 
       if (horizontalScrollDirection === "left") {
         container.scrollLeft -= scrollSpeedX;
