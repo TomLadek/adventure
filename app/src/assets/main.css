@@ -71,6 +71,10 @@ body {
   font-family: 'Ubuntu', sans-serif;
 }
 
+html, body {
+  overscroll-behavior: none;
+}
+
 h2 {
   margin: 0;
 }
