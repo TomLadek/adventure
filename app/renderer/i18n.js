@@ -61,6 +61,11 @@ export function initI18n(messages, fallbackLang) {
     locale: languageStore.language,
     fallbackLocale: fallbackLang && availableLangs.includes(fallbackLang) ? fallbackLang : availableLangs[0],
     warnHtmlMessage: false,
+
+    // To avoid warnings about missing translations
+    //missingWarn: false, 
+    //fallbackWarn: false,
+
     messages: mergeDeep(defaultMessages, messages || {})
   });
 }
