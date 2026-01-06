@@ -1,6 +1,7 @@
 services:
   adventure-cms:
     image: adventure-cms:latest
+    container_name: adventure-cms
     restart: unless-stopped
     volumes:
       - ../app:/adventure
@@ -13,6 +14,7 @@ services:
 
   mongodb:
     image: mongo:5
+    container_name: adventure-db
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USER}
