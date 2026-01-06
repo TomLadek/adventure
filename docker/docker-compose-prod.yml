@@ -1,5 +1,3 @@
-version: '3.1'
-
 services:
   adventure-cms:
     image: adventure-cms:latest
@@ -7,13 +5,15 @@ services:
     volumes:
       - ../app:/adventure
     ports:
-      - '3000:3000'
+      - '3000'
     depends_on:
       - mongodb
     command: bash -c "
         npm install --global serve &&
         npm run build &&
         serve -n -S dist/client"
+    network:
+      - adventure-net
 
   mongodb:
     image: mongo:5
@@ -29,3 +29,7 @@ volumes:
   adventure-cms-data:
     external: true
     name: adventure-cms_adventure-cms-data
+
+networks:
+  adventure-net:
+    external: true
