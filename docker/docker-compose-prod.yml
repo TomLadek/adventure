@@ -12,7 +12,7 @@ services:
         npm install --global serve &&
         npm run build &&
         serve -n -S dist/client"
-    network:
+    networks:
       - adventure-net
 
   mongodb:
