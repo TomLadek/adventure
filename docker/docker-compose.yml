@@ -6,7 +6,7 @@ services:
     volumes:
       - ../app:/adventure
     ports:
-      - '3000'
+      - '3000:3000'
     depends_on:
       - mongodb
     networks:
@@ -26,6 +26,8 @@ services:
     # Only add port for debug purposes so that you can connect to MongoDB on localhost:8027
     ports:
       - '8027:${DB_PORT}'
+    networks:
+      - adventure-net
 
 volumes:
   adventure-cms-data:

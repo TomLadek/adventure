@@ -16,6 +16,10 @@ Build the CMS Docker image:
 docker image build -t adventure-cms docker/
 ```
 
+Create the Docker network:
+```
+docker network create adventure-net
+```
 
 Run the CMS and the Database as Docker containers using Compose:
 ```
@@ -30,7 +34,7 @@ That's it! You can now open http://localhost:3000 on your machine and it will se
 To build the app for production, run the Docker containers for build & preview with:
 
 ```
-docker compose --env-file ./app/.env -f docker/docker-compose-prod.yml -p adventure-cms-prod up -d
+docker compose --env-file ./app/.env -f ./docker/docker-compose-prod.yml -p adventure-cms-prod up -d
 ```
 
 This will create the build output in the `./app/dist` directory and serve a preview of these files on http://localhost:3000. For deployment you just copy the contents of the build directory to your webserver.

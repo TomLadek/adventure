@@ -6,7 +6,7 @@ services:
     volumes:
       - ../app:/adventure
     ports:
-      - '3000'
+      - '3000:3000'
     depends_on:
       - mongodb
     command: bash -c "
@@ -26,6 +26,8 @@ services:
     volumes:
       - adventure-cms-data:/data/db
     command: ["--logpath", "/var/log/mongodb/mongod.log"]
+    networks:
+      - adventure-net
 
 volumes:
   adventure-cms-data:
