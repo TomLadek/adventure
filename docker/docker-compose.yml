@@ -6,6 +6,7 @@ services:
     volumes:
       - ../app:/adventure
     ports:
+      - '24678:24678'
       - '3000:3000'
     depends_on:
       - mongodb

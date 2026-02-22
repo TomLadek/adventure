@@ -121,7 +121,7 @@ async function startServer() {
           viteDevMiddleware = (
             await vite.createServer({
               root,
-              server: { middlewareMode: true }
+              server: { middlewareMode: true, ws: process.env.WS_DISABLE !== true }
             })
           ).middlewares
 

@@ -20,7 +20,7 @@
     "@tiptap/pm": "^2.0.3",
     "@tiptap/starter-kit": "^2.0.3",
     "@tiptap/vue-3": "^2.0.3",
-    "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/server-renderer": "^3.2.33",
     "cookie-parser": "^1.4.6",
@@ -40,7 +40,7 @@
     "sirv": "^2.0.2",
     "ssh2-sftp-client": "^9.1.0",
     "tippy.js": "^6.3.7",
-    "vite": "^4.3.9",
+    "vite": "^6.3.6",
     "vite-plugin-ssr": "^0.4.117",
     "vue": "^3.2.33",
     "vue-i18n": "^9.2.2"

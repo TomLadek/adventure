@@ -1,4 +1,4 @@
-FROM node:19.7
+FROM node:22.19.0
 
 RUN apt update && \
     apt install -y graphicsmagick
