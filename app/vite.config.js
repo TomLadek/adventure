@@ -42,6 +42,7 @@ export default defineConfig((configEnv) => {
         },
       },
       server: {
+        allowedHosts: ["adventure-cms"],
         watch: {
           ignored: ['**/resources/adventure/img/**']
         }
