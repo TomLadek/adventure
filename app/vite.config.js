@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import { resourcePath } from "./utils-node/utils.js";
 
 import vue from "@vitejs/plugin-vue";
-import ssr from 'vite-plugin-ssr/plugin'
+import ssr from 'vike/plugin'
 import cmsBuildTransformer from "./src/rollup-plugin-cms-build-transformer.js";
 
 /**

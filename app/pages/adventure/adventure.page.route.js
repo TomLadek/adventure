@@ -1,4 +1,4 @@
-import { resolveRoute } from 'vite-plugin-ssr/routing';
+import { resolveRoute } from 'vike/routing';
 import { isCmsView } from '../../src/utils.js';
 
 export default isCmsView

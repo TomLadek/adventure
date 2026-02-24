@@ -1,5 +1,5 @@
 import { renderToString } from '@vue/server-renderer'
-import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
+import { escapeInject, dangerouslySkipEscape } from 'vike/server'
 import { createApp } from './app.js'
 import { resourcePath, isCmsView } from '../src/utils.js'
 import utilsSynchUrl from '../src/utils-synch.js?url'
@@ -52,7 +52,7 @@ async function render(pageContext) {
   return {
     documentHtml,
     pageContext: {
-      // We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
+      // We can add some `pageContext` here, which is useful if we want to do page redirection https://vike.dev/page-redirection
     }
   }
 }

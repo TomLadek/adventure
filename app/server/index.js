@@ -1,4 +1,4 @@
-// Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
+// Note that this file isn't processed by Vite, see https://github.com/vikejs/vike/issues/562
 
 const fs = require('fs')
 const deepl = require('deepl-node')
@@ -6,7 +6,7 @@ const path = require('path')
 const express = require('express')
 const multer = require('multer')
 const cookieParser = require('cookie-parser')
-const { renderPage } = require('vite-plugin-ssr/server')
+const { renderPage } = require('vike/server')
 const { exec, execSync } = require('child_process')
 
 // For verbose request logging run 'npm install winston express-winston' add the following:
@@ -537,7 +537,7 @@ async function startServer() {
   })
 
   // IMPORTANT: Catch-all-route needs to be after /rest routes otherwise
-  // vite-plugin-ssr tries to handle those as well.
+  // vike tries to handle those as well.
   app.get('*', async (req, res, next) => {
     const userSettings = {}
 
