@@ -168,6 +168,8 @@ async function startServer() {
       res.status(200).json({ok: true, publishedDate })
     } catch (ex) {
       try {
+        const adventureId = req.params.adventureId;
+
         await updateOneAdventure(adventureId, { "meta.lastPublishStatus": 3 })
       } catch (ex2) {
         ex = ex2
