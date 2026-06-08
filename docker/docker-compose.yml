@@ -11,7 +11,7 @@ services:
     depends_on:
       - mongodb
     networks:
-      - adventure-net
+      - frontend-net
 
   mongodb:
     image: mongo:5
@@ -28,11 +28,11 @@ services:
     ports:
       - '8027:${DB_PORT}'
     networks:
-      - adventure-net
+      - frontend-net
 
 volumes:
   adventure-cms-data:
 
 networks:
-  adventure-net:
+  frontend-net:
     external: true

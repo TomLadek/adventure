@@ -14,7 +14,7 @@ services:
         npm run build &&
         serve -n -S dist/client"
     networks:
-      - adventure-net
+      - frontend-net
 
   mongodb:
     image: mongo:5
@@ -27,7 +27,7 @@ services:
       - adventure-cms-data:/data/db
     command: ["--logpath", "/var/log/mongodb/mongod.log"]
     networks:
-      - adventure-net
+      - frontend-net
 
 volumes:
   adventure-cms-data:
@@ -35,5 +35,5 @@ volumes:
     name: adventure-cms_adventure-cms-data
 
 networks:
-  adventure-net:
+  frontend-net:
     external: true

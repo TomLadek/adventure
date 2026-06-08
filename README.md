@@ -18,7 +18,7 @@ docker image build -t adventure-cms docker/
 
 Create the Docker network:
 ```
-docker network create adventure-net
+docker network create frontend-net
 ```
 
 Run the CMS and the Database as Docker containers using Compose:
